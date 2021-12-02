@@ -9,4 +9,4 @@ storage:
 qq:
   qqId: 123456789
   password: abcabc
-  pushGroupId: 123456789
+  pushGroupIds: 123456789, 123456789

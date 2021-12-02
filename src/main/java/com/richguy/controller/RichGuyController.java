@@ -24,12 +24,13 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class RichGuyController {
 
-    @Value("${qq.pushGroupId}")
-    private long pushGroupId;
+    @Value("${qq.pushGroupIds}")
+    private List<Long> pushGroupIds;
 
     @Autowired
     private RichGuyService richGuyService;
@@ -54,7 +55,6 @@ public class RichGuyController {
             return;
         }
 
-        var group = bot.getGroup(pushGroupId);
         for (var news : rollData) {
             if (pushIds.contains(news.getId())) {
                 continue;
@@ -117,9 +117,12 @@ public class RichGuyController {
             } else {
                 builder.append("关键词：无");
             }
-            group.sendMessage(builder.toString());
-        }
 
+            for (var pushGroupId : pushGroupIds) {
+                var group = bot.getGroup(pushGroupId);
+                group.sendMessage(builder.toString());
+            }
+        }
     }
 
 
