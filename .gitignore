@@ -26,6 +26,7 @@ hs_err_pid*
 
 
 # 忽略IntelliJ IDEA生成的项目描述文件
+device.json
 .idea
 *.iml
 **/target/
