@@ -1,0 +1,12 @@
+storage:
+  id: storageManager
+  scan:
+    package: com.richguy.resource
+  resource:
+    location: classpath:/excel
+    suffix: xlsx
+
+qq:
+  qqId: 123456789
+  password: abcabc
+  pushGroupId: 123456789
