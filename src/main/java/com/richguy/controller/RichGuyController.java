@@ -108,12 +108,14 @@ public class RichGuyController {
                 }
             }
 
+            builder.append(FileUtils.LS);
             if (CollectionUtils.isNotEmpty(keyWords)) {
-                builder.append(FileUtils.LS);
                 builder.append("关键词：");
                 for (var word : keyWords) {
                     builder.append(word).append("  ");
                 }
+            } else {
+                builder.append("关键词：无");
             }
             group.sendMessage(builder.toString());
         }
