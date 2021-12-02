@@ -23,7 +23,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 @Component
@@ -66,13 +65,14 @@ public class RichGuyController {
             var level = StringUtils.trim(news.getLevel());
             var title = StringUtils.trim(news.getTitle());
             var content = StringUtils.trim(news.getContent());
+            var dateStr = TimeUtils.dateFormatForDayTimeString(news.getCtime() * TimeUtils.MILLIS_PER_SECOND);
 
             if (level.equals("A")) {
-                builder.append(StringUtils.format("重点A级电报 {}", TimeUtils.dateFormatForDayTimeString(news.getCtime() * TimeUtils.MILLIS_PER_SECOND)));
+                builder.append(StringUtils.format("重点A级电报 {}", dateStr));
             } else if (level.equals("B")) {
-                builder.append(StringUtils.format("B级电报 {}", TimeUtils.dateFormatForDayTimeString(news.getCtime() * TimeUtils.MILLIS_PER_SECOND)));
+                builder.append(StringUtils.format("B级电报 {}", dateStr));
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
-                builder.append(StringUtils.format("C级电报 {}", TimeUtils.dateFormatForDayTimeString(news.getCtime() * TimeUtils.MILLIS_PER_SECOND)));
+                builder.append(StringUtils.format("{}级电报 {}", level, dateStr));
             } else {
                 continue;
             }
