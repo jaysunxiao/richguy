@@ -132,7 +132,7 @@ public class RichGuyController {
 
             for (var pushGroupId : pushGroupIds) {
                 var group = bot.getGroup(pushGroupId);
-                group.sendMessage(builder.toString());
+                group.sendMessage(builder.toString().replaceAll("习近平", "喜大大"));
             }
         }
     }
