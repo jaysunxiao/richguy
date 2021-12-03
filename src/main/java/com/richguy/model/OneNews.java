@@ -2,6 +2,7 @@ package com.richguy.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
 public class OneNews {
 
     private long id;
+
+    private int type;
 
     private String level;
 
@@ -22,12 +25,23 @@ public class OneNews {
 
     private List<Subject> subjects;
 
+    @JsonProperty("stock_list")
+    private List<Stock> stocks;
+
     public long getId() {
         return id;
     }
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public String getLevel() {
@@ -76,5 +90,13 @@ public class OneNews {
 
     public void setSubjects(List<Subject> subjects) {
         this.subjects = subjects;
+    }
+
+    public List<Stock> getStocks() {
+        return stocks;
+    }
+
+    public void setStocks(List<Stock> stocks) {
+        this.stocks = stocks;
     }
 }

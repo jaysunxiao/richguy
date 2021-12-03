@@ -21,8 +21,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,6 +56,9 @@ public class RichGuyController {
         }
 
         for (var news : rollData) {
+            if (news.getType() != -1) {
+                continue;
+            }
             if (pushIds.contains(news.getId())) {
                 continue;
             }
@@ -95,8 +98,17 @@ public class RichGuyController {
                 builder.append(content);
             }
 
+            // 添加相关股票
+            if (CollectionUtils.isNotEmpty(news.getStocks())) {
+                builder.append(FileUtils.LS);
+                builder.append("相关股票：");
+                for (var stock : news.getStocks()) {
+                    builder.append(StringUtils.trim(stock.getName())).append("  ");
+                }
+            }
+
             // 添加关键词
-            var keyWords = new ArrayList<String>();
+            var keyWords = new HashSet<String>();
             if (CollectionUtils.isNotEmpty(news.getSubjects())) {
                 for (var subject : news.getSubjects()) {
                     keyWords.add(StringUtils.trim(subject.getSubjectName()));
