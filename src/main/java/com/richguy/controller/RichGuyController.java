@@ -12,6 +12,8 @@ import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,6 +30,8 @@ import java.util.List;
 
 @Component
 public class RichGuyController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RichGuyController.class);
 
     @Value("${qq.pushGroupIds}")
     private List<Long> pushGroupIds;
@@ -71,7 +75,7 @@ public class RichGuyController {
             var dateStr = TimeUtils.dateFormatForDayTimeString(news.getCtime() * TimeUtils.MILLIS_PER_SECOND);
 
             if (level.equals("A")) {
-                builder.append(StringUtils.format("重点A级电报 {}", dateStr));
+                builder.append(StringUtils.format("A级Max {}", dateStr));
             } else if (level.equals("B")) {
                 builder.append(StringUtils.format("B级电报 {}", dateStr));
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
@@ -130,9 +134,12 @@ public class RichGuyController {
                 builder.append("关键词：无");
             }
 
+            var telegraph = builder.toString().replaceAll("习近平", "喜大大");
+            logger.info(telegraph);
+
             for (var pushGroupId : pushGroupIds) {
                 var group = bot.getGroup(pushGroupId);
-                group.sendMessage(builder.toString().replaceAll("习近平", "喜大大"));
+                group.sendMessage(telegraph);
             }
         }
     }
