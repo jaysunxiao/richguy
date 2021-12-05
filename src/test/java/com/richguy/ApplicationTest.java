@@ -1,10 +1,8 @@
 package com.richguy;
 
-import com.zfoo.event.model.event.AppStartEvent;
 import com.zfoo.util.ThreadUtils;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
@@ -41,11 +39,7 @@ public class ApplicationTest {
     // unity编辑器运行游戏
     @Test
     public void startApplication() {
-        var context = SpringApplication.run(ApplicationTest.class);
-
-        context.registerShutdownHook();
-        context.publishEvent(new AppStartEvent(context));
-
+        Application.main(new String[0]);
         ThreadUtils.sleep(Long.MAX_VALUE);
     }
 
