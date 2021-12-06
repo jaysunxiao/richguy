@@ -23,6 +23,7 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
     public void onApplicationEvent(AppStartEvent event) {
         Bot bot = BotFactory.INSTANCE.newBot(qqId, qqPassword, new BotConfiguration() {{
             fileBasedDeviceInfo(); // 使用 device.json 存储设备信息
+            setHeartbeatStrategy(BotConfiguration.HeartbeatStrategy.REGISTER);
         }});
 
         bot.login();
