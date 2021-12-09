@@ -26,7 +26,7 @@ public class OneNews {
     private List<Subject> subjects;
 
     @JsonProperty("stock_list")
-    private List<Stock> stocks;
+    private List<StockSimpleInfo> stocks;
 
     public long getId() {
         return id;
@@ -92,11 +92,11 @@ public class OneNews {
         this.subjects = subjects;
     }
 
-    public List<Stock> getStocks() {
+    public List<StockSimpleInfo> getStocks() {
         return stocks;
     }
 
-    public void setStocks(List<Stock> stocks) {
+    public void setStocks(List<StockSimpleInfo> stocks) {
         this.stocks = stocks;
     }
 }
