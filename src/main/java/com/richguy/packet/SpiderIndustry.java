@@ -6,14 +6,16 @@ import com.zfoo.protocol.IPacket;
  * @author jaysunxiao
  * @version 3.0
  */
-public class SpiderPacket implements IPacket {
+public class SpiderIndustry implements IPacket {
 
-    public static final transient short PROTOCOL_ID = 1;
+    public static final transient short PROTOCOL_ID = 2;
 
+    private int index;
     private int count;
 
-    public static SpiderPacket valueOf(int count) {
-        var packet = new SpiderPacket();
+    public static SpiderIndustry valueOf(int index, int count) {
+        var packet = new SpiderIndustry();
+        packet.index = index;
         packet.count = count;
         return packet;
     }
@@ -21,6 +23,14 @@ public class SpiderPacket implements IPacket {
     @Override
     public short protocolId() {
         return PROTOCOL_ID;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public int getCount() {

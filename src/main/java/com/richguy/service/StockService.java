@@ -1,15 +1,14 @@
 package com.richguy.service;
 
 import com.richguy.model.stock.Stock;
-import com.richguy.packet.SpiderPacket;
-import com.zfoo.event.model.event.AppStartEvent;
+import com.richguy.packet.SpiderIndustry;
+import com.richguy.packet.SpiderStock;
 import com.zfoo.orm.lpmap.FileChannelMap;
 import com.zfoo.protocol.ProtocolManager;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.DomUtils;
 import com.zfoo.protocol.util.StringUtils;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
@@ -30,7 +29,7 @@ import java.util.Set;
  * @version 3.0
  */
 @Component
-public class StockService implements ApplicationListener<AppStartEvent> {
+public class StockService {
 
     public static final long KEY = 1;
     public static final List<String> HEADERS = List.of(
@@ -42,31 +41,17 @@ public class StockService implements ApplicationListener<AppStartEvent> {
             "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
     );
 
-    @Override
-    public void onApplicationEvent(AppStartEvent event) {
-        try {
-            var stocks = spiderStocks();
-            System.out.println(stocks);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
-    }
 
     public List<Stock> spiderStocks() throws IOException, InterruptedException, ParserConfigurationException, SAXException {
+        ProtocolManager.initProtocol(Set.of(SpiderStock.class, SpiderIndustry.class));
+
         var stocks = new ArrayList<Stock>();
 
         var stockUrlTemplate = "http://q.10jqka.com.cn/index/index/board/all/field/zdf/order/desc/page/{}/ajax/1/";
 
-        ProtocolManager.initProtocol(Set.of(SpiderPacket.class));
-        var map = new FileChannelMap<>("db", SpiderPacket.class);
+        var map = new FileChannelMap<>("stockDb", SpiderStock.class);
         if (map.get(KEY) == null) {
-            map.put(KEY, SpiderPacket.valueOf(15));
+            map.put(KEY, SpiderStock.valueOf(15));
         }
         var spiderPacket = map.get(KEY);
         var count = spiderPacket.getCount();
@@ -91,7 +76,7 @@ public class StockService implements ApplicationListener<AppStartEvent> {
 
             if (CollectionUtils.isEmpty(stockElements)) {
                 System.out.println(StringUtils.format("---------------------------{}", i));
-                map.put(KEY, SpiderPacket.valueOf(i));
+                map.put(KEY, SpiderStock.valueOf(i));
                 map.close();
                 break;
             }
