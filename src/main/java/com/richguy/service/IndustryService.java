@@ -4,14 +4,20 @@ import com.richguy.model.stock.IndustryStock;
 import com.richguy.packet.SpiderIndustry;
 import com.richguy.packet.SpiderStock;
 import com.richguy.resource.IndustryResource;
+import com.zfoo.monitor.util.OSUtils;
 import com.zfoo.orm.lpmap.FileChannelMap;
 import com.zfoo.protocol.ProtocolManager;
-import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.DomUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.storage.interpreter.ExcelResourceReader;
+import com.zfoo.util.math.RandomUtils;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
@@ -19,13 +25,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author jaysunxiao
@@ -34,34 +37,32 @@ import java.util.Set;
 @Component
 public class IndustryService {
 
+    private static final Logger logger = LoggerFactory.getLogger(IndustryService.class);
+
     public static final long KEY = 1;
-    public static final List<String> HEADERS = List.of(
-            "accept", "*/*",
-            "Accept-Language", "zh-CN,zh;q=0.9",
-            "Referer", "http://q.10jqka.com.cn/",
-            "hexin-v",
-            "A-yTc4JuoQ75g7UyP31o4LAevcEbpdkrkv-klkYp-5U7YIL_brVg3-JZdTiV",
-            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
-    );
 
     public List<IndustryStock> spiderIndustry() throws IOException, InterruptedException, ParserConfigurationException, SAXException {
         ProtocolManager.initProtocol(Set.of(SpiderStock.class, SpiderIndustry.class));
 
         var reader = new ExcelResourceReader();
         var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class);
-
+        var resourceMap = list.stream().collect(Collectors.toMap(key -> key.getCode(), value -> value));
         var map = new FileChannelMap<>("industryDb", SpiderIndustry.class);
         if (map.get(KEY) == null) {
-            map.put(KEY, SpiderIndustry.valueOf(30_0000, 1));
+            map.put(KEY, SpiderIndustry.valueOf(301558, 1));
         }
         var spiderPacket = map.get(KEY);
 
         var industryStocks = new ArrayList<IndustryStock>();
 
+        var max = 100_0000;
         for (int i = spiderPacket.getIndex(); i < 100_0000; i++) {
-            var industryResource = getIndustryResource(list, i);
+            if (i == max - 1) {
+                logger.info("已经完成");
+                return industryStocks;
+            }
+            var industryResource = resourceMap.get(i);
             if (industryResource == null) {
-                map.put(KEY, SpiderIndustry.valueOf(i, 1));
                 continue;
             }
 
@@ -72,20 +73,26 @@ public class IndustryService {
 
             var count = spiderPacket.getCount();
             for (int j = count; j <= 227; j++) {
-                var client = HttpClient.newBuilder().build();
-                var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-                var request = HttpRequest.newBuilder(URI.create(StringUtils.format(stockUrlTemplate, j, industryResource.getCode())))
-                        .headers(ArrayUtils.listToArray(StockService.HEADERS, String.class))
-                        .GET()
-                        .build();
+                var httpClient = HttpClients.createDefault();
+                var url = StringUtils.format(stockUrlTemplate, j, industryResource.getCode());
+                HttpGet request = new HttpGet(url);
+                // add request headers
+                var myCookie = getCookie();
+                var thsCookie = StringUtils.format("v={}", myCookie);
+                request.addHeader("Cookie", thsCookie);
+                System.out.println(myCookie);
 
-                var str = client.send(request, responseBodyHandler).body();
+                var response = httpClient.execute(request);
+                var entity = response.getEntity();
+                String str = EntityUtils.toString(entity);
+                response.close();
 
-                if (str.contains("Ngnix")) {
+
+                if (str.contains("window.location.href=\"/") || str.contains("Nginx forbidden")) {
                     System.out.println(StringUtils.format("---------------------------{}", i));
                     map.put(KEY, SpiderIndustry.valueOf(i, j));
                     map.close();
-                    break;
+                    return industryStocks;
                 }
 
                 str = StringUtils.substringAfterFirst(str, "<tbody>");
@@ -98,9 +105,9 @@ public class IndustryService {
                 var document = documentBuilder.parse(new ByteArrayInputStream(StringUtils.bytes(str)));
                 var stockElements = DomUtils.getChildElements(document.getDocumentElement());
 
-                if (CollectionUtils.isEmpty(stockElements)) {
+                if (CollectionUtils.isEmpty(stockElements) || str.contains("暂无成份股数据")) {
                     map.put(KEY, SpiderIndustry.valueOf(i + 1, 1));
-                    map.close();
+                    logger.info("*************************************[{}]爬取完毕", industryResource.getCode());
                     break;
                 }
 
@@ -117,8 +124,16 @@ public class IndustryService {
         return industryStocks;
     }
 
-    public IndustryResource getIndustryResource(List<IndustryResource> list, int id) {
-        var optional = list.stream().filter(it -> it.getCode() == id).findFirst();
-        return optional.orElse(null);
+    public String getCookie() {
+        var urls = List.of("http://q.10jqka.com.cn/gn/detail/code/301558/", "http://q.10jqka.com.cn/gn/detail/code/301496/"
+                , "http://q.10jqka.com.cn/gn/detail/code/301259/", "http://q.10jqka.com.cn/gn/detail/code/308743/");
+        var url = RandomUtils.randomEle(urls);
+        var command = StringUtils.format("node {} {}", "E:\\mygithub\\richguy\\spider\\spider.js", url);
+        var result = OSUtils.execCommand(command);
+        var cookie = StringUtils.substringAfterFirst(result, "v=");
+        cookie = StringUtils.substringBeforeLast(cookie, "\n");
+        return cookie;
     }
+
+
 }

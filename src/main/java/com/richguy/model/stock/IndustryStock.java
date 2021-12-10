@@ -23,7 +23,7 @@ public class IndustryStock {
     public String toString() {
         return StringUtils.format("{}{}{}{}"
                 , industry, StringUtils.TAB_ASCII
-                , industry, StringUtils.TAB_ASCII);
+                , code, StringUtils.TAB_ASCII);
     }
 
     public String getIndustry() {
