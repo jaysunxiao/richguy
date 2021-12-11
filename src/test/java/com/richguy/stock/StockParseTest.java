@@ -1,7 +1,9 @@
 package com.richguy.stock;
 
 import com.richguy.model.stock.Stock;
+import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.DomUtils;
+import com.zfoo.protocol.util.IOUtils;
 import com.zfoo.protocol.util.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -453,4 +455,35 @@ public class StockParseTest {
         System.out.println(str);
     }
 
+    @Test
+    public void parseTest() throws IOException, ParserConfigurationException, SAXException {
+        var html = StringUtils.bytesToString(IOUtils.toByteArray(ClassUtils.getFileFromClassPath("test.html")));
+        var str = StringUtils.substringAfterFirst(html, "<tbody>");
+        str = StringUtils.substringBeforeLast(str, "</tbody>");
+        str = StringUtils.format("<tbody> {} </tbody>", str);
+        str = str.replaceAll("alt=\"\">", "/>");
+
+        var documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        var documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        var document = documentBuilder.parse(new ByteArrayInputStream(StringUtils.bytes(str)));
+        var stockElements = DomUtils.getChildElements(document.getDocumentElement());
+        for (var stockElement : stockElements) {
+            var stockAttributes = DomUtils.getChildElements(stockElement);
+            var code = stockAttributes.get(1).getTextContent();
+            var name = stockAttributes.get(2).getTextContent();
+            var nowPrice = stockAttributes.get(3).getTextContent();
+            var riseRatio = stockAttributes.get(4).getTextContent();
+            var riseNum = stockAttributes.get(5).getTextContent();
+            var increaseRatio = stockAttributes.get(6).getTextContent();
+            var turnoverRatio = stockAttributes.get(7).getTextContent();
+            var volumeRatio = stockAttributes.get(8).getTextContent();
+            var vibration = stockAttributes.get(9).getTextContent();
+            var turnover = stockAttributes.get(10).getTextContent();
+            var floatingStock = stockAttributes.get(11).getTextContent();
+            var marketValue = stockAttributes.get(12).getTextContent();
+            var pe = stockAttributes.get(13).getTextContent();
+            var stock = Stock.valueOf(code, name, nowPrice, riseRatio, riseNum, increaseRatio, turnoverRatio, volumeRatio, vibration, turnover, floatingStock, marketValue, pe);
+            System.out.println(stock);
+        }
+    }
 }

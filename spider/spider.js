@@ -34,18 +34,9 @@ const url = process.argv[2];
             deviceScaleFactor: 1
         });
 
-        for (let i = 0; i < 1000; i++) {
-            await page.goto(url, {waitUntil: 'networkidle0'});
-            page.deleteCookie()
-
-            const cookie = await page.evaluate(() => document.cookie);
-            if (cookie === null || cookie === undefined) {
-                continue;
-            }
-            await page.waitForTimeout(1000000);
-            console.log(cookie);
-            break;
-        }
+        await page.goto(url, {waitUntil: 'networkidle0'});
+        const html = await page.content(); // serialized HTML of page DOM.
+        console.log(html);
     } catch (error) {
         console.log('zfoo_error', error);
     } finally {

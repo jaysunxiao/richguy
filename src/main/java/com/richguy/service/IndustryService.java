@@ -49,7 +49,7 @@ public class IndustryService {
         var resourceMap = list.stream().collect(Collectors.toMap(key -> key.getCode(), value -> value));
         var map = new FileChannelMap<>("industryDb", SpiderIndustry.class);
         if (map.get(KEY) == null) {
-            map.put(KEY, SpiderIndustry.valueOf(301558, 1));
+            map.put(KEY, SpiderIndustry.valueOf(1, 1));
         }
         var spiderPacket = map.get(KEY);
 
@@ -73,20 +73,9 @@ public class IndustryService {
 
             var count = spiderPacket.getCount();
             for (int j = count; j <= 227; j++) {
-                var httpClient = HttpClients.createDefault();
                 var url = StringUtils.format(stockUrlTemplate, j, industryResource.getCode());
-                HttpGet request = new HttpGet(url);
-                // add request headers
-                var myCookie = getCookie();
-                var thsCookie = StringUtils.format("v={}", myCookie);
-                request.addHeader("Cookie", thsCookie);
-                System.out.println(myCookie);
-
-                var response = httpClient.execute(request);
-                var entity = response.getEntity();
-                String str = EntityUtils.toString(entity);
-                response.close();
-
+                var command = StringUtils.format("node {} {}", "D:\\github\\richguy\\spider\\spider.js", url);
+                var str = OSUtils.execCommand(command);
 
                 if (str.contains("window.location.href=\"/") || str.contains("Nginx forbidden")) {
                     System.out.println(StringUtils.format("---------------------------{}", i));
@@ -123,17 +112,5 @@ public class IndustryService {
 
         return industryStocks;
     }
-
-    public String getCookie() {
-        var urls = List.of("http://q.10jqka.com.cn/gn/detail/code/301558/", "http://q.10jqka.com.cn/gn/detail/code/301496/"
-                , "http://q.10jqka.com.cn/gn/detail/code/301259/", "http://q.10jqka.com.cn/gn/detail/code/308743/");
-        var url = RandomUtils.randomEle(urls);
-        var command = StringUtils.format("node {} {}", "E:\\mygithub\\richguy\\spider\\spider.js", url);
-        var result = OSUtils.execCommand(command);
-        var cookie = StringUtils.substringAfterFirst(result, "v=");
-        cookie = StringUtils.substringBeforeLast(cookie, "\n");
-        return cookie;
-    }
-
 
 }
