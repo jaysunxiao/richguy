@@ -11,6 +11,7 @@ import com.richguy.resource.StockResource;
 import com.richguy.service.RichGuyService;
 import com.richguy.service.StockService;
 import com.richguy.util.HttpUtils;
+import com.richguy.util.StockUtils;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
@@ -132,7 +133,7 @@ public class RichGuyController {
                 otherBuilder.append("股票：");
                 var stockMap = new HashMap<StockResource, FiveRange>();
                 for (var stock : stockList) {
-                    var fiveRange = stockFiveRange(String.valueOf(stock.getCode()));
+                    var fiveRange = stockFiveRange(stock.getCode());
                     stockMap.put(stock, fiveRange);
                 }
                 stockMap.entrySet().stream()
@@ -152,12 +153,12 @@ public class RichGuyController {
                 otherBuilder.append("板块：");
                 var bkMap = new HashMap<IndustryResource, Quote>();
                 for (var industry : industryList) {
-                    var quote = bkQuote(String.valueOf(industry.getRealCode()));
+                    var quote = bkQuote(industry.getRealCode());
                     bkMap.put(industry, quote);
                 }
                 bkMap.entrySet().stream()
                         .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
-//                        .limit(7)
+                        .limit(10)
                         .forEach(it -> {
                             var industry = it.getKey();
                             var quote = it.getValue();
@@ -225,10 +226,11 @@ public class RichGuyController {
     }
 
 
-    public FiveRange stockFiveRange(String code) throws IOException, InterruptedException {
+    public FiveRange stockFiveRange(int code) throws IOException, InterruptedException {
+        var stockCode = StockUtils.formatCode(code);
         var client = HttpClient.newBuilder().build();
 
-        var url = StringUtils.format("http://d.10jqka.com.cn/v2/fiverange/hs_{}/last.js", code);
+        var url = StringUtils.format("http://d.10jqka.com.cn/v2/fiverange/hs_{}/last.js", stockCode);
 
         var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
         var request = HttpRequest.newBuilder(URI.create(url))
@@ -242,9 +244,10 @@ public class RichGuyController {
         return response.getItems();
     }
 
-    public Quote bkQuote(String code) throws IOException, InterruptedException {
+    public Quote bkQuote(int code) throws IOException, InterruptedException {
+        var stockCode = StockUtils.formatCode(code);
         var urlTemplate = "http://d.10jqka.com.cn/v4/time/bk_{}/last.js";
-        var url = StringUtils.format(urlTemplate, code);
+        var url = StringUtils.format(urlTemplate, stockCode);
 
         var client = HttpClient.newBuilder().build();
         var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
