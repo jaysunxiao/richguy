@@ -17,8 +17,15 @@ import java.io.IOException;
 @Ignore
 public class SpiderIndustryTest {
 
+
     @Test
     public void industryTest() throws IOException, ParserConfigurationException, InterruptedException, SAXException {
+        var industryService = new SpiderIndustryService();
+        industryService.industryToRealIndustry();
+    }
+
+    @Test
+    public void industryStockTest() throws IOException, ParserConfigurationException, InterruptedException, SAXException {
         var industryService = new SpiderIndustryService();
         var industryStocks = industryService.spiderIndustry();
 

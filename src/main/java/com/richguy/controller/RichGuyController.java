@@ -2,8 +2,12 @@ package com.richguy.controller;
 
 
 import com.richguy.model.Telegraph;
+import com.richguy.model.five.FiveRange;
 import com.richguy.model.five.FiveRangeResult;
+import com.richguy.model.quote.Quote;
+import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
+import com.richguy.resource.StockResource;
 import com.richguy.service.RichGuyService;
 import com.richguy.service.StockService;
 import com.richguy.util.HttpUtils;
@@ -27,10 +31,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,7 +42,6 @@ public class RichGuyController {
     public static final List<String> HEADERS = List.of(
             "accept", "*/*",
             "Accept-Language", "zh-CN,zh;q=0.9",
-            "Referer", "http://q.10jqka.com.cn/",
             "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
     );
 
@@ -82,13 +82,13 @@ public class RichGuyController {
                 continue;
             }
 
-            var builder = new StringBuilder();
 
             var level = StringUtils.trim(news.getLevel());
             var title = StringUtils.trim(news.getTitle());
             var content = StringUtils.trim(news.getContent());
             var dateStr = TimeUtils.dateFormatForDayTimeString(news.getCtime() * TimeUtils.MILLIS_PER_SECOND);
 
+            var builder = new StringBuilder();
             if (level.equals("A")) {
                 builder.append(StringUtils.format("A级Max {}", dateStr));
             } else if (level.equals("B")) {
@@ -124,23 +124,45 @@ public class RichGuyController {
                 stockStr = StringUtils.joinWith(StringUtils.COMMA, stockNameList.toArray());
             }
 
+            var otherBuilder = new StringBuilder();
             var stockList = stockService.selectStocks(StringUtils.format("{} {}", builder, stockStr));
             if (CollectionUtils.isNotEmpty(stockList)) {
-                builder.append(FileUtils.LS);
-                builder.append("相关股票：");
+                otherBuilder.append(FileUtils.LS);
+                otherBuilder.append("股票：");
+                var stockMap = new HashMap<StockResource, FiveRange>();
                 for (var stock : stockList) {
-                    var stockName = stock.getName();
-                    var increaseRatio = increaseRatio(String.valueOf(stock.getCode()));
-                    builder.append(StringUtils.format("{}[{}]  ", stockName, increaseRatio));
+                    var fiveRange = stockFiveRange(String.valueOf(stock.getCode()));
+                    stockMap.put(stock, fiveRange);
                 }
+                stockMap.entrySet().stream()
+                        .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
+                        .forEach(it -> {
+                            var industry = it.getKey();
+                            var fiveRange = it.getValue();
+                            var industryName = industry.getName();
+                            otherBuilder.append(StringUtils.format("{}({})  ", industryName, fiveRange.increaseRatio()));
+                        });
             }
 
             // 添加板块
             var industryList = stockService.selectIndustry(builder.toString(), stockList);
             if (CollectionUtils.isNotEmpty(industryList)) {
-                builder.append(FileUtils.LS);
-                builder.append("关联板块：");
-
+                otherBuilder.append(FileUtils.LS);
+                otherBuilder.append("板块：");
+                var bkMap = new HashMap<IndustryResource, Quote>();
+                for (var industry : industryList) {
+                    var quote = bkQuote(String.valueOf(industry.getRealCode()));
+                    bkMap.put(industry, quote);
+                }
+                bkMap.entrySet().stream()
+                        .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
+//                        .limit(7)
+                        .forEach(it -> {
+                            var industry = it.getKey();
+                            var quote = it.getValue();
+                            var industryName = industry.getName();
+                            otherBuilder.append(StringUtils.format("{}({})  ", industryName, quote.increaseRatio()));
+                        });
             }
 
 
@@ -157,14 +179,17 @@ public class RichGuyController {
                 }
             }
 
-            builder.append(FileUtils.LS);
             if (CollectionUtils.isNotEmpty(keyWords)) {
-                builder.append("关键词：");
+                otherBuilder.append(FileUtils.LS);
+                otherBuilder.append("热词：");
                 for (var word : keyWords) {
-                    builder.append(word).append("  ");
+                    otherBuilder.append(word).append("  ");
                 }
-            } else {
-                builder.append("关键词：无");
+            }
+
+            if (otherBuilder.length() > 0) {
+                builder.append(FileUtils.LS);
+                builder.append(otherBuilder);
             }
 
             var telegraph = builder.toString().replaceAll("习近平", "喜大大");
@@ -197,7 +222,7 @@ public class RichGuyController {
     }
 
 
-    public String increaseRatio(String code) throws IOException, InterruptedException {
+    public FiveRange stockFiveRange(String code) throws IOException, InterruptedException {
         var client = HttpClient.newBuilder().build();
 
         var url = StringUtils.format("http://d.10jqka.com.cn/v2/fiverange/hs_{}/last.js", code);
@@ -211,7 +236,27 @@ public class RichGuyController {
         var responseBody = client.send(request, responseBodyHandler).body();
         responseBody = HttpUtils.formatJson(responseBody);
         var response = JsonUtils.string2Object(responseBody, FiveRangeResult.class);
-        return response.getItems().increaseRatio();
+        return response.getItems();
+    }
+
+    public Quote bkQuote(String code) throws IOException, InterruptedException {
+        var urlTemplate = "http://d.10jqka.com.cn/v4/time/bk_{}/last.js";
+        var url = StringUtils.format(urlTemplate, code);
+
+        var client = HttpClient.newBuilder().build();
+        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
+        var request = HttpRequest.newBuilder(URI.create(url))
+                .headers(ArrayUtils.listToArray(HEADERS, String.class))
+                .GET()
+                .build();
+
+        var responseBody = client.send(request, responseBodyHandler).body();
+        responseBody = HttpUtils.formatJson(responseBody);
+        responseBody = StringUtils.substringAfterFirst(responseBody, "\":");
+        responseBody = StringUtils.substringBeforeLast(responseBody, "}");
+
+        var quote = JsonUtils.string2Object(responseBody, Quote.class);
+        return quote;
     }
 
 }

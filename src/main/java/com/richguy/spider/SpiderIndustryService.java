@@ -37,6 +37,31 @@ public class SpiderIndustryService {
 
     public static final long KEY = 1;
 
+    public void industryToRealIndustry() throws IOException, ParserConfigurationException, SAXException {
+        var reader = new ExcelResourceReader();
+        var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class);
+
+        var urlTemplate = "http://q.10jqka.com.cn/gn/detail/code/{}/";
+        for (var industryResource : list) {
+            var code = industryResource.getCode();
+            if (String.valueOf(code).startsWith("8")) {
+                continue;
+            }
+            var url = StringUtils.format(urlTemplate, code);
+            var command = StringUtils.format("node {} {}", "D:\\github\\richguy\\spider\\spider.js", url);
+            var str = OSUtils.execCommand(command);
+
+            str = StringUtils.substringAfterFirst(str, "<h3>");
+            str = StringUtils.substringBeforeLast(str, "</h3>");
+            str = StringUtils.substringAfterFirst(str, "<span>");
+            str = StringUtils.substringBeforeLast(str, "</span>");
+            var realCode = str.trim();
+
+            var info = StringUtils.format("{}{}{}{}{}", code, StringUtils.TAB_ASCII, industryResource.getName(), StringUtils.TAB_ASCII, realCode);
+            System.out.println(info);
+        }
+    }
+
     public List<IndustryStockVO> spiderIndustry() throws IOException, InterruptedException, ParserConfigurationException, SAXException {
         ProtocolManager.initProtocol(Set.of(SpiderStock.class, SpiderIndustry.class));
 

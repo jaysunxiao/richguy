@@ -58,12 +58,16 @@ public class FiveRange {
     @JsonProperty("157")
     private String sell5Price;
 
-    public String increaseRatio() {
+    public float increaseRatioFloat() {
         var preIndex = Float.parseFloat(prePrice);
         var nowIndex = Float.parseFloat(buy1);
         var increaseRatio = (nowIndex - preIndex) / preIndex * 100;
-        var decimal = new BigDecimal(increaseRatio);
-        return decimal.setScale(2, RoundingMode.HALF_UP).toString();
+        return increaseRatio;
+    }
+
+    public String increaseRatio() {
+        var decimal = new BigDecimal(increaseRatioFloat());
+        return decimal.setScale(1, RoundingMode.HALF_UP).toString();
     }
 
     public String getPrePrice() {
