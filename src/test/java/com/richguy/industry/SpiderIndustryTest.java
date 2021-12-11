@@ -1,6 +1,6 @@
 package com.richguy.industry;
 
-import com.richguy.service.IndustryService;
+import com.richguy.spider.SpiderIndustryService;
 import com.zfoo.protocol.util.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class SpiderIndustryTest {
 
     @Test
     public void industryTest() throws IOException, ParserConfigurationException, InterruptedException, SAXException {
-        var industryService = new IndustryService();
+        var industryService = new SpiderIndustryService();
         var industryStocks = industryService.spiderIndustry();
 
         var builder = new StringBuilder();

@@ -1,9 +1,9 @@
-package com.richguy.service;
+package com.richguy.spider;
 
-import com.richguy.model.stock.IndustryStock;
 import com.richguy.packet.SpiderIndustry;
 import com.richguy.packet.SpiderStock;
 import com.richguy.resource.IndustryResource;
+import com.richguy.spider.model.IndustryStockVO;
 import com.zfoo.monitor.util.OSUtils;
 import com.zfoo.orm.lpmap.FileChannelMap;
 import com.zfoo.protocol.ProtocolManager;
@@ -12,10 +12,6 @@ import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.DomUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.storage.interpreter.ExcelResourceReader;
-import com.zfoo.util.math.RandomUtils;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,13 +31,13 @@ import java.util.stream.Collectors;
  * @version 3.0
  */
 @Component
-public class IndustryService {
+public class SpiderIndustryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(IndustryService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpiderIndustryService.class);
 
     public static final long KEY = 1;
 
-    public List<IndustryStock> spiderIndustry() throws IOException, InterruptedException, ParserConfigurationException, SAXException {
+    public List<IndustryStockVO> spiderIndustry() throws IOException, InterruptedException, ParserConfigurationException, SAXException {
         ProtocolManager.initProtocol(Set.of(SpiderStock.class, SpiderIndustry.class));
 
         var reader = new ExcelResourceReader();
@@ -53,7 +49,7 @@ public class IndustryService {
         }
         var spiderPacket = map.get(KEY);
 
-        var industryStocks = new ArrayList<IndustryStock>();
+        var industryStocks = new ArrayList<IndustryStockVO>();
 
         var max = 100_0000;
         for (int i = spiderPacket.getIndex(); i < 100_0000; i++) {
@@ -103,7 +99,7 @@ public class IndustryService {
                 for (var stockElement : stockElements) {
                     var stockAttributes = DomUtils.getChildElements(stockElement);
                     var code = stockAttributes.get(1).getTextContent();
-                    var industryStock = IndustryStock.valueOf(String.valueOf(industryResource.getCode()), code);
+                    var industryStock = IndustryStockVO.valueOf(String.valueOf(industryResource.getCode()), code);
                     industryStocks.add(industryStock);
                     System.out.println(industryStock);
                 }

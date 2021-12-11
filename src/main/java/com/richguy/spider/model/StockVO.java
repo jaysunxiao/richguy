@@ -1,4 +1,4 @@
-package com.richguy.model.stock;
+package com.richguy.spider.model;
 
 import com.zfoo.protocol.util.StringUtils;
 
@@ -6,7 +6,7 @@ import com.zfoo.protocol.util.StringUtils;
  * @author jaysunxiao
  * @version 3.0
  */
-public class Stock {
+public class StockVO {
 
     // 代码
     private String code;
@@ -47,8 +47,8 @@ public class Stock {
     // 市盈率
     private String pe;
 
-    public static Stock valueOf(String code, String name, String nowPrice, String riseRatio, String riseNum, String increaseRatio, String turnoverRatio, String volumeRatio, String vibration, String turnover, String floatingStock, String marketValue, String pe) {
-        var stock = new Stock();
+    public static StockVO valueOf(String code, String name, String nowPrice, String riseRatio, String riseNum, String increaseRatio, String turnoverRatio, String volumeRatio, String vibration, String turnover, String floatingStock, String marketValue, String pe) {
+        var stock = new StockVO();
         stock.code = code;
         stock.name = name;
         stock.nowPrice = nowPrice;

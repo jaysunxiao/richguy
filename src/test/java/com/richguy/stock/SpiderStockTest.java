@@ -1,6 +1,6 @@
 package com.richguy.stock;
 
-import com.richguy.service.StockService;
+import com.richguy.spider.SpiderStockService;
 import com.zfoo.protocol.util.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,14 +23,14 @@ public class SpiderStockTest {
 
     @Test
     public void stockTest() throws IOException, ParserConfigurationException, InterruptedException, SAXException {
-        var stockService = new StockService();
+        var stockService = new SpiderStockService();
         var stocks = stockService.spiderStocks();
 
         var builder = new StringBuilder();
         for (var stock : stocks) {
             builder.append(stock.toString()).append(FileUtils.LS);
         }
-        FileUtils.writeStringToFile(new File("C:\\Users\\JM\\Desktop\\photo\\stock.txt"), builder.toString());
+        FileUtils.writeStringToFile(new File("stock.txt"), builder.toString());
         System.out.println(stocks.size());
     }
 

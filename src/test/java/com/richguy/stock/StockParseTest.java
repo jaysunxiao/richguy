@@ -1,6 +1,6 @@
 package com.richguy.stock;
 
-import com.richguy.model.stock.Stock;
+import com.richguy.spider.model.StockVO;
 import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.DomUtils;
 import com.zfoo.protocol.util.IOUtils;
@@ -432,7 +432,7 @@ public class StockParseTest {
         var documentBuilder = documentBuilderFactory.newDocumentBuilder();
         var document = documentBuilder.parse(new ByteArrayInputStream(StringUtils.bytes(str)));
         var stockElements = DomUtils.getChildElements(document.getDocumentElement());
-        var stocks = new ArrayList<Stock>();
+        var stocks = new ArrayList<StockVO>();
         for (var stockElement : stockElements) {
             var stockAttributes = DomUtils.getChildElements(stockElement);
             var code = stockAttributes.get(1).getTextContent();
@@ -482,7 +482,7 @@ public class StockParseTest {
             var floatingStock = stockAttributes.get(11).getTextContent();
             var marketValue = stockAttributes.get(12).getTextContent();
             var pe = stockAttributes.get(13).getTextContent();
-            var stock = Stock.valueOf(code, name, nowPrice, riseRatio, riseNum, increaseRatio, turnoverRatio, volumeRatio, vibration, turnover, floatingStock, marketValue, pe);
+            var stock = StockVO.valueOf(code, name, nowPrice, riseRatio, riseNum, increaseRatio, turnoverRatio, volumeRatio, vibration, turnover, floatingStock, marketValue, pe);
             System.out.println(stock);
         }
     }

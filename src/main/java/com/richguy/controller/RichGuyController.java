@@ -2,8 +2,12 @@ package com.richguy.controller;
 
 
 import com.richguy.model.Telegraph;
+import com.richguy.model.five.FiveRangeResult;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.service.RichGuyService;
+import com.richguy.service.StockService;
+import com.richguy.util.HttpUtils;
+import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.JsonUtils;
@@ -27,20 +31,31 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class RichGuyController {
 
     private static final Logger logger = LoggerFactory.getLogger(RichGuyController.class);
 
+    public static final List<String> HEADERS = List.of(
+            "accept", "*/*",
+            "Accept-Language", "zh-CN,zh;q=0.9",
+            "Referer", "http://q.10jqka.com.cn/",
+            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
+    );
+
     @Value("${qq.pushGroupIds}")
     private List<Long> pushGroupIds;
 
     @Autowired
     private RichGuyService richGuyService;
+    @Autowired
+    private StockService stockService;
 
     @ResInjection
     private Storage<String, KeyWordResource> keyWordResources;
+
 
     private Deque<Long> pushIds = new LinkedList<>();
 
@@ -102,14 +117,32 @@ public class RichGuyController {
                 builder.append(content);
             }
 
-            // 添加相关股票
+            // 添加相关股票--------------------------------------------------------------------------------------------
+            var stockStr = StringUtils.EMPTY;
             if (CollectionUtils.isNotEmpty(news.getStocks())) {
+                var stockNameList = news.getStocks().stream().map(it -> it.getName()).collect(Collectors.toList());
+                stockStr = StringUtils.joinWith(StringUtils.COMMA, stockNameList.toArray());
+            }
+
+            var stockList = stockService.selectStocks(StringUtils.format("{} {}", builder, stockStr));
+            if (CollectionUtils.isNotEmpty(stockList)) {
                 builder.append(FileUtils.LS);
                 builder.append("相关股票：");
-                for (var stock : news.getStocks()) {
-                    builder.append(StringUtils.trim(stock.getName())).append("  ");
+                for (var stock : stockList) {
+                    var stockName = stock.getName();
+                    var increaseRatio = increaseRatio(String.valueOf(stock.getCode()));
+                    builder.append(StringUtils.format("{}[{}]  ", stockName, increaseRatio));
                 }
             }
+
+            // 添加板块
+            var industryList = stockService.selectIndustry(builder.toString(), stockList);
+            if (CollectionUtils.isNotEmpty(industryList)) {
+                builder.append(FileUtils.LS);
+                builder.append("关联板块：");
+
+            }
+
 
             // 添加关键词
             var keyWords = new HashSet<String>();
@@ -153,9 +186,7 @@ public class RichGuyController {
 
         var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
         var request = HttpRequest.newBuilder(URI.create("https://www.cls.cn/nodeapi/updateTelegraphList"))
-                .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-                .headers("Accept-Language", "zh-CN,zh;q=0.9")
-                .headers("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36")
+                .headers(ArrayUtils.listToArray(HEADERS, String.class))
                 .GET()
                 .build();
 
@@ -163,6 +194,24 @@ public class RichGuyController {
         var response = JsonUtils.string2Object(responseBody, Telegraph.class);
 
         return response;
+    }
+
+
+    public String increaseRatio(String code) throws IOException, InterruptedException {
+        var client = HttpClient.newBuilder().build();
+
+        var url = StringUtils.format("http://d.10jqka.com.cn/v2/fiverange/hs_{}/last.js", code);
+
+        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
+        var request = HttpRequest.newBuilder(URI.create(url))
+                .headers(ArrayUtils.listToArray(HEADERS, String.class))
+                .GET()
+                .build();
+
+        var responseBody = client.send(request, responseBodyHandler).body();
+        responseBody = HttpUtils.formatJson(responseBody);
+        var response = JsonUtils.string2Object(responseBody, FiveRangeResult.class);
+        return response.getItems().increaseRatio();
     }
 
 }

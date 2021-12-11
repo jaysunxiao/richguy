@@ -1,4 +1,4 @@
-package com.richguy.model.stock;
+package com.richguy.spider.model;
 
 import com.zfoo.protocol.util.StringUtils;
 
@@ -6,14 +6,14 @@ import com.zfoo.protocol.util.StringUtils;
  * @author jaysunxiao
  * @version 3.0
  */
-public class IndustryStock {
+public class IndustryStockVO {
 
     private String industry;
 
     private String code;
 
-    public static IndustryStock valueOf(String industry, String code) {
-        var packet = new IndustryStock();
+    public static IndustryStockVO valueOf(String industry, String code) {
+        var packet = new IndustryStockVO();
         packet.industry = industry;
         packet.code = code;
         return packet;
