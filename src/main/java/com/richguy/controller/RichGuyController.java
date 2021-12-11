@@ -102,7 +102,6 @@ public class RichGuyController {
             if (pushIds.size() >= 1000) {
                 pushIds.removeFirst();
             }
-            pushIds.add(news.getId());
 
             if (StringUtils.isNotEmpty(title)) {
                 builder.append(FileUtils.LS);
@@ -110,6 +109,8 @@ public class RichGuyController {
             }
 
             builder.append(FileUtils.LS);
+            builder.append(FileUtils.LS);
+
             var simpleContent = StringUtils.trim(StringUtils.substringAfterFirst(content, "】"));
             if (StringUtils.isNotEmpty(simpleContent)) {
                 builder.append(simpleContent);
@@ -193,12 +194,14 @@ public class RichGuyController {
             }
 
             var telegraph = builder.toString().replaceAll("习近平", "喜大大");
-            logger.info(telegraph);
 
             for (var pushGroupId : pushGroupIds) {
                 var group = bot.getGroup(pushGroupId);
                 group.sendMessage(telegraph);
             }
+
+            pushIds.add(news.getId());
+            logger.info(telegraph);
         }
     }
 
