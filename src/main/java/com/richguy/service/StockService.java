@@ -46,7 +46,8 @@ public class StockService {
 
         for (var stock : stocks) {
             for (var industryStockResource : industryStockResources.getAll()) {
-                if (stock.getCode() == industryStockResource.getStock()) {
+                if (stock.getCode() == industryStockResource.getStock() && industryResources.contain(industryStockResource.getIndustry())) {
+
                     industrySet.add(industryResources.get(industryStockResource.getIndustry()));
                 }
             }
