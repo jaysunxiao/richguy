@@ -1,12 +1,19 @@
 package com.richguy.util;
 
 import com.zfoo.protocol.util.StringUtils;
+import com.zfoo.scheduler.util.TimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.ParseException;
 
 /**
  * @author jaysunxiao
  * @version 3.0
  */
 public abstract class StockUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(StockUtils.class);
 
     public static String formatCode(int code) {
         var stockCode = String.valueOf(code);
@@ -34,6 +41,36 @@ public abstract class StockUtils {
             default:
         }
         return stockCode;
+    }
+
+
+    /**
+     * 是否在交易时间
+     */
+    public static boolean tradingTime() {
+        try {
+            var now = TimeUtils.now();
+            var simpleDateStr = TimeUtils.dateFormatForDayString(now);
+            var startTime = TimeUtils.stringToDate(StringUtils.format("{} 09:10:00", simpleDateStr)).getTime();
+            var endTime = TimeUtils.stringToDate(StringUtils.format("{} 11:30:00", simpleDateStr)).getTime();
+
+            if (TimeUtils.timeBetween(now, startTime, endTime)) {
+                return true;
+            }
+
+            startTime = TimeUtils.stringToDate(StringUtils.format("{} 12:50:00", simpleDateStr)).getTime();
+            endTime = TimeUtils.stringToDate(StringUtils.format("{} 15:00:00", simpleDateStr)).getTime();
+
+            if (TimeUtils.timeBetween(now, startTime, endTime)) {
+                return true;
+            }
+
+            return false;
+        } catch (ParseException e) {
+            logger.error("");
+        }
+
+        return false;
     }
 
 }

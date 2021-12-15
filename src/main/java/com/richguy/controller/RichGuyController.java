@@ -21,6 +21,7 @@ import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
+import com.zfoo.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +63,6 @@ public class RichGuyController {
 
     @Scheduler(cron = "0 * * * * ?")
     public void cronPushQQ() throws IOException, InterruptedException {
-        var bot = richGuyService.bot;
-
         var response = requestForTelegraph();
 
         if (response.getData() == null) {
@@ -74,6 +73,12 @@ public class RichGuyController {
         if (CollectionUtils.isEmpty(rollData)) {
             return;
         }
+
+        doPush(response);
+    }
+
+    public void doPush(Telegraph telegraph) {
+        var rollData = telegraph.getData().getRollData();
 
         for (var news : rollData) {
             if (news.getType() != -1) {
@@ -91,7 +96,7 @@ public class RichGuyController {
 
             var builder = new StringBuilder();
             if (level.equals("A")) {
-                builder.append(StringUtils.format("A级Max {}", dateStr));
+                builder.append(StringUtils.format("⭐A级Max {}", dateStr));
             } else if (level.equals("B")) {
                 builder.append(StringUtils.format("B级电报 {}", dateStr));
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
@@ -106,7 +111,7 @@ public class RichGuyController {
 
             if (StringUtils.isNotEmpty(title)) {
                 builder.append(FileUtils.LS);
-                builder.append(StringUtils.format("【{}】", title));
+                builder.append(StringUtils.format("\uD83D\uDCA5【{}】", title));
             }
 
             builder.append(FileUtils.LS);
@@ -130,10 +135,13 @@ public class RichGuyController {
             var stockList = stockService.selectStocks(StringUtils.format("{} {}", builder, stockStr));
             if (CollectionUtils.isNotEmpty(stockList)) {
                 otherBuilder.append(FileUtils.LS);
-                otherBuilder.append("股票：");
+                otherBuilder.append("✨股票：");
                 var stockMap = new HashMap<StockResource, FiveRange>();
                 for (var stock : stockList) {
                     var fiveRange = stockFiveRange(stock.getCode());
+                    if (fiveRange == null) {
+                        continue;
+                    }
                     stockMap.put(stock, fiveRange);
                 }
                 stockMap.entrySet().stream()
@@ -150,15 +158,18 @@ public class RichGuyController {
             var industryList = stockService.selectIndustry(builder.toString(), stockList);
             if (CollectionUtils.isNotEmpty(industryList)) {
                 otherBuilder.append(FileUtils.LS);
-                otherBuilder.append("板块：");
+                otherBuilder.append("\uD83C\uDF20板块：");
                 var bkMap = new HashMap<IndustryResource, Quote>();
                 for (var industry : industryList) {
                     var quote = bkQuote(industry.getRealCode());
+                    if (quote == null) {
+                        continue;
+                    }
                     bkMap.put(industry, quote);
                 }
                 bkMap.entrySet().stream()
                         .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
-                        .limit(10)
+                        .limit(13)
                         .forEach(it -> {
                             var industry = it.getKey();
                             var quote = it.getValue();
@@ -183,7 +194,7 @@ public class RichGuyController {
 
             if (CollectionUtils.isNotEmpty(keyWords)) {
                 otherBuilder.append(FileUtils.LS);
-                otherBuilder.append("热词：");
+                otherBuilder.append("\uD83D\uDD25热词：");
                 for (var word : keyWords) {
                     otherBuilder.append(word).append("  ");
                 }
@@ -194,15 +205,16 @@ public class RichGuyController {
                 builder.append(otherBuilder);
             }
 
-            var telegraph = builder.toString().replaceAll("习近平", "喜大大");
+            var bot = richGuyService.bot;
+            var telegraphContent = builder.toString().replaceAll("习近平", "喜大大");
 
             for (var pushGroupId : pushGroupIds) {
                 var group = bot.getGroup(pushGroupId);
-                group.sendMessage(telegraph);
+                group.sendMessage(telegraphContent);
             }
 
             pushIds.add(news.getId());
-            logger.info(telegraph);
+            logger.info(telegraphContent);
         }
     }
 
@@ -225,8 +237,21 @@ public class RichGuyController {
         return response;
     }
 
+    public FiveRange stockFiveRange(int code) {
+        FiveRange fiveRange = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                fiveRange = doGetStockFiveRange(code);
+                break;
+            } catch (Exception e) {
+                ThreadUtils.sleep(3 * TimeUtils.MILLIS_PER_SECOND);
+                continue;
+            }
+        }
+        return fiveRange;
+    }
 
-    public FiveRange stockFiveRange(int code) throws IOException, InterruptedException {
+    public FiveRange doGetStockFiveRange(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
         var client = HttpClient.newBuilder().build();
 
@@ -239,12 +264,26 @@ public class RichGuyController {
                 .build();
 
         var responseBody = client.send(request, responseBodyHandler).body();
-        responseBody = HttpUtils.formatJson(responseBody);
-        var response = JsonUtils.string2Object(responseBody, FiveRangeResult.class);
-        return response.getItems();
+        var json = HttpUtils.formatJson(responseBody);
+        var fiveRange = JsonUtils.string2Object(json, FiveRangeResult.class);
+        return fiveRange.getItems();
     }
 
-    public Quote bkQuote(int code) throws IOException, InterruptedException {
+    public Quote bkQuote(int code) {
+        Quote quote = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                quote = doGetBkQuote(code);
+                break;
+            } catch (Exception e) {
+                ThreadUtils.sleep(3 * TimeUtils.MILLIS_PER_SECOND);
+                continue;
+            }
+        }
+        return quote;
+    }
+
+    public Quote doGetBkQuote(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
         var urlTemplate = "http://d.10jqka.com.cn/v4/time/bk_{}/last.js";
         var url = StringUtils.format(urlTemplate, stockCode);
@@ -257,11 +296,11 @@ public class RichGuyController {
                 .build();
 
         var responseBody = client.send(request, responseBodyHandler).body();
-        responseBody = HttpUtils.formatJson(responseBody);
-        responseBody = StringUtils.substringAfterFirst(responseBody, "\":");
-        responseBody = StringUtils.substringBeforeLast(responseBody, "}");
+        var json = HttpUtils.formatJson(responseBody);
+        json = StringUtils.substringAfterFirst(json, "\":");
+        json = StringUtils.substringBeforeLast(json, "}");
 
-        var quote = JsonUtils.string2Object(responseBody, Quote.class);
+        var quote = JsonUtils.string2Object(json, Quote.class);
         return quote;
     }
 
