@@ -134,8 +134,6 @@ public class RichGuyController {
             var otherBuilder = new StringBuilder();
             var stockList = stockService.selectStocks(StringUtils.format("{} {}", builder, stockStr));
             if (CollectionUtils.isNotEmpty(stockList)) {
-                otherBuilder.append(FileUtils.LS);
-                otherBuilder.append("✨股票：");
                 var stockMap = new HashMap<StockResource, FiveRange>();
                 for (var stock : stockList) {
                     var fiveRange = stockFiveRange(stock.getCode());
@@ -144,21 +142,24 @@ public class RichGuyController {
                     }
                     stockMap.put(stock, fiveRange);
                 }
-                stockMap.entrySet().stream()
-                        .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
-                        .forEach(it -> {
-                            var industry = it.getKey();
-                            var fiveRange = it.getValue();
-                            var industryName = industry.getName();
-                            otherBuilder.append(StringUtils.format("{}({})  ", industryName, fiveRange.increaseRatio()));
-                        });
+
+                if (CollectionUtils.isNotEmpty(stockMap)) {
+                    otherBuilder.append(FileUtils.LS);
+                    otherBuilder.append("\uD83D\uDCA7股票：");
+                    stockMap.entrySet().stream()
+                            .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
+                            .forEach(it -> {
+                                var industry = it.getKey();
+                                var fiveRange = it.getValue();
+                                var industryName = industry.getName();
+                                otherBuilder.append(StringUtils.format("{}({})  ", industryName, fiveRange.increaseRatio()));
+                            });
+                }
             }
 
             // 添加板块
             var industryList = stockService.selectIndustry(builder.toString(), stockList);
             if (CollectionUtils.isNotEmpty(industryList)) {
-                otherBuilder.append(FileUtils.LS);
-                otherBuilder.append("\uD83C\uDF20板块：");
                 var bkMap = new HashMap<IndustryResource, Quote>();
                 for (var industry : industryList) {
                     var quote = bkQuote(industry.getRealCode());
@@ -167,15 +168,20 @@ public class RichGuyController {
                     }
                     bkMap.put(industry, quote);
                 }
-                bkMap.entrySet().stream()
-                        .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
-                        .limit(13)
-                        .forEach(it -> {
-                            var industry = it.getKey();
-                            var quote = it.getValue();
-                            var industryName = industry.getName();
-                            otherBuilder.append(StringUtils.format("{}({})  ", industryName, quote.increaseRatio()));
-                        });
+
+                if (CollectionUtils.isNotEmpty(bkMap)) {
+                    otherBuilder.append(FileUtils.LS);
+                    otherBuilder.append("\uD83C\uDF20板块：");
+                    bkMap.entrySet().stream()
+                            .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
+                            .limit(13)
+                            .forEach(it -> {
+                                var industry = it.getKey();
+                                var quote = it.getValue();
+                                var industryName = industry.getName();
+                                otherBuilder.append(StringUtils.format("{}({})  ", industryName, quote.increaseRatio()));
+                            });
+                }
             }
 
 
