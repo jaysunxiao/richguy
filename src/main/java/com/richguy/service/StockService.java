@@ -3,6 +3,7 @@ package com.richguy.service;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.IndustryStockResource;
 import com.richguy.resource.StockResource;
+import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,12 @@ public class StockService {
                 stockList.add(stockResource);
             }
         }
+
+        // 重仓扫描
+        if (CollectionUtils.isEmpty(stockList)) {
+
+        }
+
         return stockList;
     }
 

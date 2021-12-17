@@ -5,6 +5,8 @@ import com.zfoo.scheduler.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 
 /**
@@ -71,6 +73,11 @@ public abstract class StockUtils {
         }
 
         return false;
+    }
+
+    public static String toSimpleRatio(float value) {
+        var decimal = new BigDecimal(value);
+        return decimal.setScale(1, RoundingMode.HALF_UP).toString();
     }
 
 }

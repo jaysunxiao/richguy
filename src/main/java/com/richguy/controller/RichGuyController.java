@@ -1,10 +1,12 @@
 package com.richguy.controller;
 
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
 import com.richguy.model.Telegraph;
-import com.richguy.model.five.FiveRange;
 import com.richguy.model.five.FiveRangeResult;
 import com.richguy.model.quote.Quote;
+import com.richguy.model.stock.QuotesResult;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.StockResource;
@@ -21,7 +23,7 @@ import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
-import com.zfoo.util.ThreadUtils;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +49,13 @@ public class RichGuyController {
             "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
     );
 
+    public static final float DEFAULT_VAlUE = 88.8F;
+
     @Value("${qq.pushGroupIds}")
     private List<Long> pushGroupIds;
+
+    @Value("${juhe.stockUrl}")
+    private String juheStockUrl;
 
     @Autowired
     private RichGuyService richGuyService;
@@ -57,7 +64,8 @@ public class RichGuyController {
 
     @ResInjection
     private Storage<String, KeyWordResource> keyWordResources;
-
+    @ResInjection
+    private Storage<Integer, IndustryResource> industryResources;
 
     private Deque<Long> pushIds = new LinkedList<>();
 
@@ -134,12 +142,9 @@ public class RichGuyController {
             var otherBuilder = new StringBuilder();
             var stockList = stockService.selectStocks(StringUtils.format("{} {}", builder, stockStr));
             if (CollectionUtils.isNotEmpty(stockList)) {
-                var stockMap = new HashMap<StockResource, FiveRange>();
+                var stockMap = new HashMap<StockResource, Float>();
                 for (var stock : stockList) {
                     var fiveRange = stockFiveRange(stock.getCode());
-                    if (fiveRange == null) {
-                        continue;
-                    }
                     stockMap.put(stock, fiveRange);
                 }
 
@@ -147,12 +152,12 @@ public class RichGuyController {
                     otherBuilder.append(FileUtils.LS);
                     otherBuilder.append("\uD83D\uDCA7股票：");
                     stockMap.entrySet().stream()
-                            .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
+                            .sorted((a, b) -> Float.compare(b.getValue(), a.getValue()))
                             .forEach(it -> {
                                 var industry = it.getKey();
                                 var fiveRange = it.getValue();
                                 var industryName = industry.getName();
-                                otherBuilder.append(StringUtils.format("{}({})  ", industryName, fiveRange.increaseRatio()));
+                                otherBuilder.append(StringUtils.format("{}({})  ", industryName, StockUtils.toSimpleRatio(fiveRange)));
                             });
                 }
             }
@@ -160,12 +165,9 @@ public class RichGuyController {
             // 添加板块
             var industryList = stockService.selectIndustry(builder.toString(), stockList);
             if (CollectionUtils.isNotEmpty(industryList)) {
-                var bkMap = new HashMap<IndustryResource, Quote>();
+                var bkMap = new HashMap<IndustryResource, Float>();
                 for (var industry : industryList) {
-                    var quote = bkQuote(industry.getRealCode());
-                    if (quote == null) {
-                        continue;
-                    }
+                    var quote = bkQuote(industry.getCode());
                     bkMap.put(industry, quote);
                 }
 
@@ -173,13 +175,13 @@ public class RichGuyController {
                     otherBuilder.append(FileUtils.LS);
                     otherBuilder.append("\uD83C\uDF20板块：");
                     bkMap.entrySet().stream()
-                            .sorted((a, b) -> Float.compare(b.getValue().increaseRatioFloat(), a.getValue().increaseRatioFloat()))
+                            .sorted((a, b) -> Float.compare(b.getValue(), a.getValue()))
                             .limit(13)
                             .forEach(it -> {
                                 var industry = it.getKey();
                                 var quote = it.getValue();
                                 var industryName = industry.getName();
-                                otherBuilder.append(StringUtils.format("{}({})  ", industryName, quote.increaseRatio()));
+                                otherBuilder.append(StringUtils.format("{}({})  ", industryName, StockUtils.toSimpleRatio(quote)));
                             });
                 }
             }
@@ -243,21 +245,29 @@ public class RichGuyController {
         return response;
     }
 
-    public FiveRange stockFiveRange(int code) {
-        FiveRange fiveRange = null;
-        for (int i = 0; i < 3; i++) {
+    // **************************************************股票相关********************************************************
+
+    public float stockFiveRange(int code) {
+        float fiveRange = DEFAULT_VAlUE;
+
+        try {
+            fiveRange = doGetStockFiveRange(code);
+        } catch (Exception e) {
+            logger.error("通过同花顺接口api获取股票数据异常", e);
+        }
+
+        if (fiveRange == DEFAULT_VAlUE) {
             try {
-                fiveRange = doGetStockFiveRange(code);
-                break;
+                fiveRange = doGetStockFiveRangeByJuhe(code);
             } catch (Exception e) {
-                ThreadUtils.sleep(3 * TimeUtils.MILLIS_PER_SECOND);
-                continue;
+                logger.error("通过聚合接口api获取股票数据异常", e);
             }
         }
+
         return fiveRange;
     }
 
-    public FiveRange doGetStockFiveRange(int code) throws IOException, InterruptedException {
+    public float doGetStockFiveRange(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
         var client = HttpClient.newBuilder().build();
 
@@ -272,25 +282,56 @@ public class RichGuyController {
         var responseBody = client.send(request, responseBodyHandler).body();
         var json = HttpUtils.formatJson(responseBody);
         var fiveRange = JsonUtils.string2Object(json, FiveRangeResult.class);
-        return fiveRange.getItems();
+        return fiveRange.getItems().increaseRatioFloat();
     }
 
-    public Quote bkQuote(int code) {
-        Quote quote = null;
-        for (int i = 0; i < 3; i++) {
+    public float doGetStockFiveRangeByJuhe(int code) throws IOException, InterruptedException {
+        var stockCode = StockUtils.formatCode(code);
+        stockCode = stockCode.startsWith("6")
+                ? StringUtils.format("sh{}", stockCode)
+                : StringUtils.format("sz{}", stockCode);
+
+        var url = StringUtils.format(juheStockUrl, stockCode);
+
+        var client = HttpClient.newBuilder().build();
+        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
+        var request = HttpRequest.newBuilder(URI.create(url))
+                .headers(ArrayUtils.listToArray(HEADERS, String.class))
+                .GET()
+                .build();
+
+        var responseBody = client.send(request, responseBodyHandler).body();
+        var quote = JsonUtils.string2Object(responseBody, QuotesResult.class);
+        return Float.valueOf(quote.getResult().get(0).getBaseData().getRate());
+    }
+
+
+    // **************************************************板块相关********************************************************
+    public float bkQuote(int code) {
+        float quote = DEFAULT_VAlUE;
+
+        try {
+            quote = doGetBkQuote(code);
+        } catch (Exception e) {
+            logger.error("通过同花顺接口api获取板块数据异常", e);
+        }
+
+        if (quote == DEFAULT_VAlUE) {
             try {
-                quote = doGetBkQuote(code);
-                break;
+                quote = doGetBkQuoteByHtml(code);
             } catch (Exception e) {
-                ThreadUtils.sleep(3 * TimeUtils.MILLIS_PER_SECOND);
-                continue;
+                logger.error("通过聚合接口api获取板块数据异常", e);
             }
         }
+
         return quote;
     }
 
-    public Quote doGetBkQuote(int code) throws IOException, InterruptedException {
-        var stockCode = StockUtils.formatCode(code);
+
+    public float doGetBkQuote(int code) throws IOException, InterruptedException {
+        var realCode = industryResources.get(code).getRealCode();
+
+        var stockCode = StockUtils.formatCode(realCode);
         var urlTemplate = "http://d.10jqka.com.cn/v4/time/bk_{}/last.js";
         var url = StringUtils.format(urlTemplate, stockCode);
 
@@ -307,7 +348,37 @@ public class RichGuyController {
         json = StringUtils.substringBeforeLast(json, "}");
 
         var quote = JsonUtils.string2Object(json, Quote.class);
-        return quote;
+        return quote.increaseRatioFloat();
+    }
+
+    public float doGetBkQuoteByHtml(int code) throws IOException {
+        var stockCode = StockUtils.formatCode(code);
+
+        var url = stockCode.startsWith("3")
+                ? StringUtils.format("http://q.10jqka.com.cn/gn/detail/code/{}/", stockCode)
+                : StringUtils.format("http://q.10jqka.com.cn/thshy/detail/code/{}/", stockCode);
+
+        var webClient = new WebClient(BrowserVersion.CHROME);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setAppletEnabled(false);
+        webClient.getOptions().setActiveXNative(false);
+        webClient.getOptions().setDoNotTrackEnabled(false);
+        webClient.getOptions().setGeolocationEnabled(false);
+        webClient.getOptions().setWebSocketEnabled(false);
+        webClient.getOptions().setJavaScriptEnabled(false);
+
+        var page = webClient.getPage(url);
+        var responseBody = page.getWebResponse().getContentAsString();
+        var document = Jsoup.parse(responseBody);
+
+        var docs = document.getElementsByAttributeValue("class", "board-zdf");
+        var doc = docs.get(0);
+        var docStr = doc.text();
+        var value = StringUtils.substringAfterLast(docStr, " ");
+        value = StringUtils.substringBeforeFirst(value, "%");
+        value = value.trim();
+
+        return Float.valueOf(value);
     }
 
 }

@@ -24,5 +24,6 @@
     <logger name="io.netty" level="info"/>
     <logger name="org.mongodb" level="warn"/>
     <logger name="com.intellij.rt" level="warn"/>
+    <logger name="com.gargoylesoftware.htmlunit" level="error"/>
 
 </configuration>

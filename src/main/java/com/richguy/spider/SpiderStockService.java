@@ -32,7 +32,7 @@ public class SpiderStockService {
     public static final long KEY = 1;
     private static final Logger logger = LoggerFactory.getLogger(SpiderStockService.class);
 
-    public List<StockVO> spiderStocks() throws IOException, InterruptedException, ParserConfigurationException, SAXException {
+    public List<StockVO> spiderStocks() throws IOException, ParserConfigurationException, SAXException {
         ProtocolManager.initProtocol(Set.of(SpiderStock.class, SpiderIndustry.class));
 
         var stocks = new ArrayList<StockVO>();
