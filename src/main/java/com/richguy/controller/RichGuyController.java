@@ -320,7 +320,7 @@ public class RichGuyController {
             try {
                 quote = doGetBkQuoteByHtml(code);
             } catch (Exception e) {
-                logger.error("通过聚合接口api获取板块数据异常", e);
+                logger.error("通过同花顺网站的html获取板块数据异常", e);
             }
         }
 
