@@ -1,7 +1,7 @@
 package com.richguy.html;
 
-import com.richguy.controller.RichGuyController;
 import com.richguy.model.stock.QuotesResult;
+import com.richguy.service.IndustryService;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
@@ -62,10 +62,10 @@ public class HtmlTest {
 
     @Test
     public void htmlunitTest() throws IOException, InterruptedException {
-        var controller = new RichGuyController();
-        var result = controller.doGetBkQuoteByHtml(881101);
+        var industryService = new IndustryService();
+        var result = industryService.doGetBkQuoteByHtml(881101);
         System.out.println(result);
-        result = controller.doGetBkQuoteByHtml(307550);
+        result = industryService.doGetBkQuoteByHtml(307550);
         System.out.println(result);
     }
 
