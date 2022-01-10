@@ -2,6 +2,7 @@ package com.richguy.controller;
 
 import com.richguy.service.IndustryService;
 import com.richguy.service.RichGuyService;
+import com.richguy.service.TopWordService;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,19 +25,27 @@ public class IndustryController {
     private IndustryService industryService;
     @Autowired
     private RichGuyService richGuyService;
+    @Autowired
+    private TopWordService topWordService;
 
     @Value("${qq.pushGroupIds}")
     private List<Long> pushGroupIds;
 
     @Scheduler(cron = "30 1 0 * * ?")
-    public void cronPushQQ() {
-        var content = industryService.topIndustryToday();
+    public void cronPushTop() {
+        var topIndustry = industryService.topIndustryToday();
+        var topWord = topWordService.topWordToday();
 
         var bot = richGuyService.bot;
 
         for (var pushGroupId : pushGroupIds) {
             var group = bot.getGroup(pushGroupId);
-            group.sendMessage(content);
+            group.sendMessage(topIndustry);
+        }
+
+        for (var pushGroupId : pushGroupIds) {
+            var group = bot.getGroup(pushGroupId);
+            group.sendMessage(topWord);
         }
     }
 

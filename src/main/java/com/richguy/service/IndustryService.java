@@ -46,6 +46,9 @@ public class IndustryService {
 
     @Autowired
     private StockService stockService;
+    @Autowired
+    private TopWordService topWordService;
+
 
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
@@ -73,12 +76,15 @@ public class IndustryService {
         }
 
         topIds.add(news.getId());
+
+        // 统计电报词语
+        topWordService.topWord(stockService.toFullContent(news));
     }
 
     public String topIndustryToday() {
         var builder = new StringBuilder();
 
-        builder.append("\uD83C\uDF20昨日电报热点板块次数统计：");
+        builder.append("\uD83C\uDF20电报热点板块次数统计：");
 
         var topList = topIndustryMap.entrySet().stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
