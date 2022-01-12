@@ -54,8 +54,29 @@ public class TopWordService {
 
         for (var word : keyWords) {
             var value = topWordMap.computeIfAbsent(word, it -> 0);
-            topWordMap.put(word, value + 1);
+            var count = countWord(content, word);
+
+            if (count == 1) {
+                topWordMap.put(word, value + 1);
+            } else if (count <= 3) {
+                topWordMap.put(word, value + 2);
+            } else if (count <= 5) {
+                topWordMap.put(word, value + 3);
+            } else if (count <= 7) {
+                topWordMap.put(word, value + 4);
+            } else {
+                topWordMap.put(word, value + 5);
+            }
         }
+    }
+
+    public int countWord(String content, String word) {
+        var count = 0;
+        while (content.contains(word)) {
+            count++;
+            content = StringUtils.substringAfterFirst(content, word);
+        }
+        return count;
     }
 
     public String topWordToday() {
@@ -70,7 +91,7 @@ public class TopWordService {
 
         var topWords = topWordMap.entrySet().stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
-                .limit(50)
+                .limit(60)
                 .collect(Collectors.toList());
 
         var count = 1;
@@ -82,7 +103,7 @@ public class TopWordService {
 
             count++;
 
-            if (count == 10 || count == 20 || count == 30 || count == 40) {
+            if (count == 10 || count == 20 || count == 30 || count == 40 || count == 50) {
                 builder.append(FileUtils.LS);
                 builder.append(FileUtils.LS);
             }

@@ -103,7 +103,7 @@ public class IndustryService {
             builder.append(FileUtils.LS);
             count++;
 
-            if (count == 10 || count == 20) {
+            if (count == 10 || count == 20 || count == 30) {
                 builder.append(FileUtils.LS);
             }
         }
