@@ -54,29 +54,8 @@ public class TopWordService {
 
         for (var word : keyWords) {
             var value = topWordMap.computeIfAbsent(word, it -> 0);
-            var count = countWord(content, word);
-
-            if (count == 1) {
-                topWordMap.put(word, value + 1);
-            } else if (count <= 3) {
-                topWordMap.put(word, value + 2);
-            } else if (count <= 5) {
-                topWordMap.put(word, value + 3);
-            } else if (count <= 7) {
-                topWordMap.put(word, value + 4);
-            } else {
-                topWordMap.put(word, value + 5);
-            }
+            topWordMap.put(word, value + 1);
         }
-    }
-
-    public int countWord(String content, String word) {
-        var count = 0;
-        while (content.contains(word)) {
-            count++;
-            content = StringUtils.substringAfterFirst(content, word);
-        }
-        return count;
     }
 
     public String topWordToday() {
