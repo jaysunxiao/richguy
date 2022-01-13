@@ -1,8 +1,11 @@
 package com.richguy.service;
 
+import com.richguy.resource.IgnoreTopWordResource;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
+import com.zfoo.storage.model.anno.ResInjection;
+import com.zfoo.storage.model.vo.Storage;
 import org.ansj.splitWord.analysis.ToAnalysis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,9 @@ public class TopWordService {
 
     private Map<String, Integer> topWordMap = new HashMap<String, Integer>();
 
+    @ResInjection
+    private Storage<String, IgnoreTopWordResource> ignoreTopWordResources;
+
     // 解析文本
     public void topWord(String content) {
         var analysisResult = ToAnalysis.parse(content);
@@ -41,7 +47,11 @@ public class TopWordService {
                 .filter(it -> StringUtils.isNotBlank(it.getName()))
                 .collect(Collectors.toList());
 
-        var keyWords = words.stream().map(it -> StringUtils.trim(it.getName())).collect(Collectors.toList());
+        var keyWords = words.stream()
+                .map(it -> StringUtils.trim(it.getName()))
+                .filter(it -> !ignoreTopWordResources.contain(it))
+                .collect(Collectors.toList());
+
         for (var word : keyWords) {
             var value = topWordMap.computeIfAbsent(word, it -> 0);
             topWordMap.put(word, value + 1);
