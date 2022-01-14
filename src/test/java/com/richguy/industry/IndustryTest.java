@@ -1,17 +1,17 @@
 package com.richguy.industry;
 
-import com.zfoo.protocol.util.ClassUtils;
-import com.zfoo.protocol.util.DomUtils;
-import com.zfoo.protocol.util.IOUtils;
+import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.util.StringUtils;
+import org.jsoup.Jsoup;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.List;
 
 /**
  * @author jaysunxiao
@@ -20,46 +20,71 @@ import java.io.IOException;
 @Ignore
 public class IndustryTest {
 
+    public static final List<String> HEADERS = List.of(
+            "accept", "*/*",
+            "Accept-Language", "zh-CN,zh;q=0.9",
+            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
+    );
+
     @Test
-    public void gn() throws IOException, ParserConfigurationException, SAXException {
-        var html = StringUtils.bytesToString(IOUtils.toByteArray(ClassUtils.getFileFromClassPath("gn.html")));
+    public void gnHtmlTest() throws IOException, InterruptedException {
+        var gnUrl = "http://q.10jqka.com.cn/gn/";
 
-        var documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        var documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        var document = documentBuilder.parse(new ByteArrayInputStream(StringUtils.bytes(html)));
-        var elements = DomUtils.getElementsByAttribute(document.getDocumentElement(), "class", "cate_items");
+        var client = HttpClient.newBuilder().build();
 
-        for (var element : elements) {
-            var items = DomUtils.getChildElements(element);
-            for (var item : items) {
-                var code = StringUtils.substringAfterFirst(item.getAttribute("href"), "http://q.10jqka.com.cn/gn/detail/code/");
+        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
+        var request = HttpRequest.newBuilder(URI.create(gnUrl))
+                .headers(ArrayUtils.listToArray(HEADERS, String.class))
+                .GET()
+                .build();
+
+        var html = client.send(request, responseBodyHandler).body();
+
+        var document = Jsoup.parse(html);
+
+        var elements = document.getElementsByAttributeValue("class", "cate_items");
+
+        for (var cateEle : elements) {
+            var gnEle = cateEle.children();
+            for (var ele : gnEle) {
+                var code = StringUtils.substringAfterFirst(ele.attr("href"), "http://q.10jqka.com.cn/gn/detail/code/");
                 code = StringUtils.substringBeforeFirst(code, "/");
 
-                var content = item.getTextContent();
+                var content = ele.text();
                 System.out.println(StringUtils.format("{}{}{}", code, StringUtils.TAB_ASCII, content));
             }
         }
     }
 
     @Test
-    public void thshy() throws IOException, ParserConfigurationException, SAXException {
-        var html = StringUtils.bytesToString(IOUtils.toByteArray(ClassUtils.getFileFromClassPath("thshy.html")));
+    public void thshyHtmlTest() throws IOException, InterruptedException {
+        var gnUrl = "http://q.10jqka.com.cn/thshy/";
 
-        var documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        var documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        var document = documentBuilder.parse(new ByteArrayInputStream(StringUtils.bytes(html)));
-        var elements = DomUtils.getElementsByAttribute(document.getDocumentElement(), "class", "cate_items");
+        var client = HttpClient.newBuilder().build();
 
-        for (var element : elements) {
-            var items = DomUtils.getChildElements(element);
-            for (var item : items) {
-                var code = StringUtils.substringAfterFirst(item.getAttribute("href"), "http://q.10jqka.com.cn/thshy/detail/code/");
+        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
+        var request = HttpRequest.newBuilder(URI.create(gnUrl))
+                .headers(ArrayUtils.listToArray(HEADERS, String.class))
+                .GET()
+                .build();
+
+        var html = client.send(request, responseBodyHandler).body();
+
+        var document = Jsoup.parse(html);
+
+        var elements = document.getElementsByAttributeValue("class", "cate_items");
+
+        for (var cateEle : elements) {
+            var gnEle = cateEle.children();
+            for (var ele : gnEle) {
+                var code = StringUtils.substringAfterFirst(ele.attr("href"), "http://q.10jqka.com.cn/thshy/detail/code/");
                 code = StringUtils.substringBeforeFirst(code, "/");
 
-                var content = item.getTextContent();
+                var content = ele.text();
                 System.out.println(StringUtils.format("{}{}{}", code, StringUtils.TAB_ASCII, content));
             }
         }
     }
+
 
 }
