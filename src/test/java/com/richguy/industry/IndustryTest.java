@@ -1,11 +1,16 @@
 package com.richguy.industry;
 
+import com.richguy.resource.IndustryResource;
 import com.richguy.util.IndustryUtils;
+import com.zfoo.protocol.model.Pair;
+import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.StringUtils;
+import com.zfoo.storage.interpreter.ExcelResourceReader;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -15,27 +20,36 @@ import java.util.List;
 @Ignore
 public class IndustryTest {
 
-    public static final List<String> HEADERS = List.of(
-            "accept", "*/*",
-            "Accept-Language", "zh-CN,zh;q=0.9",
-            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
-    );
-
     @Test
-    public void gnHtmlTest() throws IOException, InterruptedException {
-        var list = IndustryUtils.gn();
+    public void allIndustryListlTest() throws IOException, InterruptedException {
+        var list = IndustryUtils.allIndustryList();
         for (var ele : list) {
             System.out.println(StringUtils.format("{}{}{}", ele.getKey(), StringUtils.TAB_ASCII, ele.getValue()));
         }
     }
 
+
     @Test
-    public void thshyHtmlTest() throws IOException, InterruptedException {
-        var list = IndustryUtils.thshy();
-        for (var ele : list) {
-            System.out.println(StringUtils.format("{}{}{}", ele.getKey(), StringUtils.TAB_ASCII, ele.getValue()));
+    public void diffTest() throws IOException, InterruptedException {
+        var reader = new ExcelResourceReader();
+        var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class);
+
+        var allIndustry = IndustryUtils.allIndustryList();
+
+        var newIndustrySet = new HashSet<Pair<Integer, String>>();
+        for (var industry : allIndustry) {
+            if (list.stream().noneMatch(it -> it.getName().equals(StringUtils.trim(industry.getValue())))) {
+                newIndustrySet.add(industry);
+            }
+
+            if (list.stream().noneMatch(it -> it.getCode() == industry.getKey())) {
+                newIndustrySet.add(industry);
+            }
+        }
+
+        for (var newIndustry : newIndustrySet) {
+            System.out.println(newIndustry.getValue());
         }
     }
-
 
 }

@@ -35,11 +35,45 @@ public abstract class IndustryUtils {
     }
 
     public static List<Pair<Integer, String>> gn() throws IOException, InterruptedException {
-        return industryList("http://q.10jqka.com.cn/gn/");
+        var url = "http://q.10jqka.com.cn/gn/";
+        var list = new ArrayList<Pair<Integer, String>>();
+
+        var html = HttpUtils.get(url);
+        var document = Jsoup.parse(html);
+        var elements = document.getElementsByAttributeValue("class", "cate_items");
+
+        for (var cateEle : elements) {
+            var industryEle = cateEle.children();
+            for (var ele : industryEle) {
+                var code = StringUtils.substringAfterFirst(ele.attr("href"), "http://q.10jqka.com.cn/gn/detail/code/");
+                code = StringUtils.substringBeforeFirst(code, "/");
+
+                var codeName = ele.text();
+                list.add(new Pair<>(Integer.parseInt(StringUtils.trim(code)), codeName));
+            }
+        }
+        return list;
     }
 
     public static List<Pair<Integer, String>> thshy() throws IOException, InterruptedException {
-        return industryList("http://q.10jqka.com.cn/thshy/");
+        var url = "http://q.10jqka.com.cn/thshy/";
+        var list = new ArrayList<Pair<Integer, String>>();
+
+        var html = HttpUtils.get(url);
+        var document = Jsoup.parse(html);
+        var elements = document.getElementsByAttributeValue("class", "cate_items");
+
+        for (var cateEle : elements) {
+            var industryEle = cateEle.children();
+            for (var ele : industryEle) {
+                var code = StringUtils.substringAfterFirst(ele.attr("href"), "http://q.10jqka.com.cn/thshy/detail/code/");
+                code = StringUtils.substringBeforeFirst(code, "/");
+
+                var codeName = ele.text();
+                list.add(new Pair<>(Integer.parseInt(StringUtils.trim(code)), codeName));
+            }
+        }
+        return list;
     }
 
     public static List<Pair<Integer, String>> allIndustryList() throws IOException, InterruptedException {

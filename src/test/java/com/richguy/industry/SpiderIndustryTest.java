@@ -19,7 +19,7 @@ public class SpiderIndustryTest {
 
 
     @Test
-    public void industryTest() throws IOException, ParserConfigurationException, SAXException {
+    public void industryToRealIndustryTest() throws IOException, ParserConfigurationException, SAXException {
         var industryService = new SpiderIndustryService();
         industryService.industryToRealIndustry();
     }
