@@ -10,6 +10,7 @@ import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
+import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
 import org.slf4j.Logger;
@@ -43,6 +44,10 @@ public class IndustryController {
 
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
+
+    private String newIndustry = StringUtils.EMPTY;
+    private long newIndustryTime = 0L;
+    private long newIndustryCount = 0;
 
     @Scheduler(cron = "30 1 0 * * ?")
     public void cronPushTop() {
@@ -83,8 +88,9 @@ public class IndustryController {
             return;
         }
 
+
         var builder = new StringBuilder();
-        builder.append("\uD83D\uDCA5紧急通知新概念出现：");
+        builder.append("\uD83D\uDCA5紧急通知-新概念出现：");
         builder.append(FileUtils.LS);
         builder.append(FileUtils.LS);
         for (var industry : newIndustrySet) {
@@ -92,9 +98,22 @@ public class IndustryController {
             builder.append(FileUtils.LS);
         }
 
+        var newIndustryContent = builder.toString();
+        if (newIndustryContent.equals(newIndustry)) {
+            if (newIndustryTime > TimeUtils.now()) {
+                return;
+            }
+        } else {
+            newIndustry = StringUtils.EMPTY;
+            newIndustryTime = 0L;
+            newIndustryCount = 0;
+        }
+
+        newIndustry = newIndustryContent;
+        newIndustryTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 5 * (long) Math.pow(2, newIndustryCount++);
+
         var bot = richGuyService.bot;
 
-        var newIndustryContent = builder.toString();
 
         for (var pushGroupId : pushGroupIds) {
             var group = bot.getGroup(pushGroupId);
