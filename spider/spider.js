@@ -8,8 +8,8 @@ const url = process.argv[2];
     let page = null;
     try {
         browser = await main.launch({
-            executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-            headless: false
+            headless: true,
+            args: ['--no-sandbox']
         });
         page = await browser.newPage();
 

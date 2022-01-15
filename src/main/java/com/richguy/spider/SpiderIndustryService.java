@@ -48,7 +48,7 @@ public class SpiderIndustryService {
                 continue;
             }
             var url = StringUtils.format(urlTemplate, code);
-            var command = StringUtils.format("node {} {}", "D:\\github\\richguy\\spider\\spider.js", url);
+            var command = StringUtils.format("node {} {}", "spider\\spider.js", url);
             var str = OSUtils.execCommand(command);
 
             str = StringUtils.substringAfterFirst(str, "<h3>");
