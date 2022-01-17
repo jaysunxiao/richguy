@@ -110,7 +110,7 @@ public class IndustryController {
         }
 
         newIndustry = newIndustryContent;
-        newIndustryTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 5 * (long) Math.pow(2, newIndustryCount++);
+        newIndustryTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 3 * (long) Math.pow(2, newIndustryCount++);
 
         var bot = richGuyService.bot;
 
