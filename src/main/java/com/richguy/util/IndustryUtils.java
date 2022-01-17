@@ -1,5 +1,6 @@
 package com.richguy.util;
 
+import com.zfoo.monitor.util.OSUtils;
 import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.StringUtils;
 import org.jsoup.Jsoup;
@@ -32,6 +33,23 @@ public abstract class IndustryUtils {
             }
         }
         return list;
+    }
+
+    public static int realCode(int code) {
+        var urlTemplate = "http://q.10jqka.com.cn/gn/detail/code/{}/";
+        if (String.valueOf(code).startsWith("8")) {
+            return code;
+        }
+        var url = StringUtils.format(urlTemplate, code);
+        var command = StringUtils.format("node {} {}", "spider\\spider.js", url);
+        var str = OSUtils.execCommand(command);
+
+        str = StringUtils.substringAfterFirst(str, "<h3>");
+        str = StringUtils.substringBeforeLast(str, "</h3>");
+        str = StringUtils.substringAfterFirst(str, "<span>");
+        str = StringUtils.substringBeforeLast(str, "</span>");
+        var realCode = str.trim();
+        return Integer.parseInt(realCode);
     }
 
     public static List<Pair<Integer, String>> gn() throws IOException, InterruptedException {

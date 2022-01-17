@@ -28,6 +28,12 @@ public class IndustryTest {
         }
     }
 
+    @Test
+    public void realIndustryTest() {
+        var realCode = IndustryUtils.realCode(308820);
+        System.out.println(realCode);
+    }
+
 
     @Test
     public void diffTest() throws IOException, InterruptedException {

@@ -38,7 +38,7 @@ public class StockService {
         }
 
         if (StringUtils.isNotEmpty(news.getContent())) {
-            builder.append(StringUtils.trim(news.getTitle())).append(FileUtils.LS);
+            builder.append(StringUtils.trim(news.getContent())).append(FileUtils.LS);
         }
 
         if (CollectionUtils.isNotEmpty(news.getStocks())) {

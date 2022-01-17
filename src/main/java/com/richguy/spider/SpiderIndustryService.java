@@ -4,6 +4,7 @@ import com.richguy.packet.SpiderIndustry;
 import com.richguy.packet.SpiderStock;
 import com.richguy.resource.IndustryResource;
 import com.richguy.spider.model.IndustryStockVO;
+import com.richguy.util.IndustryUtils;
 import com.zfoo.monitor.util.OSUtils;
 import com.zfoo.orm.lpmap.FileChannelMap;
 import com.zfoo.protocol.ProtocolManager;
@@ -41,22 +42,9 @@ public class SpiderIndustryService {
         var reader = new ExcelResourceReader();
         var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class);
 
-        var urlTemplate = "http://q.10jqka.com.cn/gn/detail/code/{}/";
         for (var industryResource : list) {
             var code = industryResource.getCode();
-            if (String.valueOf(code).startsWith("8")) {
-                continue;
-            }
-            var url = StringUtils.format(urlTemplate, code);
-            var command = StringUtils.format("node {} {}", "spider\\spider.js", url);
-            var str = OSUtils.execCommand(command);
-
-            str = StringUtils.substringAfterFirst(str, "<h3>");
-            str = StringUtils.substringBeforeLast(str, "</h3>");
-            str = StringUtils.substringAfterFirst(str, "<span>");
-            str = StringUtils.substringBeforeLast(str, "</span>");
-            var realCode = str.trim();
-
+            var realCode = IndustryUtils.realCode(code);
             var info = StringUtils.format("{}{}{}{}{}", code, StringUtils.TAB_ASCII, industryResource.getName(), StringUtils.TAB_ASCII, realCode);
             System.out.println(info);
         }
