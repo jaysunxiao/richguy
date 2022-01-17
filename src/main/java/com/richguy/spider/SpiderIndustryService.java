@@ -38,7 +38,7 @@ public class SpiderIndustryService {
 
     public static final long KEY = 1;
 
-    public void industryToRealIndustry() throws IOException, ParserConfigurationException, SAXException {
+    public void industryToRealIndustry() throws IOException {
         var reader = new ExcelResourceReader();
         var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class);
 
