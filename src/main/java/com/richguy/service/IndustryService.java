@@ -6,6 +6,7 @@ import com.richguy.model.OneNews;
 import com.richguy.model.quote.Quote;
 import com.richguy.resource.IndustryResource;
 import com.richguy.util.HttpUtils;
+import com.richguy.util.IndustryUtils;
 import com.richguy.util.StockUtils;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.util.FileUtils;
@@ -158,11 +159,7 @@ public class IndustryService {
     }
 
     public float doGetBkQuoteByHtml(int code) throws IOException {
-        var stockCode = StockUtils.formatCode(code);
-
-        var url = stockCode.startsWith("3")
-                ? StringUtils.format("http://q.10jqka.com.cn/gn/detail/code/{}/", stockCode)
-                : StringUtils.format("http://q.10jqka.com.cn/thshy/detail/code/{}/", stockCode);
+        var url = IndustryUtils.industryHtmlUrl(code);
 
         var webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setCssEnabled(false);

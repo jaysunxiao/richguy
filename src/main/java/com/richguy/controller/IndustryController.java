@@ -96,6 +96,9 @@ public class IndustryController {
         for (var industry : newIndustrySet) {
             builder.append(StringUtils.format("{} {} ", industry.getKey(), industry.getValue()));
             builder.append(FileUtils.LS);
+            var url = IndustryUtils.industryHtmlUrl(industry.getKey());
+            builder.append(url);
+            builder.append(FileUtils.LS);
         }
 
         var newIndustryContent = builder.toString();

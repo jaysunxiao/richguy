@@ -35,6 +35,16 @@ public abstract class IndustryUtils {
         return list;
     }
 
+    public static String industryHtmlUrl(int code) {
+        var stockCode = StockUtils.formatCode(code);
+
+        var url = stockCode.startsWith("3")
+                ? StringUtils.format("http://q.10jqka.com.cn/gn/detail/code/{}/", stockCode)
+                : StringUtils.format("http://q.10jqka.com.cn/thshy/detail/code/{}/", stockCode);
+
+        return url;
+    }
+
     public static int realCode(int code) {
         var urlTemplate = "http://q.10jqka.com.cn/gn/detail/code/{}/";
         if (String.valueOf(code).startsWith("8")) {
