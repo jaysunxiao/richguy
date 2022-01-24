@@ -57,6 +57,9 @@ public class RichGuyController {
 
     private Deque<Long> pushIds = new LinkedList<>();
 
+    /**
+     * 财联社新闻推送
+     */
     @Scheduler(cron = "0 * * * * ?")
     public void cronPushQQ() throws IOException, InterruptedException {
         var response = requestForTelegraph();

@@ -8,7 +8,6 @@ import com.richguy.resource.IndustryResource;
 import com.richguy.util.HttpUtils;
 import com.richguy.util.IndustryUtils;
 import com.richguy.util.StockUtils;
-import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
@@ -21,11 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.*;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -38,12 +36,6 @@ public class IndustryService {
     public static final Logger logger = LoggerFactory.getLogger(IndustryService.class);
 
     public static final float DEFAULT_VAlUE = 88.8F;
-
-    public static final List<String> HEADERS = List.of(
-            "accept", "*/*",
-            "Accept-Language", "zh-CN,zh;q=0.9",
-            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
-    );
 
     @Autowired
     private StockService stockService;
@@ -142,14 +134,7 @@ public class IndustryService {
         var urlTemplate = "http://d.10jqka.com.cn/v4/time/bk_{}/last.js";
         var url = StringUtils.format(urlTemplate, stockCode);
 
-        var client = HttpClient.newBuilder().build();
-        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-        var request = HttpRequest.newBuilder(URI.create(url))
-                .headers(ArrayUtils.listToArray(HEADERS, String.class))
-                .GET()
-                .build();
-
-        var responseBody = client.send(request, responseBodyHandler).body();
+        var responseBody = HttpUtils.get(url);
         var json = HttpUtils.formatJson(responseBody);
         json = StringUtils.substringAfterFirst(json, "\":");
         json = StringUtils.substringBeforeLast(json, "}");
