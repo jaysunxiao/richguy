@@ -85,9 +85,7 @@ public abstract class StockUtils {
 
     public static float getStockFiveRangeByWenCai(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
-        var request = WenCaiRequest.valueOf(stockCode, 50, 1, "Ths_iwencai_Xuangu", "stock", "2.0", "",
-
-                "");
+        var request = WenCaiRequest.valueOf(stockCode, 50, 1, "Ths_iwencai_Xuangu", "stock", "2.0");
         var responseBody = HttpUtils.post("http://www.iwencai.com/customized/chart/get-robot-data", request);
         var node = JsonUtils.getNode(responseBody, "rise_fall_rate");
         var value = node.asDouble();

@@ -242,6 +242,14 @@ public class RichGuyController {
             }
         }
 
+        if (fiveRange == DEFAULT_VAlUE) {
+            try {
+                fiveRange = StockUtils.getStockFiveRangeByWenCai(code);
+            } catch (Exception e) {
+                logger.error("通过问财接口api获取股票数据异常", e);
+            }
+        }
+
         return fiveRange;
     }
 

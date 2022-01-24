@@ -21,13 +21,8 @@ public class WenCaiRequest {
 
     private String version;
 
-    @JsonProperty("add_info")
-    private String addInfo;
 
-    @JsonProperty("log_info")
-    private String logInfo;
-
-    public static WenCaiRequest valueOf(String question, int perpage, int page, String source, String secondaryIntent, String version, String addInfo, String logInfo) {
+    public static WenCaiRequest valueOf(String question, int perpage, int page, String source, String secondaryIntent, String version) {
         var request = new WenCaiRequest();
         request.question = question;
         request.perpage = perpage;
@@ -35,8 +30,6 @@ public class WenCaiRequest {
         request.source = source;
         request.secondaryIntent = secondaryIntent;
         request.version = version;
-        request.addInfo = addInfo;
-        request.logInfo = logInfo;
         return request;
     }
 
@@ -88,19 +81,4 @@ public class WenCaiRequest {
         this.version = version;
     }
 
-    public String getAddInfo() {
-        return addInfo;
-    }
-
-    public void setAddInfo(String addInfo) {
-        this.addInfo = addInfo;
-    }
-
-    public String getLogInfo() {
-        return logInfo;
-    }
-
-    public void setLogInfo(String logInfo) {
-        this.logInfo = logInfo;
-    }
 }
