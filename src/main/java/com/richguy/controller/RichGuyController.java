@@ -4,6 +4,7 @@ package com.richguy.controller;
 import com.richguy.model.Telegraph;
 import com.richguy.model.five.FiveRangeResult;
 import com.richguy.model.stock.QuotesResult;
+import com.richguy.model.wencai.WenCaiRequest;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.StockResource;
@@ -228,6 +229,23 @@ public class RichGuyController {
 
     // **************************************************股票相关********************************************************
 
+    /**
+     * 获取实时价格的第三种方式
+     */
+    public static float getStockFiveRangeByWenCai(int code) throws IOException, InterruptedException {
+        var stockCode = StockUtils.formatCode(code);
+        var request = WenCaiRequest.valueOf(stockCode, 50, 1, "Ths_iwencai_Xuangu", "stock", "2.0");
+        var responseBody = HttpUtils.post("http://www.iwencai.com/customized/chart/get-robot-data", request);
+        var node = JsonUtils.getNode(responseBody, "rise_fall_rate");
+        var value = node.asDouble();
+        return (float) value;
+    }
+
+    /**
+     * 通过爬虫获取股票价格有概率失败，所以一共有3个实现，轮流使用不同的实现
+     *
+     * @param code 股票的代码
+     */
     public float stockFiveRange(int code) {
         float fiveRange = DEFAULT_VAlUE;
 
@@ -247,7 +265,7 @@ public class RichGuyController {
 
         if (fiveRange == DEFAULT_VAlUE) {
             try {
-                fiveRange = StockUtils.getStockFiveRangeByWenCai(code);
+                fiveRange = getStockFiveRangeByWenCai(code);
             } catch (Exception e) {
                 logger.error("通过问财接口api获取股票数据异常", e);
             }
@@ -256,6 +274,9 @@ public class RichGuyController {
         return fiveRange;
     }
 
+    /**
+     * 获取实时价格的第一种方式，调用失败，自动使用第二种doGetStockFiveRangeByJuhe
+     */
     public float doGetStockFiveRange(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
         var url = StringUtils.format("http://d.10jqka.com.cn/v2/fiverange/hs_{}/last.js", stockCode);
@@ -265,6 +286,9 @@ public class RichGuyController {
         return fiveRange.getItems().increaseRatioFloat();
     }
 
+    /**
+     * 获取实时价格的第二种方式，调用失败，自动使用第三种getStockFiveRangeByWenCai
+     */
     public float doGetStockFiveRangeByJuhe(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
         stockCode = stockCode.startsWith("6")
@@ -276,5 +300,4 @@ public class RichGuyController {
         var quote = JsonUtils.string2Object(responseBody, QuotesResult.class);
         return Float.valueOf(quote.getResult().get(0).getBaseData().getRate());
     }
-
 }

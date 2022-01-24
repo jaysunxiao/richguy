@@ -49,8 +49,11 @@ public class IndustryController {
     private long newIndustryTime = 0L;
     private long newIndustryCount = 0;
 
+    /**
+     * 热点词语次数统计
+     */
     @Scheduler(cron = "30 1 0 * * ?")
-    public void cronPushTop() {
+    public void cronTopHotWord() {
         var topIndustry = industryService.topIndustryToday();
         var topWord = topWordService.topWordToday();
 
@@ -67,8 +70,11 @@ public class IndustryController {
         }
     }
 
+    /**
+     * 热点板块次数统计
+     */
     @Scheduler(cron = "0 0/10 * * * ?")
-    public void cronNewIndustry() throws IOException, InterruptedException {
+    public void cronNewTopHotIndustry() throws IOException, InterruptedException {
         var allIndustry = IndustryUtils.allIndustryList();
         var newIndustrySet = new HashSet<Pair<Integer, String>>();
         for (var industry : allIndustry) {
