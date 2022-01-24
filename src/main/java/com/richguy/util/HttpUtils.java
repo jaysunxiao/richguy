@@ -1,6 +1,7 @@
 package com.richguy.util;
 
 import com.zfoo.protocol.collection.ArrayUtils;
+import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,8 +33,28 @@ public abstract class HttpUtils {
                 .GET()
                 .build();
 
-        var html = client.send(request, responseBodyHandler).body();
-        return html;
+        var result = client.send(request, responseBodyHandler).body();
+        return result;
+    }
+
+    public static String post(String url, Object jsonObject) throws IOException, InterruptedException {
+        var client = HttpClient.newBuilder().build();
+
+        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
+
+        var postBody = JsonUtils.object2String(jsonObject);
+
+        var headers = new ArrayList<>(HEADERS);
+        headers.add("Content-Type");
+        headers.add("application/json");
+
+        var request = HttpRequest.newBuilder(URI.create(url))
+                .headers(ArrayUtils.listToArray(headers, String.class))
+                .POST(HttpRequest.BodyPublishers.ofString(postBody))
+                .build();
+
+        var result = client.send(request, responseBodyHandler).body();
+        return result;
     }
 
     public static String formatJson(String json) {

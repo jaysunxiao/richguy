@@ -12,7 +12,6 @@ import com.richguy.service.RichGuyService;
 import com.richguy.service.StockService;
 import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
-import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.JsonUtils;
@@ -28,10 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.*;
 
 @Component
@@ -222,17 +217,9 @@ public class RichGuyController {
      * 获取最新电报
      */
     public Telegraph requestForTelegraph() throws IOException, InterruptedException {
-        var client = HttpClient.newBuilder().build();
-
-        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-        var request = HttpRequest.newBuilder(URI.create("https://www.cls.cn/nodeapi/updateTelegraphList"))
-                .headers(ArrayUtils.listToArray(IndustryService.HEADERS, String.class))
-                .GET()
-                .build();
-
-        var responseBody = client.send(request, responseBodyHandler).body();
+        var url = "https://www.cls.cn/nodeapi/updateTelegraphList";
+        var responseBody = HttpUtils.get(url);
         var response = JsonUtils.string2Object(responseBody, Telegraph.class);
-
         return response;
     }
 
@@ -260,17 +247,8 @@ public class RichGuyController {
 
     public float doGetStockFiveRange(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
-        var client = HttpClient.newBuilder().build();
-
         var url = StringUtils.format("http://d.10jqka.com.cn/v2/fiverange/hs_{}/last.js", stockCode);
-
-        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-        var request = HttpRequest.newBuilder(URI.create(url))
-                .headers(ArrayUtils.listToArray(IndustryService.HEADERS, String.class))
-                .GET()
-                .build();
-
-        var responseBody = client.send(request, responseBodyHandler).body();
+        var responseBody = HttpUtils.get(url);
         var json = HttpUtils.formatJson(responseBody);
         var fiveRange = JsonUtils.string2Object(json, FiveRangeResult.class);
         return fiveRange.getItems().increaseRatioFloat();
@@ -283,15 +261,7 @@ public class RichGuyController {
                 : StringUtils.format("sz{}", stockCode);
 
         var url = StringUtils.format(juheStockUrl, stockCode);
-
-        var client = HttpClient.newBuilder().build();
-        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-        var request = HttpRequest.newBuilder(URI.create(url))
-                .headers(ArrayUtils.listToArray(IndustryService.HEADERS, String.class))
-                .GET()
-                .build();
-
-        var responseBody = client.send(request, responseBodyHandler).body();
+        var responseBody = HttpUtils.get(url);
         var quote = JsonUtils.string2Object(responseBody, QuotesResult.class);
         return Float.valueOf(quote.getResult().get(0).getBaseData().getRate());
     }

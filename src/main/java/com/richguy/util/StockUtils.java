@@ -1,10 +1,13 @@
 package com.richguy.util;
 
+import com.richguy.model.wencai.WenCaiRequest;
+import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -78,6 +81,17 @@ public abstract class StockUtils {
     public static String toSimpleRatio(float value) {
         var decimal = new BigDecimal(value);
         return decimal.setScale(1, RoundingMode.HALF_UP).toString();
+    }
+
+    public static float getStockFiveRangeByWenCai(int code) throws IOException, InterruptedException {
+        var stockCode = StockUtils.formatCode(code);
+        var request = WenCaiRequest.valueOf(stockCode, 50, 1, "Ths_iwencai_Xuangu", "stock", "2.0", "",
+
+                "");
+        var responseBody = HttpUtils.post("http://www.iwencai.com/customized/chart/get-robot-data", request);
+        var node = JsonUtils.getNode(responseBody, "rise_fall_rate");
+        var value = node.asDouble();
+        return (float) value;
     }
 
 }
