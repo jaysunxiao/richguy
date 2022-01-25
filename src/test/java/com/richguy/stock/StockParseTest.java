@@ -1,6 +1,6 @@
 package com.richguy.stock;
 
-import com.richguy.spider.model.StockVO;
+import com.richguy.model.StockVO;
 import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.DomUtils;
 import com.zfoo.protocol.util.IOUtils;

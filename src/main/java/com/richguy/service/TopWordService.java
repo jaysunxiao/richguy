@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -24,8 +22,9 @@ public class TopWordService {
 
     @Autowired
     private NewsService newsService;
+    @Autowired
+    private DatabaseService databaseService;
 
-    private Map<String, Integer> topWordMap = new HashMap<String, Integer>();
 
     @ResInjection
     private Storage<String, IgnoreTopWordResource> ignoreTopWordResources;
@@ -53,8 +52,7 @@ public class TopWordService {
                 .collect(Collectors.toList());
 
         for (var word : keyWords) {
-            var value = topWordMap.computeIfAbsent(word, it -> 0);
-            topWordMap.put(word, value + 1);
+            databaseService.database.addTopWordMap(word);
         }
     }
 
@@ -68,7 +66,8 @@ public class TopWordService {
         // 新闻热词统计
         newsService.newsTopWord();
 
-        var topWords = topWordMap.entrySet().stream()
+        var topWords = databaseService.database.getTopWordMap().entrySet()
+                .stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
                 .limit(60)
                 .collect(Collectors.toList());

@@ -20,10 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -41,22 +37,18 @@ public class IndustryService {
     private StockService stockService;
     @Autowired
     private TopWordService topWordService;
-
+    @Autowired
+    private DatabaseService databaseService;
 
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
 
-    private Deque<Long> topIds = new LinkedList<>();
-
-    private Map<Integer, Integer> topIndustryMap = new HashMap<>();
 
     public void topIndustry(OneNews news) {
-        if (topIds.contains(news.getId())) {
-            return;
-        }
+        var database = databaseService.database;
 
-        if (topIds.size() >= 1000) {
-            topIds.removeFirst();
+        if (database.getTopNewIds().contains(news.getId())) {
+            return;
         }
 
         var stockList = stockService.selectStocks(news);
@@ -64,11 +56,10 @@ public class IndustryService {
 
         for (var industry : industryList) {
             var code = industry.getCode();
-            var count = topIndustryMap.computeIfAbsent(code, key -> 0);
-            topIndustryMap.put(code, count + 1);
+            database.addTopIndustry(code);
         }
 
-        topIds.add(news.getId());
+        database.addTopNewsId(news.getId());
 
         // 统计电报词语
         topWordService.topWord(stockService.toFullContent(news));
@@ -79,7 +70,9 @@ public class IndustryService {
 
         builder.append("\uD83C\uDF20电报热点板块次数统计：");
 
-        var topList = topIndustryMap.entrySet().stream()
+
+        var topList = databaseService.database.getTopIndustryMap().entrySet()
+                .stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
                 .limit(30)
                 .collect(Collectors.toList());
@@ -101,7 +94,7 @@ public class IndustryService {
             }
         }
 
-        topIndustryMap.clear();
+        databaseService.database.getTopIndustryMap().clear();
         return builder.toString();
     }
 

@@ -1,6 +1,7 @@
 package com.richguy.controller;
 
 import com.richguy.resource.IndustryResource;
+import com.richguy.service.DatabaseService;
 import com.richguy.service.IndustryService;
 import com.richguy.service.RichGuyService;
 import com.richguy.service.TopWordService;
@@ -38,6 +39,8 @@ public class IndustryController {
     private RichGuyService richGuyService;
     @Autowired
     private TopWordService topWordService;
+    @Autowired
+    private DatabaseService databaseService;
 
     @Value("${qq.pushGroupIds}")
     private List<Long> pushGroupIds;
@@ -45,9 +48,6 @@ public class IndustryController {
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
 
-    private String newIndustry = StringUtils.EMPTY;
-    private long newIndustryTime = 0L;
-    private long newIndustryCount = 0;
 
     /**
      * 热点词语次数统计
@@ -71,7 +71,7 @@ public class IndustryController {
     }
 
     /**
-     * 热点板块次数统计
+     * 新概念发现功能
      */
     @Scheduler(cron = "0 0/10 * * * ?")
     public void cronNewTopHotIndustry() throws IOException, InterruptedException {
@@ -107,23 +107,19 @@ public class IndustryController {
             builder.append(FileUtils.LS);
         }
 
+        var database = databaseService.database;
         var newIndustryContent = builder.toString();
-        if (newIndustryContent.equals(newIndustry)) {
-            if (newIndustryTime > TimeUtils.now()) {
+        if (newIndustryContent.equals(database.getNewIndustry())) {
+            if (database.getNewIndustryTime() > TimeUtils.now()) {
                 return;
             }
         } else {
-            newIndustry = StringUtils.EMPTY;
-            newIndustryTime = 0L;
-            newIndustryCount = 0;
+            database.clearIndustry();
         }
 
-        newIndustry = newIndustryContent;
-        newIndustryTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 3 * (long) Math.pow(2, newIndustryCount++);
+        database.updateNewIndustry(newIndustryContent);
 
         var bot = richGuyService.bot;
-
-
         for (var pushGroupId : pushGroupIds) {
             var group = bot.getGroup(pushGroupId);
             group.sendMessage(newIndustryContent);

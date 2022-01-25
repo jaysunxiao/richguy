@@ -1,4 +1,4 @@
-package com.richguy.spider.model;
+package com.richguy.model;
 
 import com.zfoo.protocol.util.StringUtils;
 

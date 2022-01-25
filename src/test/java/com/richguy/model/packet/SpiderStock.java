@@ -1,4 +1,4 @@
-package com.richguy.packet;
+package com.richguy.model.packet;
 
 import com.zfoo.protocol.IPacket;
 

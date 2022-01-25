@@ -8,6 +8,7 @@ import com.richguy.model.wencai.WenCaiRequest;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.StockResource;
+import com.richguy.service.DatabaseService;
 import com.richguy.service.IndustryService;
 import com.richguy.service.RichGuyService;
 import com.richguy.service.StockService;
@@ -28,7 +29,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 @Component
 public class RichGuyController {
@@ -49,14 +52,14 @@ public class RichGuyController {
     private StockService stockService;
     @Autowired
     private IndustryService industryService;
-
+    @Autowired
+    private DatabaseService databaseService;
 
     @ResInjection
     private Storage<String, KeyWordResource> keyWordResources;
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
 
-    private Deque<Long> pushIds = new LinkedList<>();
 
     /**
      * 财联社新闻推送
@@ -80,6 +83,8 @@ public class RichGuyController {
     public void doPush(Telegraph telegraph) {
         var rollData = telegraph.getData().getRollData();
 
+        var database = databaseService.database;
+
         for (var news : rollData) {
             // 统计行业
             industryService.topIndustry(news);
@@ -87,7 +92,8 @@ public class RichGuyController {
             if (news.getType() != -1) {
                 continue;
             }
-            if (pushIds.contains(news.getId())) {
+
+            if (database.getPushTelegraphIds().contains(news.getId())) {
                 continue;
             }
 
@@ -106,10 +112,6 @@ public class RichGuyController {
                 builder.append(StringUtils.format("{}级电报 {}", level, dateStr));
             } else {
                 continue;
-            }
-
-            if (pushIds.size() >= 1000) {
-                pushIds.removeFirst();
             }
 
             if (StringUtils.isNotEmpty(title)) {
@@ -211,7 +213,9 @@ public class RichGuyController {
                 group.sendMessage(telegraphContent);
             }
 
-            pushIds.add(news.getId());
+            // 将已经加入处理过的电报，存入到数据库中
+            database.addPushTelegraphId(news.getId());
+
             logger.info(telegraphContent);
         }
     }
@@ -252,14 +256,14 @@ public class RichGuyController {
         try {
             fiveRange = doGetStockFiveRange(code);
         } catch (Exception e) {
-            logger.error("通过同花顺接口api获取股票数据异常", e);
+            logger.error("通过同花顺接口api获取股票数据异常");
         }
 
         if (fiveRange == DEFAULT_VAlUE) {
             try {
                 fiveRange = doGetStockFiveRangeByJuhe(code);
             } catch (Exception e) {
-                logger.error("通过聚合接口api获取股票数据异常", e);
+                logger.error("通过聚合接口api获取股票数据异常");
             }
         }
 
@@ -267,7 +271,7 @@ public class RichGuyController {
             try {
                 fiveRange = getStockFiveRangeByWenCai(code);
             } catch (Exception e) {
-                logger.error("通过问财接口api获取股票数据异常", e);
+                logger.error("通过问财接口api获取股票数据异常");
             }
         }
 
