@@ -233,49 +233,17 @@ public class RichGuyController {
 
     // **************************************************股票相关********************************************************
 
+
     /**
      * 获取实时价格的第三种方式
      */
-    public static float getStockFiveRangeByWenCai(int code) throws IOException, InterruptedException {
+    public static float doGetStockFiveRangeByWenCai(int code) throws IOException, InterruptedException {
         var stockCode = StockUtils.formatCode(code);
         var request = WenCaiRequest.valueOf(stockCode, 50, 1, "Ths_iwencai_Xuangu", "stock", "2.0");
         var responseBody = HttpUtils.post("http://www.iwencai.com/customized/chart/get-robot-data", request);
         var node = JsonUtils.getNode(responseBody, "rise_fall_rate");
         var value = node.asDouble();
         return (float) value;
-    }
-
-    /**
-     * 通过爬虫获取股票价格有概率失败，所以一共有3个实现，轮流使用不同的实现
-     *
-     * @param code 股票的代码
-     */
-    public float stockFiveRange(int code) {
-        float fiveRange = DEFAULT_VAlUE;
-
-        try {
-            fiveRange = doGetStockFiveRange(code);
-        } catch (Exception e) {
-            logger.error("通过同花顺接口api获取股票数据异常");
-        }
-
-        if (fiveRange == DEFAULT_VAlUE) {
-            try {
-                fiveRange = doGetStockFiveRangeByJuhe(code);
-            } catch (Exception e) {
-                logger.error("通过聚合接口api获取股票数据异常");
-            }
-        }
-
-        if (fiveRange == DEFAULT_VAlUE) {
-            try {
-                fiveRange = getStockFiveRangeByWenCai(code);
-            } catch (Exception e) {
-                logger.error("通过问财接口api获取股票数据异常");
-            }
-        }
-
-        return fiveRange;
     }
 
     /**
@@ -303,5 +271,38 @@ public class RichGuyController {
         var responseBody = HttpUtils.get(url);
         var quote = JsonUtils.string2Object(responseBody, QuotesResult.class);
         return Float.valueOf(quote.getResult().get(0).getBaseData().getRate());
+    }
+
+    /**
+     * 通过爬虫获取股票价格有概率失败，所以一共有3个实现，轮流使用不同的实现
+     *
+     * @param code 股票的代码
+     */
+    public float stockFiveRange(int code) {
+        float fiveRange = DEFAULT_VAlUE;
+
+        try {
+            fiveRange = doGetStockFiveRange(code);
+        } catch (Exception e) {
+            logger.error("通过同花顺接口api获取股票数据异常");
+        }
+
+        if (fiveRange == DEFAULT_VAlUE) {
+            try {
+                fiveRange = doGetStockFiveRangeByJuhe(code);
+            } catch (Exception e) {
+                logger.error("通过聚合接口api获取股票数据异常");
+            }
+        }
+
+        if (fiveRange == DEFAULT_VAlUE) {
+            try {
+                fiveRange = doGetStockFiveRangeByWenCai(code);
+            } catch (Exception e) {
+                logger.error("通过问财接口api获取股票数据异常");
+            }
+        }
+
+        return fiveRange;
     }
 }
