@@ -20,23 +20,23 @@ public class DatabaseService implements ApplicationListener<ApplicationContextEv
 
     public static final long DB_KEY = 1;
     public DatabasePacket database;
-    private FileHeapMap<DatabasePacket> dbMap;
+    public FileHeapMap<DatabasePacket> richDB;
 
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
         if (event instanceof AppStartEvent) {
             ProtocolManager.initProtocol(Set.of(DatabasePacket.class));
 
-            dbMap = new FileHeapMap<>("richDb", DatabasePacket.class);
+            richDB = new FileHeapMap<>("richDb", DatabasePacket.class);
 
-            if (dbMap.get(DB_KEY) == null) {
-                dbMap.put(DB_KEY, DatabasePacket.valueOf());
+            if (richDB.get(DB_KEY) == null) {
+                richDB.put(DB_KEY, DatabasePacket.valueOf());
             }
 
-            database = dbMap.get(DB_KEY);
+            database = richDB.get(DB_KEY);
         } else if (event instanceof ContextClosedEvent) {
-            dbMap.put(DB_KEY, database);
-            dbMap.save();
+            richDB.put(DB_KEY, database);
+            richDB.save();
         }
     }
 

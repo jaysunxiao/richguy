@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -70,8 +71,9 @@ public class IndustryService {
 
         builder.append("\uD83C\uDF20电报热点板块次数统计：");
 
+        var database = databaseService.database;
 
-        var topList = databaseService.database.getTopIndustryMap().entrySet()
+        var topList = database.getTopIndustryMap().entrySet()
                 .stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
                 .limit(30)
@@ -85,8 +87,23 @@ public class IndustryService {
             var code = pair.getKey();
             var industryResource = industryResources.get(code);
             var quote = bkQuote(code);
-            builder.append(StringUtils.format("{}. {}({}) {}", count, industryResource.getName(), StockUtils.toSimpleRatio(quote), pair.getValue()));
+            var quoteSimpleRatio = StockUtils.toSimpleRatio(quote);
+            var name = industryResource.getName();
+
+            if (database.getOldTopIndustryMap().containsKey(code)) {
+                var oldRank = topIndustryRank(code, database.getOldTopIndustryMap());
+                var newRank = topIndustryRank(code, database.getTopIndustryMap());
+                var changeRank = oldRank - newRank;
+                if (changeRank >= 0) {
+                    builder.append(StringUtils.format("{}. {}({}) ({}) +{}", count, name, quoteSimpleRatio, pair.getValue(), changeRank));
+                } else {
+                    builder.append(StringUtils.format("{}. {}({}) ({}) -{}", count, name, quoteSimpleRatio, pair.getValue(), changeRank));
+                }
+            } else {
+                builder.append(StringUtils.format("{}. {}({}) ({})", count, name, quoteSimpleRatio, pair.getValue()));
+            }
             builder.append(FileUtils.LS);
+
             count++;
 
             if (count == 10 || count == 20 || count == 30) {
@@ -94,8 +111,30 @@ public class IndustryService {
             }
         }
 
-        databaseService.database.getTopIndustryMap().clear();
+        database.clearTopIndustryMap();
         return builder.toString();
+    }
+
+    public int topIndustryRank(int code, Map<Integer, Integer> topIndustryMap) {
+        if (!topIndustryMap.containsKey(code)) {
+            return 0;
+        }
+
+        var topList = topIndustryMap.entrySet()
+                .stream()
+                .sorted((a, b) -> b.getValue() - a.getValue())
+                .collect(Collectors.toList());
+
+        var rank = 0;
+        for (int i = 0; i < topList.size(); i++) {
+            var topIndustry = topList.get(i);
+            if (topIndustry.getKey() == code) {
+                rank = i + 1;
+                break;
+            }
+        }
+
+        return rank;
     }
 
     // **************************************************板块相关********************************************************

@@ -5,10 +5,7 @@ import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.util.TimeUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author jaysunxiao
@@ -24,24 +21,31 @@ public class DatabasePacket implements IPacket {
     private List<Long> pushTelegraphIds;
 
 
+    // 热点板块变化
+    private Map<Integer, Integer> oldTopIndustryMap;
+    private Map<Integer, Integer> topIndustryMap;
+
+    // 热点词语
+    private Map<String, Integer> oldTopWordMap;
+    private Map<String, Integer> topWordMap;
+
     // 热点新闻
     private List<Long> topNewIds;
 
-    private Map<Integer, Integer> topIndustryMap;
 
-    private Map<String, Integer> topWordMap;
-
-    private String newIndustry;
-    private long newIndustryTime;
-    private long newIndustryCount;
+    private String newHotGn;
+    private long newHotGnTime;
+    private long newHotGnCount;
 
     public static DatabasePacket valueOf() {
         var packet = new DatabasePacket();
         packet.pushTelegraphIds = new ArrayList<>();
         packet.topNewIds = new ArrayList<>();
+        packet.oldTopIndustryMap = new HashMap<>();
         packet.topIndustryMap = new HashMap<>();
+        packet.oldTopWordMap = new HashMap<>();
         packet.topWordMap = new HashMap<>();
-        packet.newIndustry = StringUtils.EMPTY;
+        packet.newHotGn = StringUtils.EMPTY;
         return packet;
     }
 
@@ -93,15 +97,25 @@ public class DatabasePacket implements IPacket {
         topWordMap.put(word, count + 1);
     }
 
-    public void clearIndustry() {
-        newIndustry = StringUtils.EMPTY;
-        newIndustryTime = 0L;
-        newIndustryCount = 0;
+    public void clearTopIndustryMap() {
+        oldTopIndustryMap = topIndustryMap;
+        topIndustryMap = Collections.emptyMap();
     }
 
-    public void updateNewIndustry(String newIndustryContent) {
-        newIndustry = newIndustryContent;
-        newIndustryTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 3 * (long) Math.pow(2, newIndustryCount++);
+    public void clearTopWorldMap() {
+        oldTopWordMap = topWordMap;
+        topWordMap = Collections.emptyMap();
+    }
+
+    public void clearNewHotGn() {
+        newHotGn = StringUtils.EMPTY;
+        newHotGnTime = 0L;
+        newHotGnCount = 0;
+    }
+
+    public void updateNewHotGn(String newHotGnContent) {
+        newHotGn = newHotGnContent;
+        newHotGnTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 3 * (long) Math.pow(2, newHotGnCount++);
     }
 
     public List<Long> getPushTelegraphIds() {
@@ -136,27 +150,43 @@ public class DatabasePacket implements IPacket {
         this.topWordMap = topWordMap;
     }
 
-    public String getNewIndustry() {
-        return newIndustry;
+    public String getNewHotGn() {
+        return newHotGn;
     }
 
-    public void setNewIndustry(String newIndustry) {
-        this.newIndustry = newIndustry;
+    public void setNewHotGn(String newHotGn) {
+        this.newHotGn = newHotGn;
     }
 
-    public long getNewIndustryTime() {
-        return newIndustryTime;
+    public long getNewHotGnTime() {
+        return newHotGnTime;
     }
 
-    public void setNewIndustryTime(long newIndustryTime) {
-        this.newIndustryTime = newIndustryTime;
+    public void setNewHotGnTime(long newHotGnTime) {
+        this.newHotGnTime = newHotGnTime;
     }
 
-    public long getNewIndustryCount() {
-        return newIndustryCount;
+    public long getNewHotGnCount() {
+        return newHotGnCount;
     }
 
-    public void setNewIndustryCount(long newIndustryCount) {
-        this.newIndustryCount = newIndustryCount;
+    public void setNewHotGnCount(long newHotGnCount) {
+        this.newHotGnCount = newHotGnCount;
+    }
+
+    public Map<Integer, Integer> getOldTopIndustryMap() {
+        return oldTopIndustryMap;
+    }
+
+    public void setOldTopIndustryMap(Map<Integer, Integer> oldTopIndustryMap) {
+        this.oldTopIndustryMap = oldTopIndustryMap;
+    }
+
+    public Map<String, Integer> getOldTopWordMap() {
+        return oldTopWordMap;
+    }
+
+    public void setOldTopWordMap(Map<String, Integer> oldTopWordMap) {
+        this.oldTopWordMap = oldTopWordMap;
     }
 }

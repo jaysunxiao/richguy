@@ -68,13 +68,15 @@ public class IndustryController {
             var group = bot.getGroup(pushGroupId);
             group.sendMessage(topWord);
         }
+
+        databaseService.richDB.save();
     }
 
     /**
      * 新概念发现功能
      */
     @Scheduler(cron = "0 0/10 * * * ?")
-    public void cronNewTopHotIndustry() throws IOException, InterruptedException {
+    public void cronNewHotGn() throws IOException, InterruptedException {
         var allIndustry = IndustryUtils.allIndustryList();
         var newIndustrySet = new HashSet<Pair<Integer, String>>();
         for (var industry : allIndustry) {
@@ -108,22 +110,24 @@ public class IndustryController {
         }
 
         var database = databaseService.database;
-        var newIndustryContent = builder.toString();
-        if (newIndustryContent.equals(database.getNewIndustry())) {
-            if (database.getNewIndustryTime() > TimeUtils.now()) {
+        var newHotGnContent = builder.toString();
+        if (newHotGnContent.equals(database.getNewHotGn())) {
+            if (database.getNewHotGnTime() > TimeUtils.now()) {
                 return;
             }
         } else {
-            database.clearIndustry();
+            database.clearNewHotGn();
         }
 
-        database.updateNewIndustry(newIndustryContent);
+        database.updateNewHotGn(newHotGnContent);
 
         var bot = richGuyService.bot;
         for (var pushGroupId : pushGroupIds) {
             var group = bot.getGroup(pushGroupId);
-            group.sendMessage(newIndustryContent);
+            group.sendMessage(newHotGnContent);
         }
+
+        databaseService.richDB.save();
     }
 
 }

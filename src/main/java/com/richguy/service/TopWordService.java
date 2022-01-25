@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +67,9 @@ public class TopWordService {
         // 新闻热词统计
         newsService.newsTopWord();
 
-        var topWords = databaseService.database.getTopWordMap().entrySet()
+        var database = databaseService.database;
+
+        var topWords = database.getTopWordMap().entrySet()
                 .stream()
                 .sorted((a, b) -> b.getValue() - a.getValue())
                 .limit(60)
@@ -74,21 +77,56 @@ public class TopWordService {
 
         var count = 1;
         for (var pair : topWords) {
-            var code = pair.getKey();
+            var word = pair.getKey();
             var value = pair.getValue();
 
-            builder.append(StringUtils.format("{}({}) ", code, value));
+            if (database.getOldTopWordMap().containsKey(word)) {
+                var oldRank = topWordRank(word, database.getOldTopWordMap());
+                var newRank = topWordRank(word, database.getTopWordMap());
+                var changeRank = oldRank - newRank;
+                if (changeRank >= 0) {
+                    builder.append(StringUtils.format("{}({}) +{}", word, value, changeRank));
+                } else {
+                    builder.append(StringUtils.format("{}({}) -{}", word, value, changeRank));
+                }
+            } else {
+
+                builder.append(StringUtils.format("{}({}) ", word, value));
+            }
+
+            builder.append(FileUtils.LS);
 
             count++;
 
             if (count == 10 || count == 20 || count == 30 || count == 40 || count == 50) {
                 builder.append(FileUtils.LS);
-                builder.append(FileUtils.LS);
             }
         }
 
-        topWords.clear();
+        database.clearTopWorldMap();
 
         return builder.toString();
+    }
+
+    public int topWordRank(String word, Map<String, Integer> topWordMap) {
+        if (!topWordMap.containsKey(word)) {
+            return 0;
+        }
+
+        var topList = topWordMap.entrySet()
+                .stream()
+                .sorted((a, b) -> b.getValue() - a.getValue())
+                .collect(Collectors.toList());
+
+        var rank = 0;
+        for (int i = 0; i < topList.size(); i++) {
+            var topIndustry = topList.get(i);
+            if (topIndustry.getKey().equals(word)) {
+                rank = i + 1;
+                break;
+            }
+        }
+
+        return rank;
     }
 }
