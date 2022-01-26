@@ -85,13 +85,13 @@ public class TopWordService {
                 var newRank = topWordRank(word, database.getTopWordMap());
                 var changeRank = oldRank - newRank;
                 if (changeRank >= 0) {
-                    builder.append(StringUtils.format("{}({}) +{}", word, value, changeRank));
+                    builder.append(StringUtils.format("{}. {}({}) +{}", count, word, value, changeRank));
                 } else {
-                    builder.append(StringUtils.format("{}({}) -{}", word, value, changeRank));
+                    builder.append(StringUtils.format("{}. {}({}) -{}", count, word, value, changeRank));
                 }
             } else {
 
-                builder.append(StringUtils.format("{}({}) ", word, value));
+                builder.append(StringUtils.format("{}. {}({}) ", count, word, value));
             }
 
             builder.append(FileUtils.LS);
