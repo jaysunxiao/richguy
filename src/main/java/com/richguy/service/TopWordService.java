@@ -87,7 +87,7 @@ public class TopWordService {
                 if (changeRank >= 0) {
                     builder.append(StringUtils.format("{}. {}({}) +{}", count, word, value, changeRank));
                 } else {
-                    builder.append(StringUtils.format("{}. {}({}) -{}", count, word, value, changeRank));
+                    builder.append(StringUtils.format("{}. {}({}) {}", count, word, value, changeRank));
                 }
             } else {
 

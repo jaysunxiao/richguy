@@ -97,7 +97,7 @@ public class IndustryService {
                 if (changeRank >= 0) {
                     builder.append(StringUtils.format("{}. {}({}) ({}) +{}", count, name, quoteSimpleRatio, pair.getValue(), changeRank));
                 } else {
-                    builder.append(StringUtils.format("{}. {}({}) ({}) -{}", count, name, quoteSimpleRatio, pair.getValue(), changeRank));
+                    builder.append(StringUtils.format("{}. {}({}) ({}) {}", count, name, quoteSimpleRatio, pair.getValue(), changeRank));
                 }
             } else {
                 builder.append(StringUtils.format("{}. {}({}) ({})", count, name, quoteSimpleRatio, pair.getValue()));
