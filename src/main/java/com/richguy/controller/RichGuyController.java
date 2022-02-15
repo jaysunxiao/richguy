@@ -282,7 +282,7 @@ public class RichGuyController {
         var json = HttpUtils.formatJson(responseBody);
         var fiveRange = JsonUtils.string2Object(json, FiveRangeResult.class);
 
-        return StockPriceAndRise.valueOf(Float.parseFloat(fiveRange.getItems().getBuy1Price()), fiveRange.getItems().increaseRatioFloat());
+        return StockPriceAndRise.valueOf(Float.parseFloat(fiveRange.getItems().getBuy1()), fiveRange.getItems().increaseRatioFloat());
     }
 
     /**
