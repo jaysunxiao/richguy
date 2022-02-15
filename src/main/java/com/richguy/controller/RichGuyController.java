@@ -299,7 +299,7 @@ public class RichGuyController {
         var quote = JsonUtils.string2Object(responseBody, QuotesResult.class);
 
         var stock = quote.getResult().get(0);
-        return StockPriceAndRise.valueOf(Float.parseFloat(stock.getBaseData().getNowPic()), Float.parseFloat(stock.getBaseData().getRate()));
+        return StockPriceAndRise.valueOf(Float.parseFloat(stock.getStockData().getNowPri()), Float.parseFloat(stock.getBaseData().getRate()));
     }
 
     /**
