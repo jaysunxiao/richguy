@@ -45,6 +45,14 @@ public abstract class StockUtils {
         return stockCode;
     }
 
+    public static String hsCode(int code) {
+        var stockCode = formatCode(code);
+        stockCode = stockCode.startsWith("6")
+                ? StringUtils.format("sh{}", stockCode)
+                : StringUtils.format("sz{}", stockCode);
+        return stockCode;
+    }
+
 
     /**
      * 是否在交易时间

@@ -1,7 +1,5 @@
 package com.richguy.service;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.WebClient;
 import com.richguy.model.OneNews;
 import com.richguy.model.quote.Quote;
 import com.richguy.resource.IndustryResource;
@@ -177,18 +175,7 @@ public class IndustryService {
 
     public float doGetBkQuoteByHtml(int code) throws IOException {
         var url = IndustryUtils.industryHtmlUrl(code);
-
-        var webClient = new WebClient(BrowserVersion.CHROME);
-        webClient.getOptions().setCssEnabled(false);
-        webClient.getOptions().setAppletEnabled(false);
-        webClient.getOptions().setActiveXNative(false);
-        webClient.getOptions().setDoNotTrackEnabled(false);
-        webClient.getOptions().setGeolocationEnabled(false);
-        webClient.getOptions().setWebSocketEnabled(false);
-        webClient.getOptions().setJavaScriptEnabled(false);
-
-        var page = webClient.getPage(url);
-        var responseBody = page.getWebResponse().getContentAsString();
+        var responseBody = HttpUtils.html(url);
         var document = Jsoup.parse(responseBody);
 
         var docs = document.getElementsByAttributeValue("class", "board-zdf");

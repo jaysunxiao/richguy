@@ -1,5 +1,7 @@
 package com.richguy.util;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
@@ -61,6 +63,21 @@ public abstract class HttpUtils {
         json = StringUtils.substringAfterFirst(json, "(");
         json = StringUtils.substringBeforeLast(json, ")");
         return json;
+    }
+
+    public static String html(String url) throws IOException {
+        var webClient = new WebClient(BrowserVersion.CHROME);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setAppletEnabled(false);
+        webClient.getOptions().setActiveXNative(false);
+        webClient.getOptions().setDoNotTrackEnabled(false);
+        webClient.getOptions().setGeolocationEnabled(false);
+        webClient.getOptions().setWebSocketEnabled(false);
+        webClient.getOptions().setJavaScriptEnabled(false);
+
+        var page = webClient.getPage(url);
+        var responseBody = page.getWebResponse().getContentAsString();
+        return responseBody;
     }
 
 }
