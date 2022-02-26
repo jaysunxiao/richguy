@@ -116,16 +116,16 @@ public class RichGuyController {
                 continue;
             }
 
-            if (StringUtils.isNotEmpty(title)) {
+            if (StringUtils.isNotBlank(title)) {
                 builder.append(FileUtils.LS);
-                builder.append(StringUtils.format("\uD83D\uDCA5【{}】", title));
+                builder.append(StringUtils.format("\uD83D\uDCA5【{}】", title.trim()));
             }
 
             builder.append(FileUtils.LS);
             builder.append(FileUtils.LS);
 
             var simpleContent = StringUtils.trim(StringUtils.substringAfterFirst(content, "】"));
-            if (StringUtils.isNotEmpty(simpleContent)) {
+            if (StringUtils.isNotBlank(simpleContent)) {
                 builder.append(simpleContent);
             } else {
                 builder.append(content);
