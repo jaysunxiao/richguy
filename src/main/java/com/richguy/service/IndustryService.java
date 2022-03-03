@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +68,8 @@ public class IndustryService {
     }
 
     public String topIndustryToday() {
+        var ignoreIndustry = Set.of(300900, 308594, 301636, 303944, 301490);
+
         var builder = new StringBuilder();
 
         builder.append("\uD83C\uDF20电报热点板块次数统计：");
@@ -85,6 +88,10 @@ public class IndustryService {
         var count = 1;
         for (var pair : topList) {
             var code = pair.getKey();
+            if (ignoreIndustry.contains(code)) {
+                continue;
+            }
+
             var industryResource = industryResources.get(code);
             var quote = bkQuote(code);
             var quoteSimpleRatio = StockUtils.toSimpleRatio(quote);
@@ -100,7 +107,7 @@ public class IndustryService {
                     builder.append(StringUtils.format("{}. {}({}) ({}) {}", count, name, quoteSimpleRatio, pair.getValue(), changeRank));
                 }
             } else {
-                builder.append(StringUtils.format("{}. {}({}) ({})", count, name, quoteSimpleRatio, pair.getValue()));
+                builder.append(StringUtils.format("{}. {}({}) ({}) +0", count, name, quoteSimpleRatio, pair.getValue()));
             }
             builder.append(FileUtils.LS);
 
