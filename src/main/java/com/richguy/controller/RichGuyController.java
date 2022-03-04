@@ -23,6 +23,7 @@ import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -249,14 +250,22 @@ public class RichGuyController {
         try {
             stockPriceAndRise = doGetByThs(code);
         } catch (Exception e) {
-            logger.error("通过同花顺接口api获取股票数据异常");
+            logger.error("同花顺接口api获取股票数据异常");
         }
 
         if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
             try {
                 stockPriceAndRise = doGetByJuhe(code);
             } catch (Exception e) {
-                logger.error("通过聚合接口api获取股票数据异常");
+                logger.error("聚合接口api获取股票数据异常");
+            }
+        }
+
+        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
+            try {
+                stockPriceAndRise = doGetByXueQiu(code);
+            } catch (Exception e) {
+                logger.error("雪球接口api获取股票数据异常");
             }
         }
 
@@ -264,7 +273,7 @@ public class RichGuyController {
             try {
                 stockPriceAndRise = doGetByWenCai(code);
             } catch (Exception e) {
-                logger.error("通过问财接口api获取股票数据异常");
+                logger.error("问财接口api获取股票数据异常");
             }
         }
 
@@ -289,10 +298,7 @@ public class RichGuyController {
      * 获取实时价格的第二种方式，调用失败，自动使用第三种getStockFiveRangeByWenCai
      */
     public StockPriceAndRise doGetByJuhe(int code) throws IOException, InterruptedException {
-        var stockCode = StockUtils.formatCode(code);
-        stockCode = stockCode.startsWith("6")
-                ? StringUtils.format("sh{}", stockCode)
-                : StringUtils.format("sz{}", stockCode);
+        var stockCode = StockUtils.hsCode(code);
 
         var url = StringUtils.format(juheStockUrl, stockCode);
         var responseBody = HttpUtils.get(url);
@@ -316,6 +322,32 @@ public class RichGuyController {
         var riseNode = JsonUtils.getNode(responseBody, "rise_fall_rate");
         var rise = riseNode.asDouble();
         return StockPriceAndRise.valueOf((float) price, (float) rise);
+    }
+
+
+    /**
+     * 获取实时价格的第四种方式
+     */
+    public StockPriceAndRise doGetByXueQiu(int code) throws IOException {
+        var stockCode = StockUtils.hsCode(code).toUpperCase();
+
+        var html = HttpUtils.html(StringUtils.format("https://xueqiu.com/S/{}", stockCode));
+
+        var document = Jsoup.parse(html);
+
+        var priceDocs = document.getElementsByAttributeValue("class", "stock-current");
+        var priceNode = priceDocs.get(0);
+        var price = StringUtils.substringAfterFirst(priceNode.text(), "¥").trim();
+
+        var riseDocs = document.getElementsByAttributeValue("class", "stock-change");
+        var riseNode = riseDocs.get(0);
+        var rise = StringUtils.substringAfterFirst(riseNode.text(), " ").trim();
+        if (rise.contains("+")) {
+            rise = StringUtils.substringAfterFirst(rise, "+").trim();
+        }
+        rise = StringUtils.substringBeforeLast(rise, "%").trim();
+
+        return StockPriceAndRise.valueOf(Float.parseFloat(price), Float.parseFloat(rise));
     }
 
 }
