@@ -85,7 +85,8 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         try {
             doClock(message);
         } catch (ParseException e) {
-            richGuyService.pushGroupMessage(StringUtils.format("定时器-->{}{}{}-->{}语法格式错误，请重新检查语法格式]", FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
+            richGuyService.pushGroupMessage(StringUtils.format("定时器：{}-----------------{}{}{}-----------------{}语法格式错误，请重新检查语法格式]"
+                    , FileUtils.LS, FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
         }
     }
 
@@ -93,7 +94,8 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         var splits = message.split(FileUtils.LS);
 
         if (ArrayUtils.length(splits) != 3) {
-            richGuyService.pushGroupMessage(StringUtils.format("定时器语法-->{}{}{}-->{}长度不匹配，请重新检查语法格式", FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
+            richGuyService.pushGroupMessage(StringUtils.format("定时器语法：{}-----------------{}{}{}-----------------{}长度不匹配，请重新检查语法格式"
+                    , FileUtils.LS, FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
             return;
         }
 
