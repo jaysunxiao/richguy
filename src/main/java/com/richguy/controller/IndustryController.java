@@ -17,12 +17,10 @@ import com.zfoo.storage.model.vo.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * @author jaysunxiao
@@ -42,9 +40,6 @@ public class IndustryController {
     @Autowired
     private DatabaseService databaseService;
 
-    @Value("${qq.pushGroupIds}")
-    private List<Long> pushGroupIds;
-
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
 
@@ -57,17 +52,8 @@ public class IndustryController {
         var topIndustry = industryService.topIndustryToday();
         var topWord = topWordService.topWordToday();
 
-        var bot = richGuyService.bot;
-
-        for (var pushGroupId : pushGroupIds) {
-            var group = bot.getGroup(pushGroupId);
-            group.sendMessage(topIndustry);
-        }
-
-        for (var pushGroupId : pushGroupIds) {
-            var group = bot.getGroup(pushGroupId);
-            group.sendMessage(topWord);
-        }
+        richGuyService.pushGroupMessage(topIndustry);
+        richGuyService.pushGroupMessage(topWord);
 
         databaseService.richDB.save();
     }
@@ -121,11 +107,7 @@ public class IndustryController {
 
         database.updateNewHotGn(newHotGnContent);
 
-        var bot = richGuyService.bot;
-        for (var pushGroupId : pushGroupIds) {
-            var group = bot.getGroup(pushGroupId);
-            group.sendMessage(newHotGnContent);
-        }
+        richGuyService.pushGroupMessage(newHotGnContent);
 
         databaseService.richDB.save();
     }

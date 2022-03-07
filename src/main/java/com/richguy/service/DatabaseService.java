@@ -2,6 +2,7 @@ package com.richguy.service;
 
 import com.richguy.entity.DatabasePacket;
 import com.zfoo.event.model.event.AppStartEvent;
+import com.zfoo.net.packet.common.PairLS;
 import com.zfoo.orm.lpmap.FileHeapMap;
 import com.zfoo.protocol.ProtocolManager;
 import org.springframework.context.ApplicationListener;
@@ -25,7 +26,7 @@ public class DatabaseService implements ApplicationListener<ApplicationContextEv
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
         if (event instanceof AppStartEvent) {
-            ProtocolManager.initProtocol(Set.of(DatabasePacket.class));
+            ProtocolManager.initProtocol(Set.of(DatabasePacket.class, PairLS.class));
 
             richDB = new FileHeapMap<>("richDb", DatabasePacket.class);
 

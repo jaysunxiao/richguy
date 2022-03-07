@@ -1,5 +1,6 @@
 package com.richguy.entity;
 
+import com.zfoo.net.packet.common.PairLS;
 import com.zfoo.protocol.IPacket;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.StringUtils;
@@ -37,6 +38,8 @@ public class DatabasePacket implements IPacket {
     private long newHotGnTime;
     private long newHotGnCount;
 
+    private List<PairLS> clocks;
+
     public static DatabasePacket valueOf() {
         var packet = new DatabasePacket();
         packet.pushTelegraphIds = new ArrayList<>();
@@ -46,6 +49,7 @@ public class DatabasePacket implements IPacket {
         packet.oldTopWordMap = new HashMap<>();
         packet.topWordMap = new HashMap<>();
         packet.newHotGn = StringUtils.EMPTY;
+        packet.clocks = new ArrayList<>();
         return packet;
     }
 
@@ -118,6 +122,21 @@ public class DatabasePacket implements IPacket {
         newHotGnTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 3 * (long) Math.pow(2, newHotGnCount++);
     }
 
+    public void addClock(long clockTime, String content) {
+        if (CollectionUtils.isEmpty(clocks)) {
+            clocks = new ArrayList<>();
+        }
+
+        clocks.add(PairLS.valueOf(clockTime, content));
+    }
+
+    public void refreshClock() {
+        if (CollectionUtils.isEmpty(clocks)) {
+            return;
+        }
+        clocks.removeIf(it -> it.getKey() <= TimeUtils.now());
+    }
+
     public List<Long> getPushTelegraphIds() {
         return pushTelegraphIds;
     }
@@ -188,5 +207,13 @@ public class DatabasePacket implements IPacket {
 
     public void setOldTopWordMap(Map<String, Integer> oldTopWordMap) {
         this.oldTopWordMap = oldTopWordMap;
+    }
+
+    public List<PairLS> getClocks() {
+        return clocks;
+    }
+
+    public void setClocks(List<PairLS> clocks) {
+        this.clocks = clocks;
     }
 }

@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 @Component
 public class RichGuyController {
@@ -42,8 +41,6 @@ public class RichGuyController {
 
     public static final float DEFAULT_VAlUE = 88.8F;
 
-    @Value("${qq.pushGroupIds}")
-    private List<Long> pushGroupIds;
 
     @Value("${juhe.stockUrl}")
     private String juheStockUrl;
@@ -210,13 +207,9 @@ public class RichGuyController {
                 builder.append(otherBuilder);
             }
 
-            var bot = richGuyService.bot;
             var telegraphContent = builder.toString().replaceAll("习近平", "喜大大");
 
-            for (var pushGroupId : pushGroupIds) {
-                var group = bot.getGroup(pushGroupId);
-                group.sendMessage(telegraphContent);
-            }
+            richGuyService.pushGroupMessage(telegraphContent);
 
             // 将已经加入处理过的电报，存入到数据库中
             database.addPushTelegraphId(news.getId());

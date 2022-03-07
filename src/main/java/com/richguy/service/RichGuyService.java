@@ -10,18 +10,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class RichGuyService implements ApplicationListener<AppStartEvent> {
 
     public static final Logger logger = LoggerFactory.getLogger(RichGuyService.class);
 
-    public Bot bot;
+    private Bot bot;
 
     @Value("${qq.qqId}")
     private long qqId;
 
     @Value("${qq.password}")
     private String qqPassword;
+
+    @Value("${qq.pushGroupIds}")
+    private List<Long> pushGroupIds;
 
     @Override
     public void onApplicationEvent(AppStartEvent event) {
@@ -35,6 +40,17 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
         this.bot = bot;
 
         logger.info("bot启动成功[{}]", bot);
+    }
+
+
+    /**
+     * 给qq群推送消息
+     */
+    public void pushGroupMessage(String message) {
+        for (var pushGroupId : pushGroupIds) {
+            var group = bot.getGroup(pushGroupId);
+            group.sendMessage(message);
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.richguy;
 
+import com.zfoo.event.model.event.AppStartAfterEvent;
 import com.zfoo.event.model.event.AppStartEvent;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,6 +31,7 @@ public class Application {
         var context = SpringApplication.run(Application.class, args);
         context.registerShutdownHook();
         context.publishEvent(new AppStartEvent(context));
+        context.publishEvent(new AppStartAfterEvent(context));
     }
 
 }
