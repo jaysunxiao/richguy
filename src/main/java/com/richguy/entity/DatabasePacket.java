@@ -130,11 +130,11 @@ public class DatabasePacket implements IPacket {
         clocks.add(PairLS.valueOf(clockTime, content));
     }
 
-    public void refreshClock() {
+    public boolean refreshClock() {
         if (CollectionUtils.isEmpty(clocks)) {
-            return;
+            return false;
         }
-        clocks.removeIf(it -> it.getKey() <= TimeUtils.now());
+        return clocks.removeIf(it -> it.getKey() <= TimeUtils.now());
     }
 
     public List<Long> getPushTelegraphIds() {

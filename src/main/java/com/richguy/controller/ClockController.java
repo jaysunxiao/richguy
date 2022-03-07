@@ -24,7 +24,7 @@ import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 逆回购相关处理逻辑
+ * 群闹铃相关处理逻辑
  *
  * @author jaysunxiao
  * @version 3.0
@@ -64,11 +64,15 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
             if (clock.getKey() > TimeUtils.now()) {
                 continue;
             }
-            richGuyService.pushGroupMessage(StringUtils.format("\uD83D\uDCA3\uD83D\uDCA3\uD83D\uDCA3{}\uD83D\uDE80\uD83D\uDE80\uD83D\uDE80", clock.getValue()));
+            richGuyService.pushGroupMessage(StringUtils.format("\uD83D\uDCA3\uD83D\uDCA3\uD83D\uDCA3{}{}{}\uD83C\uDF6D\uD83C\uDF6D\uD83C\uDF6D"
+                    , FileUtils.LS, clock.getValue(), FileUtils.LS));
         }
 
-        database.refreshClock();
-        databaseService.richDB.save();
+        // 如果有移除的闹钟，则重新写入数据库
+        if (database.refreshClock()) {
+            databaseService.richDB.save();
+            logger.info("闹钟剩余[{}]", clocks.size());
+        }
     }
 
     // 群消息处理
@@ -85,7 +89,7 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         try {
             doClock(message);
         } catch (ParseException e) {
-            richGuyService.pushGroupMessage(StringUtils.format("定时器：{}-----------------{}{}{}-----------------{}语法格式错误，请重新检查语法格式]"
+            richGuyService.pushGroupMessage(StringUtils.format("\uD83C\uDE32定时器：{}-----------------{}{}{}-----------------{}语法格式错误，请重新检查语法格式]"
                     , FileUtils.LS, FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
         }
     }
@@ -94,7 +98,7 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         var splits = message.split(FileUtils.LS);
 
         if (ArrayUtils.length(splits) != 3) {
-            richGuyService.pushGroupMessage(StringUtils.format("定时器语法：{}-----------------{}{}{}-----------------{}长度不匹配，请重新检查语法格式"
+            richGuyService.pushGroupMessage(StringUtils.format("\uD83C\uDE32定时器语法：{}-----------------{}{}{}-----------------{}长度不匹配，请重新检查语法格式"
                     , FileUtils.LS, FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
             return;
         }
@@ -105,7 +109,7 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         var content = StringUtils.trim(splits[2]);
 
         if (clockTime <= TimeUtils.now()) {
-            richGuyService.pushGroupMessage("定时器时间已经过期");
+            richGuyService.pushGroupMessage("\uD83C\uDE32定时器时间已经过期");
             return;
         }
 
@@ -115,6 +119,7 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
                 var database = databaseService.database;
                 database.addClock(clockTime, content);
                 databaseService.richDB.save();
+                richGuyService.pushGroupMessage(StringUtils.format("\uD83D\uDE80定时器设置成功：{}时间->{}{}[{}]", FileUtils.LS, dateStr, FileUtils.LS, content));
                 logger.info("定时器设置成功[{}][{}]", dateStr, content);
             }
         }, 1000, TimeUnit.MILLISECONDS);
