@@ -89,8 +89,7 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         try {
             doClock(message);
         } catch (ParseException e) {
-            richGuyService.pushGroupMessage(StringUtils.format("\uD83C\uDE32定时器：{}-----------------{}{}{}-----------------{}语法格式错误，请重新检查语法格式]"
-                    , FileUtils.LS, FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
+            richGuyService.pushGroupMessage(errorMessage());
         }
     }
 
@@ -98,8 +97,7 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         var splits = message.split(FileUtils.LS);
 
         if (ArrayUtils.length(splits) != 3) {
-            richGuyService.pushGroupMessage(StringUtils.format("\uD83C\uDE32定时器语法：{}-----------------{}{}{}-----------------{}长度不匹配，请重新检查语法格式"
-                    , FileUtils.LS, FileUtils.LS, message, FileUtils.LS, FileUtils.LS));
+            richGuyService.pushGroupMessage(errorMessage());
             return;
         }
 
@@ -125,5 +123,12 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         }, 1000, TimeUnit.MILLISECONDS);
     }
 
+
+    public String errorMessage() {
+        var dateStr = TimeUtils.dateFormatForDayTimeString(TimeUtils.getZeroTimeOfDay(TimeUtils.now()) + TimeUtils.MILLIS_PER_HOUR * 9);
+        var errorMessage = StringUtils.format("\uD83C\uDE32请输入定时器正确的语法格式：{}------------------{}clock{}{}{}这里是要提示的内容{}------------------"
+                , FileUtils.LS, FileUtils.LS, FileUtils.LS, dateStr, FileUtils.LS, FileUtils.LS);
+        return errorMessage;
+    }
 
 }
