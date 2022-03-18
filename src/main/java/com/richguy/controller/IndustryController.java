@@ -82,9 +82,6 @@ public class IndustryController {
             if (!industryResources.contain(industryPair.getKey())) {
                 newIndustrySet.add(industryPair);
             }
-            if (databaseService.database.getNewHotGns().stream().noneMatch(it -> it.getLeft() == industryPair.getKey())) {
-                newIndustrySet.add(industryPair);
-            }
         }
 
         if (CollectionUtils.isEmpty(newIndustrySet)) {

@@ -114,10 +114,12 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         SchedulerBus.schedule(new Runnable() {
             @Override
             public void run() {
+                richGuyService.pushGroupMessage(StringUtils.format("\uD83D\uDE80定时器设置成功：{}时间->{}{}[{}]", FileUtils.LS, dateStr, FileUtils.LS, content));
+
                 var databaseClock = databaseService.databaseClock;
                 databaseClock.addClock(clockTime, content);
                 databaseService.save();
-                richGuyService.pushGroupMessage(StringUtils.format("\uD83D\uDE80定时器设置成功：{}时间->{}{}[{}]", FileUtils.LS, dateStr, FileUtils.LS, content));
+
                 logger.info("定时器设置成功[{}][{}]", dateStr, content);
             }
         }, 1000, TimeUnit.MILLISECONDS);
