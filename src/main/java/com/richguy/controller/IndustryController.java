@@ -65,13 +65,15 @@ public class IndustryController {
         var allIndustry = IndustryUtils.allIndustryList();
         var newIndustrySet = new HashSet<Pair<Integer, String>>();
 
+        var database = databaseService.database;
+
         // 判断是不是新概念，即判断id又判断名称
         for (var industryPair : allIndustry) {
             var flagResource = industryResources.getAll()
                     .stream()
                     .noneMatch(it -> it.getName().equals(StringUtils.trim(industryPair.getValue())));
 
-            var flagDatabase = databaseService.database.getNewHotGns()
+            var flagDatabase = database.getNewHotGns()
                     .stream()
                     .noneMatch(it -> it.getRight().equals(StringUtils.trim(industryPair.getValue())));
 
@@ -79,7 +81,11 @@ public class IndustryController {
                 newIndustrySet.add(industryPair);
             }
 
-            if (!industryResources.contain(industryPair.getKey())) {
+            var flagDatabaseKey = database.getNewHotGns()
+                    .stream()
+                    .noneMatch(it -> it.getLeft() == industryPair.getKey());
+
+            if (!industryResources.contain(industryPair.getKey()) && flagDatabaseKey) {
                 newIndustrySet.add(industryPair);
             }
         }
@@ -88,7 +94,6 @@ public class IndustryController {
             return;
         }
 
-        var database = databaseService.database;
         for (var industryPair : newIndustrySet) {
             database.addNewGn(industryPair.getKey(), industryPair.getValue());
         }
