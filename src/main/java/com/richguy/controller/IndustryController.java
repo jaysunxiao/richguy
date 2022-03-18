@@ -11,7 +11,6 @@ import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
-import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
 import org.slf4j.Logger;
@@ -55,7 +54,7 @@ public class IndustryController {
         richGuyService.pushGroupMessage(topIndustry);
         richGuyService.pushGroupMessage(topWord);
 
-        databaseService.richDB.save();
+        databaseService.save();
     }
 
     /**
@@ -65,16 +64,26 @@ public class IndustryController {
     public void cronNewHotGn() throws IOException, InterruptedException {
         var allIndustry = IndustryUtils.allIndustryList();
         var newIndustrySet = new HashSet<Pair<Integer, String>>();
-        for (var industry : allIndustry) {
-            var flag = industryResources.getAll()
+
+        // 判断是不是新概念，即判断id又判断名称
+        for (var industryPair : allIndustry) {
+            var flagResource = industryResources.getAll()
                     .stream()
-                    .noneMatch(it -> it.getName().equals(StringUtils.trim(industry.getValue())));
-            if (flag) {
-                newIndustrySet.add(industry);
+                    .noneMatch(it -> it.getName().equals(StringUtils.trim(industryPair.getValue())));
+
+            var flagDatabase = databaseService.database.getNewHotGns()
+                    .stream()
+                    .noneMatch(it -> it.getRight().equals(StringUtils.trim(industryPair.getValue())));
+
+            if (flagResource && flagDatabase) {
+                newIndustrySet.add(industryPair);
             }
 
-            if (!industryResources.contain(industry.getKey())) {
-                newIndustrySet.add(industry);
+            if (!industryResources.contain(industryPair.getKey())) {
+                newIndustrySet.add(industryPair);
+            }
+            if (databaseService.database.getNewHotGns().stream().noneMatch(it -> it.getLeft() == industryPair.getKey())) {
+                newIndustrySet.add(industryPair);
             }
         }
 
@@ -82,34 +91,35 @@ public class IndustryController {
             return;
         }
 
-
-        var builder = new StringBuilder();
-        builder.append("\uD83D\uDCA5紧急通知-新概念出现：");
-        builder.append(FileUtils.LS);
-        builder.append(FileUtils.LS);
-        for (var industry : newIndustrySet) {
-            builder.append(StringUtils.format("{} {} ", industry.getKey(), industry.getValue()));
-            builder.append(FileUtils.LS);
-            var url = IndustryUtils.industryHtmlUrl(industry.getKey());
-            builder.append(url);
-            builder.append(FileUtils.LS);
-        }
-
         var database = databaseService.database;
-        var newHotGnContent = builder.toString();
-        if (newHotGnContent.equals(database.getNewHotGn())) {
-            if (database.getNewHotGnTime() > TimeUtils.now()) {
-                return;
-            }
-        } else {
-            database.clearNewHotGn();
+        for (var industryPair : newIndustrySet) {
+            database.addNewGn(industryPair.getKey(), industryPair.getValue());
         }
+        databaseService.save();
+    }
 
-        database.updateNewHotGn(newHotGnContent);
+    @Scheduler(cron = "0 0/3 * * * ?")
+    public void cronPushGn() throws IOException, InterruptedException {
+        for (var newHotGn : databaseService.database.getNewHotGns()) {
+            var count = newHotGn.getMiddle();
+            if (count <= 8) {
+                var builder = new StringBuilder();
+                builder.append("\uD83D\uDCA5紧急通知-新概念出现：");
+                builder.append(FileUtils.LS);
+                builder.append(FileUtils.LS);
 
-        richGuyService.pushGroupMessage(newHotGnContent);
+                builder.append(StringUtils.format("{} {} ", newHotGn.getLeft(), newHotGn.getRight()));
+                builder.append(FileUtils.LS);
+                var url = IndustryUtils.industryHtmlUrl((int) newHotGn.getLeft());
+                builder.append(url);
+                builder.append(FileUtils.LS);
 
-        databaseService.richDB.save();
+                richGuyService.pushGroupMessage(builder.toString());
+
+                newHotGn.setMiddle(count + 1);
+                databaseService.save();
+            }
+        }
     }
 
 }

@@ -67,7 +67,11 @@ public class SpiderIndustryTest {
 
         for (var industryResource : list) {
             var code = industryResource.getCode();
-            var realCode = IndustryUtils.realCode(code);
+            var realCode = 0;
+            try {
+                realCode = IndustryUtils.realCode(code);
+            } catch (Exception e) {
+            }
             var info = StringUtils.format("{}{}{}{}{}", code, StringUtils.TAB_ASCII, industryResource.getName(), StringUtils.TAB_ASCII, realCode);
             System.out.println(info);
         }

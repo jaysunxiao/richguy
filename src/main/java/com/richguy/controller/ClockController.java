@@ -57,8 +57,8 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
     // 轮询闹钟定时器
     @Scheduler(cron = "0 * * * * ?")
     public void cronPushQQGroupMessage() {
-        var database = databaseService.database;
-        var clocks = database.getClocks();
+        var databaseClock = databaseService.databaseClock;
+        var clocks = databaseClock.getClocks();
 
         for (var clock : clocks) {
             if (clock.getKey() > TimeUtils.now()) {
@@ -69,8 +69,8 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         }
 
         // 如果有移除的闹钟，则重新写入数据库
-        if (database.refreshClock()) {
-            databaseService.richDB.save();
+        if (databaseClock.refreshClock()) {
+            databaseService.save();
             logger.info("闹钟剩余[{}]", clocks.size());
         }
     }
@@ -114,9 +114,9 @@ public class ClockController implements ApplicationListener<AppStartAfterEvent> 
         SchedulerBus.schedule(new Runnable() {
             @Override
             public void run() {
-                var database = databaseService.database;
-                database.addClock(clockTime, content);
-                databaseService.richDB.save();
+                var databaseClock = databaseService.databaseClock;
+                databaseClock.addClock(clockTime, content);
+                databaseService.save();
                 richGuyService.pushGroupMessage(StringUtils.format("\uD83D\uDE80定时器设置成功：{}时间->{}{}[{}]", FileUtils.LS, dateStr, FileUtils.LS, content));
                 logger.info("定时器设置成功[{}][{}]", dateStr, content);
             }

@@ -1,10 +1,8 @@
 package com.richguy.entity;
 
-import com.zfoo.net.packet.common.PairLS;
+import com.zfoo.net.packet.common.TripleLLS;
 import com.zfoo.protocol.IPacket;
 import com.zfoo.protocol.collection.CollectionUtils;
-import com.zfoo.protocol.util.StringUtils;
-import com.zfoo.scheduler.util.TimeUtils;
 
 import java.util.*;
 
@@ -34,11 +32,7 @@ public class DatabasePacket implements IPacket {
     private List<Long> topNewIds;
 
 
-    private String newHotGn;
-    private long newHotGnTime;
-    private long newHotGnCount;
-
-    private List<PairLS> clocks;
+    private List<TripleLLS> newHotGns;
 
     public static DatabasePacket valueOf() {
         var packet = new DatabasePacket();
@@ -48,8 +42,7 @@ public class DatabasePacket implements IPacket {
         packet.topIndustryMap = new HashMap<>();
         packet.oldTopWordMap = new HashMap<>();
         packet.topWordMap = new HashMap<>();
-        packet.newHotGn = StringUtils.EMPTY;
-        packet.clocks = new ArrayList<>();
+        packet.newHotGns = new ArrayList<>();
         return packet;
     }
 
@@ -111,30 +104,11 @@ public class DatabasePacket implements IPacket {
         topWordMap = Collections.emptyMap();
     }
 
-    public void clearNewHotGn() {
-        newHotGn = StringUtils.EMPTY;
-        newHotGnTime = 0L;
-        newHotGnCount = 0;
-    }
-
-    public void updateNewHotGn(String newHotGnContent) {
-        newHotGn = newHotGnContent;
-        newHotGnTime = TimeUtils.now() + TimeUtils.MILLIS_PER_MINUTE * 3 * (long) Math.pow(2, newHotGnCount++);
-    }
-
-    public void addClock(long clockTime, String content) {
-        if (CollectionUtils.isEmpty(clocks)) {
-            clocks = new ArrayList<>();
+    public void addNewGn(long industryId, String name) {
+        if (CollectionUtils.isEmpty(newHotGns)) {
+            newHotGns = new ArrayList<>();
         }
-
-        clocks.add(PairLS.valueOf(clockTime, content));
-    }
-
-    public boolean refreshClock() {
-        if (CollectionUtils.isEmpty(clocks)) {
-            return false;
-        }
-        return clocks.removeIf(it -> it.getKey() <= TimeUtils.now());
+        newHotGns.add(TripleLLS.valueOf(industryId, 0, name));
     }
 
     public List<Long> getPushTelegraphIds() {
@@ -169,28 +143,12 @@ public class DatabasePacket implements IPacket {
         this.topWordMap = topWordMap;
     }
 
-    public String getNewHotGn() {
-        return newHotGn;
+    public List<TripleLLS> getNewHotGns() {
+        return newHotGns;
     }
 
-    public void setNewHotGn(String newHotGn) {
-        this.newHotGn = newHotGn;
-    }
-
-    public long getNewHotGnTime() {
-        return newHotGnTime;
-    }
-
-    public void setNewHotGnTime(long newHotGnTime) {
-        this.newHotGnTime = newHotGnTime;
-    }
-
-    public long getNewHotGnCount() {
-        return newHotGnCount;
-    }
-
-    public void setNewHotGnCount(long newHotGnCount) {
-        this.newHotGnCount = newHotGnCount;
+    public void setNewHotGns(List<TripleLLS> newHotGns) {
+        this.newHotGns = newHotGns;
     }
 
     public Map<Integer, Integer> getOldTopIndustryMap() {
@@ -209,11 +167,4 @@ public class DatabasePacket implements IPacket {
         this.oldTopWordMap = oldTopWordMap;
     }
 
-    public List<PairLS> getClocks() {
-        return clocks;
-    }
-
-    public void setClocks(List<PairLS> clocks) {
-        this.clocks = clocks;
-    }
 }
