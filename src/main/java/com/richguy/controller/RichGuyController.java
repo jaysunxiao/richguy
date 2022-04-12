@@ -84,6 +84,9 @@ public class RichGuyController {
 
         var database = databaseService.database;
 
+        var avgReadingNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getReadingNum()).average().getAsDouble();
+        var avgShareNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getShareNum()).average().getAsDouble();
+
         for (var news : rollData) {
             // 统计行业
             industryService.topIndustry(news);
@@ -109,6 +112,10 @@ public class RichGuyController {
                 builder.append(StringUtils.format("B级电报 {}", dateStr));
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 builder.append(StringUtils.format("{}级电报 {}", level, dateStr));
+            } else if (news.getReadingNum() >= avgReadingNum || news.getShareNum() >= avgShareNum) {
+                builder.append(StringUtils.format("B级高点击率电报 {}", dateStr));
+                builder.append(FileUtils.LS);
+                builder.append(StringUtils.format("点击[{}W]|分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
             } else {
                 continue;
             }

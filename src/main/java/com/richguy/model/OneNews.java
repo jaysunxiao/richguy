@@ -23,6 +23,14 @@ public class OneNews {
 
     private long ctime;
 
+    private int recommend;
+
+    @JsonProperty("reading_num")
+    private int readingNum;
+
+    @JsonProperty("share_num")
+    private int shareNum;
+
     private List<Subject> subjects;
 
     @JsonProperty("stock_list")
@@ -98,5 +106,29 @@ public class OneNews {
 
     public void setStocks(List<StockSimpleInfo> stocks) {
         this.stocks = stocks;
+    }
+
+    public int getRecommend() {
+        return recommend;
+    }
+
+    public void setRecommend(int recommend) {
+        this.recommend = recommend;
+    }
+
+    public int getReadingNum() {
+        return readingNum;
+    }
+
+    public void setReadingNum(int readingNum) {
+        this.readingNum = readingNum;
+    }
+
+    public int getShareNum() {
+        return shareNum;
+    }
+
+    public void setShareNum(int shareNum) {
+        this.shareNum = shareNum;
     }
 }
