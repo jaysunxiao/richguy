@@ -114,7 +114,7 @@ public class RichGuyController {
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 builder.append(StringUtils.format("{}级电报 {}", level, dateStr));
             } else if (news.getReadingNum() >= avgReadingNum || news.getShareNum() >= avgShareNum) {
-                builder.append(StringUtils.format("C级高点击率电报 {}", dateStr));
+                builder.append(StringUtils.format("{}级高点击率电报 {}", level, dateStr));
                 builder.append(FileUtils.LS);
                 builder.append(StringUtils.format("点击[{}W]|分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
             } else {
