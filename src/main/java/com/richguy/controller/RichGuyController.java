@@ -85,9 +85,9 @@ public class RichGuyController {
         var database = databaseService.database;
 
         var avgReadingNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getReadingNum()).average().getAsDouble();
-        avgReadingNum = avgReadingNum * 1.2;
+        avgReadingNum = avgReadingNum * 1.5;
         var avgShareNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getShareNum()).average().getAsDouble();
-        avgShareNum = avgShareNum * 1.2;
+        avgShareNum = avgShareNum * 1.5;
         for (var news : rollData) {
             // 统计行业
             industryService.topIndustry(news);
@@ -114,9 +114,9 @@ public class RichGuyController {
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 builder.append(StringUtils.format("{}级电报 {}", level, dateStr));
             } else if (news.getReadingNum() >= avgReadingNum || news.getShareNum() >= avgShareNum) {
-                builder.append(StringUtils.format("{}级高点击率电报 {}", level, dateStr));
+                builder.append(StringUtils.format("{}级热议 {}", level, dateStr));
                 builder.append(FileUtils.LS);
-                builder.append(StringUtils.format("点击[{}W]|分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                builder.append(StringUtils.format("阅读[{}W]  分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
             } else {
                 continue;
             }
