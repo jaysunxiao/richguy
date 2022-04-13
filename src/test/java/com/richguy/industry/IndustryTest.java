@@ -1,9 +1,11 @@
 package com.richguy.industry;
 
+import com.richguy.controller.EastMoneyController;
 import com.richguy.resource.IndustryResource;
 import com.richguy.util.IndustryUtils;
 import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.ClassUtils;
+import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.storage.interpreter.ExcelResourceReader;
 import org.junit.Ignore;
@@ -26,6 +28,15 @@ public class IndustryTest {
         for (var ele : list) {
             System.out.println(StringUtils.format("{}{}{}", ele.getKey(), StringUtils.TAB_ASCII, ele.getValue()));
         }
+    }
+
+    @Test
+    public void eastMoneyIndustryTest() throws IOException, InterruptedException {
+        var controller = new EastMoneyController();
+        controller.cronPushGn();
+        controller.cronPushGn();
+        var response = controller.requestForEastMoneyResult();
+        System.out.println(JsonUtils.object2String(response));
     }
 
     @Test

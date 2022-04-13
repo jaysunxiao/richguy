@@ -85,9 +85,9 @@ public class RichGuyController {
         var database = databaseService.database;
 
         var avgReadingNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getReadingNum()).average().getAsDouble();
-        avgReadingNum = avgReadingNum * 1.5;
+        avgReadingNum = avgReadingNum * 1.8;
         var avgShareNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getShareNum()).average().getAsDouble();
-        avgShareNum = avgShareNum * 1.5;
+        avgShareNum = avgShareNum * 1.8;
         for (var news : rollData) {
             // 统计行业
             industryService.topIndustry(news);
