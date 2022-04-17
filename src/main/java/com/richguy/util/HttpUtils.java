@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ public abstract class HttpUtils {
         var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
         var request = HttpRequest.newBuilder(URI.create(url))
                 .headers(ArrayUtils.listToArray(HEADERS, String.class))
+                .timeout(Duration.ofSeconds(15))
                 .GET()
                 .build();
 
@@ -52,6 +54,7 @@ public abstract class HttpUtils {
 
         var request = HttpRequest.newBuilder(URI.create(url))
                 .headers(ArrayUtils.listToArray(headers, String.class))
+                .timeout(Duration.ofSeconds(15))
                 .POST(HttpRequest.BodyPublishers.ofString(postBody))
                 .build();
 

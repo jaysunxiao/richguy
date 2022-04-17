@@ -2,6 +2,7 @@ package com.richguy.service;
 
 import com.richguy.model.news.NewsResult;
 import com.richguy.model.news.TopNewsResult;
+import com.richguy.util.HttpUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
@@ -11,10 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,13 +54,7 @@ public class NewsService {
 
     public void doGetNewsKey(String url, Set<String> newsKeys) {
         try {
-            var client = HttpClient.newBuilder().build();
-            var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-            var request = HttpRequest.newBuilder(URI.create(url))
-                    .GET()
-                    .build();
-
-            var responseBody = client.send(request, responseBodyHandler).body();
+            var responseBody = HttpUtils.get(url);
             var newsResult = JsonUtils.string2Object(responseBody, TopNewsResult.class);
 
             var result = newsResult.getResult();
@@ -87,13 +78,7 @@ public class NewsService {
     public String newsContent(String key) {
         var url = StringUtils.format(newsUrl, key);
         try {
-            var client = HttpClient.newBuilder().build();
-            var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-            var request = HttpRequest.newBuilder(URI.create(url))
-                    .GET()
-                    .build();
-
-            var responseBody = client.send(request, responseBodyHandler).body();
+            var responseBody = HttpUtils.get(url);
             var newsResult = JsonUtils.string2Object(responseBody, NewsResult.class);
             return newsResult.getResult().getContent();
         } catch (Exception e) {
