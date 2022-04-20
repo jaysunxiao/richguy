@@ -121,8 +121,8 @@ public class RichGuyController {
                     builder.append(StringUtils.format("A级电报 {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
                 } else {
-                    builder.append(StringUtils.format("C级电报 {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                    builder.append(StringUtils.format("B级电报 {}", dateStr));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
                 }
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 builder.append(StringUtils.format("B级电报 {}", dateStr));
@@ -130,7 +130,10 @@ public class RichGuyController {
             } else if (news.getReadingNum() >= avgReading || news.getShareNum() >= avgShare) {
                 var ctime = news.getCtime() * TimeUtils.MILLIS_PER_SECOND;
                 var diff = TimeUtils.now() - ctime;
-                if (diff < 60 * TimeUtils.MILLIS_PER_MINUTE) {
+                if (CollectionUtils.isNotEmpty(stockList)) {
+                    builder.append(StringUtils.format("C级电报 {}", dateStr));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                } else if (diff < 60 * TimeUtils.MILLIS_PER_MINUTE) {
                     builder.append(StringUtils.format("C级电报 {}", dateStr));
                     builder.append(FileUtils.LS);
                     builder.append(StringUtils.format("阅读[{}W]  分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
