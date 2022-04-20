@@ -85,9 +85,9 @@ public class RichGuyController {
         var database = databaseService.database;
 
         var avgReadingNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getReadingNum()).average().getAsDouble();
-        avgReadingNum = avgReadingNum * 2.1;
         var avgShareNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getShareNum()).average().getAsDouble();
-        avgShareNum = avgShareNum * 2.1;
+        var avgReading = avgReadingNum * 2.1;
+        var avgShare = avgShareNum * 2.1;
         for (var news : rollData) {
             // 统计行业
             industryService.topIndustry(news);
@@ -108,15 +108,23 @@ public class RichGuyController {
 
             var builder = new StringBuilder();
             if (level.equals("A")) {
-                builder.append(StringUtils.format("⭐A级Max {}", dateStr));
+                builder.append(StringUtils.format("⭐S级Max {}", dateStr));
             } else if (level.equals("B")) {
-                builder.append(StringUtils.format("B级电报 {}", dateStr));
+                builder.append(StringUtils.format("A级电报 {}", dateStr));
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
-                builder.append(StringUtils.format("{}级电报 {}", level, dateStr));
-            } else if (news.getReadingNum() >= avgReadingNum || news.getShareNum() >= avgShareNum) {
-                builder.append(StringUtils.format("D级热议 {}", dateStr));
-                builder.append(FileUtils.LS);
-                builder.append(StringUtils.format("阅读[{}W]  分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                builder.append(StringUtils.format("B级电报 {}", dateStr));
+            } else if (news.getReadingNum() >= avgReading || news.getShareNum() >= avgShare) {
+                var ctime = news.getCtime() * TimeUtils.MILLIS_PER_SECOND;
+                var diff = TimeUtils.now() - ctime;
+                if (diff < 60 * TimeUtils.MILLIS_PER_MINUTE) {
+                    builder.append(StringUtils.format("C级热议 {}", dateStr));
+                    builder.append(FileUtils.LS);
+                    builder.append(StringUtils.format("阅读[{}W]  分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                } else {
+                    builder.append(StringUtils.format("D级热议 {}", dateStr));
+                    builder.append(FileUtils.LS);
+                    builder.append(StringUtils.format("阅读[{}W]  分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                }
             } else {
                 continue;
             }
@@ -231,7 +239,7 @@ public class RichGuyController {
      * 获取最新电报
      */
     public Telegraph requestForTelegraph() throws IOException, InterruptedException {
-        var url = "https://www.cls.cn/nodeapi/updateTelegraphList";
+        var url = "https://www.cls.cn/nodeapi/updateTelegraphList?rn=60";
         var responseBody = HttpUtils.get(url);
         var response = JsonUtils.string2Object(responseBody, Telegraph.class);
         return response;
