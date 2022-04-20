@@ -1,6 +1,5 @@
 package com.richguy.service;
 
-import com.richguy.model.OneNews;
 import com.richguy.model.quote.Quote;
 import com.richguy.resource.IndustryResource;
 import com.richguy.util.HttpUtils;
@@ -36,25 +35,6 @@ public class IndustryService {
 
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
-
-
-    public void topIndustry(OneNews news) {
-        var database = databaseService.database;
-
-        if (database.getTopNewIds().contains(news.getId())) {
-            return;
-        }
-
-        var stockList = stockService.selectStocks(news);
-        var industryList = stockService.selectIndustry(news, stockList);
-
-        for (var industry : industryList) {
-            var code = industry.getCode();
-            database.addTopIndustry(code);
-        }
-
-        database.addTopNewsId(news.getId());
-    }
 
 
     // **************************************************板块相关********************************************************

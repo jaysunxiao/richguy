@@ -99,7 +99,7 @@ public class DatabasePacket implements IPacket {
         topIndustryMap = Collections.emptyMap();
     }
 
-    public void clearTopWorldMap() {
+    public void clearTopWordMap() {
         oldTopWordMap = topWordMap;
         topWordMap = Collections.emptyMap();
     }

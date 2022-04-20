@@ -1,9 +1,6 @@
 package com.richguy.controller;
 
-import com.richguy.service.DatabaseService;
-import com.richguy.service.IndustryService;
-import com.richguy.service.RichGuyService;
-import com.richguy.service.TopWordService;
+import com.richguy.service.*;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,14 +10,16 @@ import org.springframework.stereotype.Component;
  * @version 3.0
  */
 @Component
-public class TopWordController {
+public class TopController {
 
     @Autowired
     private IndustryService industryService;
     @Autowired
     private RichGuyService richGuyService;
     @Autowired
-    private TopWordService topWordService;
+    private TopNewsService topNewsService;
+    @Autowired
+    private TopIndustryService topIndustryService;
     @Autowired
     private DatabaseService databaseService;
 
@@ -30,12 +29,13 @@ public class TopWordController {
      */
     @Scheduler(cron = "30 1 0 * * ?")
     public void cronTopHotWord() {
-        var topIndustry = topWordService.topIndustryToday();
-        var topWord = topWordService.topWordToday();
-
+        var topIndustry = topIndustryService.topIndustryToday();
         richGuyService.pushGroupMessage(topIndustry);
-        richGuyService.pushGroupMessage(topWord);
 
+//        var topWord = topNewsService.topWordToday();
+//        richGuyService.pushGroupMessage(topWord);
+
+        databaseService.database.clearTopWordMap();
         databaseService.save();
     }
 
