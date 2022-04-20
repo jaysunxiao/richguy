@@ -44,20 +44,6 @@ public class IndustryController {
 
 
     /**
-     * 热点词语次数统计
-     */
-    @Scheduler(cron = "30 1 0 * * ?")
-    public void cronTopHotWord() {
-        var topIndustry = industryService.topIndustryToday();
-        var topWord = topWordService.topWordToday();
-
-        richGuyService.pushGroupMessage(topIndustry);
-        richGuyService.pushGroupMessage(topWord);
-
-        databaseService.save();
-    }
-
-    /**
      * 新概念发现功能
      */
     @Scheduler(cron = "0 0/10 * * * ?")
