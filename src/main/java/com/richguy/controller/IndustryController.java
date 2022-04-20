@@ -4,7 +4,6 @@ import com.richguy.resource.IndustryResource;
 import com.richguy.service.DatabaseService;
 import com.richguy.service.IndustryService;
 import com.richguy.service.RichGuyService;
-import com.richguy.service.TopWordService;
 import com.richguy.util.IndustryUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.model.Pair;
@@ -34,8 +33,6 @@ public class IndustryController {
     private IndustryService industryService;
     @Autowired
     private RichGuyService richGuyService;
-    @Autowired
-    private TopWordService topWordService;
     @Autowired
     private DatabaseService databaseService;
 

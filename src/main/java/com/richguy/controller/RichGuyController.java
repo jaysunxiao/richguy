@@ -1,9 +1,13 @@
 package com.richguy.controller;
 
 
+import com.richguy.model.OneNews;
 import com.richguy.model.Telegraph;
 import com.richguy.model.common.StockPriceAndRise;
 import com.richguy.model.five.FiveRangeResult;
+import com.richguy.model.level.NewsLevelEnum;
+import com.richguy.model.level.NewsPushEvent;
+import com.richguy.model.level.TelegraphNewsEvent;
 import com.richguy.model.stock.QuotesResult;
 import com.richguy.model.wencai.WenCaiRequest;
 import com.richguy.resource.IndustryResource;
@@ -15,6 +19,7 @@ import com.richguy.service.RichGuyService;
 import com.richguy.service.StockService;
 import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
+import com.zfoo.event.manager.EventBus;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.JsonUtils;
@@ -33,6 +38,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class RichGuyController {
@@ -76,30 +83,29 @@ public class RichGuyController {
             return;
         }
 
-        doPush(response);
+        var telegraphNews = rollData.stream().filter(it -> it.getType() == -1).collect(Collectors.toList());
+        EventBus.syncSubmit(TelegraphNewsEvent.valueOf(telegraphNews));
+
+        doPush(telegraphNews);
     }
 
-    public void doPush(Telegraph telegraph) {
-        var rollData = telegraph.getData().getRollData();
-
+    public void doPush(List<OneNews> telegraphNews) {
         var database = databaseService.database;
 
-        var avgReadingNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getReadingNum()).average().getAsDouble();
-        var avgShareNum = rollData.stream().filter(it -> it.getType() == -1).mapToInt(it -> it.getShareNum()).average().getAsDouble();
+        var avgReadingNum = telegraphNews.stream().mapToInt(it -> it.getReadingNum()).average().getAsDouble();
+        var avgShareNum = telegraphNews.stream().mapToInt(it -> it.getShareNum()).average().getAsDouble();
         var avgReading = avgReadingNum * 2.1;
         var avgShare = avgShareNum * 2.1;
-        for (var news : rollData) {
+
+        for (var news : telegraphNews) {
             // 统计行业
             industryService.topIndustry(news);
-
-            if (news.getType() != -1) {
-                continue;
-            }
 
             if (database.getPushTelegraphIds().contains(news.getId())) {
                 continue;
             }
 
+            var stockList = stockService.selectStocks(news);
 
             var level = StringUtils.trim(news.getLevel());
             var title = StringUtils.trim(news.getTitle());
@@ -109,21 +115,31 @@ public class RichGuyController {
             var builder = new StringBuilder();
             if (level.equals("A")) {
                 builder.append(StringUtils.format("⭐S级Max {}", dateStr));
+                EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.S));
             } else if (level.equals("B")) {
-                builder.append(StringUtils.format("A级电报 {}", dateStr));
+                if (CollectionUtils.isEmpty(stockList)) {
+                    builder.append(StringUtils.format("A级电报 {}", dateStr));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
+                } else {
+                    builder.append(StringUtils.format("C级电报 {}", dateStr));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                }
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 builder.append(StringUtils.format("B级电报 {}", dateStr));
+                EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
             } else if (news.getReadingNum() >= avgReading || news.getShareNum() >= avgShare) {
                 var ctime = news.getCtime() * TimeUtils.MILLIS_PER_SECOND;
                 var diff = TimeUtils.now() - ctime;
                 if (diff < 60 * TimeUtils.MILLIS_PER_MINUTE) {
-                    builder.append(StringUtils.format("C级热议 {}", dateStr));
+                    builder.append(StringUtils.format("C级电报 {}", dateStr));
                     builder.append(FileUtils.LS);
                     builder.append(StringUtils.format("阅读[{}W]  分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
                 } else {
                     builder.append(StringUtils.format("D级热议 {}", dateStr));
                     builder.append(FileUtils.LS);
                     builder.append(StringUtils.format("阅读[{}W]  分享[{}]", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.D));
                 }
             } else {
                 continue;
@@ -145,7 +161,6 @@ public class RichGuyController {
             }
 
             // 添加相关股票--------------------------------------------------------------------------------------------
-            var stockList = stockService.selectStocks(news);
 
             var otherBuilder = new StringBuilder();
             if (CollectionUtils.isNotEmpty(stockList)) {

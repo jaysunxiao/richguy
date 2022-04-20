@@ -32,8 +32,6 @@ public class IndustryService {
     @Autowired
     private StockService stockService;
     @Autowired
-    private TopWordService topWordService;
-    @Autowired
     private DatabaseService databaseService;
 
     @ResInjection
@@ -56,9 +54,6 @@ public class IndustryService {
         }
 
         database.addTopNewsId(news.getId());
-
-        // 统计电报词语
-        topWordService.topWord(stockService.toFullContent(news));
     }
 
 
