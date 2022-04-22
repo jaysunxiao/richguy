@@ -171,9 +171,9 @@ public class RichGuyController {
 
             var simpleContent = StringUtils.trim(StringUtils.substringAfterFirst(content, "】"));
             if (StringUtils.isNotEmpty(simpleContent)) {
-                builder.append(simpleContent);
+                builder.append(toSimpleContent(simpleContent));
             } else {
-                builder.append(content);
+                builder.append(toSimpleContent(content));
             }
 
             // 添加相关股票--------------------------------------------------------------------------------------------
@@ -411,4 +411,18 @@ public class RichGuyController {
         return StockPriceAndRise.valueOf(Float.parseFloat(price), Float.parseFloat(rise));
     }
 
+
+    public String toSimpleContent(String content) {
+        if (StringUtils.isBlank(content)) {
+            return StringUtils.EMPTY;
+        }
+        var str = content;
+        if (content.startsWith("财联社")) {
+            str = StringUtils.substringAfterFirst(content, "，");
+        }
+        if (StringUtils.isEmpty(str)) {
+            return content;
+        }
+        return str.trim();
+    }
 }
