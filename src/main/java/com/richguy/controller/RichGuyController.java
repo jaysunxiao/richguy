@@ -120,41 +120,41 @@ public class RichGuyController {
 
             var builder = new StringBuilder();
             if (level.equals("A")) {
-                builder.append(StringUtils.format("⭐S级Max {}", dateStr));
+                builder.append(StringUtils.format("⭐S级Max  {}", dateStr));
                 EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.S));
             } else if (level.equals("B")) {
                 if (CollectionUtils.isEmpty(stockList)) {
-                    builder.append(StringUtils.format("A级电报 {}", dateStr));
+                    builder.append(StringUtils.format("A级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
                 } else {
-                    builder.append(StringUtils.format("B级电报 {}", dateStr));
+                    builder.append(StringUtils.format("B级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
                 }
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 if (CollectionUtils.isEmpty(stockList)) {
-                    builder.append(StringUtils.format("B级电报 {}", dateStr));
+                    builder.append(StringUtils.format("B级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
                 } else {
-                    builder.append(StringUtils.format("C级电报 {}", dateStr));
+                    builder.append(StringUtils.format("C级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
                 }
             } else if (news.getReadingNum() >= avgReading || news.getShareNum() >= avgShare) {
                 var ctime = news.getCtime() * TimeUtils.MILLIS_PER_SECOND;
                 var diff = TimeUtils.now() - ctime;
                 if (CollectionUtils.isNotEmpty(stockList)) {
-                    builder.append(StringUtils.format("D级电报 {}", dateStr));
+                    builder.append(StringUtils.format("D级电报  {}", dateStr));
                     builder.append(FileUtils.LS);
-                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old 1", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old1 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
                 } else if (diff < 60 * TimeUtils.MILLIS_PER_MINUTE) {
-                    builder.append(StringUtils.format("C级电报 {}", dateStr));
+                    builder.append(StringUtils.format("C级电报  {}", dateStr));
                     builder.append(FileUtils.LS);
-                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old 2", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old2 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
                 } else {
-                    builder.append(StringUtils.format("D级电报 {}", dateStr));
+                    builder.append(StringUtils.format("D级电报  {}", dateStr));
                     builder.append(FileUtils.LS);
-                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old 3", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum()));
+                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old3 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.D));
                 }
             } else {

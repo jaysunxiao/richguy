@@ -12,7 +12,7 @@ import java.util.Date;
  */
 public abstract class DateUtils {
 
-    public static final String DATE_FORMAT_TEMPLATE = "MM-dd HH:mm";
+    public static final String DATE_FORMAT_TEMPLATE = "MM/dd HH:mm";
 
 
     private static final FastThreadLocal<SimpleDateFormat> DATE_FORMAT = new FastThreadLocal<SimpleDateFormat>() {
