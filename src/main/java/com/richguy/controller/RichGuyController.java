@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -73,29 +74,33 @@ public class RichGuyController {
     @Scheduler(cron = "0 * * * * ?")
     public void cronPushQQ() throws IOException, InterruptedException {
         var response = requestForTelegraph();
-
-        if (response.getData() == null) {
-            return;
-        }
-
-        var rollData = response.getData().getRollData();
-        if (CollectionUtils.isEmpty(rollData)) {
-            return;
-        }
-
-        var telegraphNews = rollData.stream().filter(it -> it.getType() == -1).collect(Collectors.toList());
+        var telegraphNews = toNews(response);
         EventBus.syncSubmit(TelegraphNewsEvent.valueOf(telegraphNews));
-
-        doPush(telegraphNews);
+        doPush(telegraphNews, 2.1F);
     }
 
-    public void doPush(List<OneNews> telegraphNews) {
+    /**
+     * 财联社新闻推送，会拉取更多的消息，寻找那些被忽略的消息
+     */
+    @Scheduler(cron = "0 0/10 * * * ?")
+    public void cronPushQQ60() throws IOException, InterruptedException {
+        var response = requestForTelegraph60();
+        var telegraphNews = toNews(response);
+        EventBus.syncSubmit(TelegraphNewsEvent.valueOf(telegraphNews));
+        doPush(telegraphNews, 3.1F);
+    }
+
+    public void doPush(List<OneNews> telegraphNews, float ratio) {
+        if (CollectionUtils.isEmpty(telegraphNews)) {
+            return;
+        }
+
         var database = databaseService.database;
 
         var avgReadingNum = telegraphNews.stream().mapToInt(it -> it.getReadingNum()).average().getAsDouble();
         var avgShareNum = telegraphNews.stream().mapToInt(it -> it.getShareNum()).average().getAsDouble();
-        var avgReading = avgReadingNum * 2.1;
-        var avgShare = avgShareNum * 2.1;
+        var avgReading = avgReadingNum * ratio;
+        var avgShare = avgShareNum * ratio;
 
         for (var news : telegraphNews) {
             // 统计行业
@@ -259,10 +264,31 @@ public class RichGuyController {
      * 获取最新电报
      */
     public Telegraph requestForTelegraph() throws IOException, InterruptedException {
+        var url = "https://www.cls.cn/nodeapi/updateTelegraphList";
+        var responseBody = HttpUtils.get(url);
+        var response = JsonUtils.string2Object(responseBody, Telegraph.class);
+        return response;
+    }
+
+    public Telegraph requestForTelegraph60() throws IOException, InterruptedException {
         var url = "https://www.cls.cn/nodeapi/updateTelegraphList?rn=60";
         var responseBody = HttpUtils.get(url);
         var response = JsonUtils.string2Object(responseBody, Telegraph.class);
         return response;
+    }
+
+    private List<OneNews> toNews(Telegraph telegraph) {
+        if (telegraph.getData() == null) {
+            return Collections.emptyList();
+        }
+
+        var rollData = telegraph.getData().getRollData();
+        if (CollectionUtils.isEmpty(rollData)) {
+            return Collections.emptyList();
+        }
+
+        var telegraphNews = rollData.stream().filter(it -> it.getType() == -1).collect(Collectors.toList());
+        return telegraphNews;
     }
 
     // **************************************************股票相关********************************************************
