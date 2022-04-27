@@ -89,7 +89,7 @@ public class IndustryController {
             var count = newHotGn.getMiddle();
             if (count <= 8) {
                 var builder = new StringBuilder();
-                builder.append("\uD83D\uDCA5紧急通知-新概念出现：");
+                builder.append("\uD83D\uDCA5紧急通知-同花顺新概念：");
                 builder.append(FileUtils.LS);
                 builder.append(FileUtils.LS);
 
