@@ -27,6 +27,8 @@
 
 - [simbot-mirai-demo](https://github.com/simple-robot/simbot-mirai-demo) ，在idea中下载这个项目，使用qq账号密码登录获取device.json和cache
 
+- [TxCaptchaHelper 验证码输入app](https://github.com/mzdluo123/TxCaptchaHelper)，需要输入一个4位数字的验证码
+
 -![img.png](img.png)
 
 - 验证完成把链接复制到手机qq中打开，然后扫码登录
