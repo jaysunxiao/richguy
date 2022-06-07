@@ -19,10 +19,9 @@ public class RichGuyService {
     public void pushGroupMessage(String message) {
         var weChatWebhookRequest = WeChatWebhookRequest.valueOfText(WeChatTextVO.valueOf(message, null));
         try {
-            HttpUtils.post(weChatWebhook, message);
+            HttpUtils.post(weChatWebhook, weChatWebhookRequest);
         } catch (Exception e) {
-
-
+            logger.error("wechat webhook 异常", e);
         }
     }
 
