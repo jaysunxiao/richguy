@@ -61,8 +61,7 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
             logger.error("wechat webhook 异常", e);
         }
 
-
-        newsStack.add(message);
+        newsStack.addFirst(message);
     }
 
     @Scheduler(cron = "30 * * * * ?")
