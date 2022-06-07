@@ -108,6 +108,50 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.mamoe</groupId>
+            <artifactId>mirai-core-jvm</artifactId>
+            <version>2.9.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib-common</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib-jdk7</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib-jdk8</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>annotations</artifactId>
+                    <groupId>org.jetbrains</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
             <version>2.56.0</version>
@@ -128,13 +172,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <version>${spring.boot.version}</version>
@@ -150,6 +187,12 @@
             <groupId>com.zfoo</groupId>
             <artifactId>boot</artifactId>
             <version>${zfoo.boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-io</artifactId>
+                    <groupId>commons-io</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
