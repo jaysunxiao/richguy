@@ -6,10 +6,8 @@ storage:
     location: classpath:/excel
     suffix: xlsx
 
-qq:
-  qqId: 123456789
-  password: abcabc
-  pushGroupIds: 123456789, 123456789
+weChat:
+  webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxxxxxx
 
 
 juhe:

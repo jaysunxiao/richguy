@@ -1,55 +1,28 @@
 package com.richguy.service;
 
-import com.zfoo.event.model.event.AppStartEvent;
-import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.BotFactory;
-import net.mamoe.mirai.utils.BotConfiguration;
+import com.richguy.model.wechat.WeChatTextVO;
+import com.richguy.model.wechat.WeChatWebhookRequest;
+import com.richguy.util.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
-public class RichGuyService implements ApplicationListener<AppStartEvent> {
+public class RichGuyService {
 
     public static final Logger logger = LoggerFactory.getLogger(RichGuyService.class);
 
-    private Bot bot;
+    @Value("${weChat.webhook}")
+    private String weChatWebhook;
 
-    @Value("${qq.qqId}")
-    private long qqId;
-
-    @Value("${qq.password}")
-    private String qqPassword;
-
-    @Value("${qq.pushGroupIds}")
-    private List<Long> pushGroupIds;
-
-    @Override
-    public void onApplicationEvent(AppStartEvent event) {
-        Bot bot = BotFactory.INSTANCE.newBot(qqId, qqPassword, new BotConfiguration() {{
-            fileBasedDeviceInfo(); // 使用 device.json 存储设备信息
-            setHeartbeatStrategy(BotConfiguration.HeartbeatStrategy.REGISTER);
-        }});
-
-        bot.login();
-
-        this.bot = bot;
-
-        logger.info("bot启动成功[{}]", bot);
-    }
-
-
-    /**
-     * 给qq群推送消息
-     */
     public void pushGroupMessage(String message) {
-        for (var pushGroupId : pushGroupIds) {
-            var group = bot.getGroup(pushGroupId);
-            group.sendMessage(message);
+        var weChatWebhookRequest = WeChatWebhookRequest.valueOfText(WeChatTextVO.valueOf(message, null));
+        try {
+            HttpUtils.post(weChatWebhook, message);
+        } catch (Exception e) {
+
+
         }
     }
 
