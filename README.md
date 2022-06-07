@@ -32,3 +32,5 @@
 -![img.png](img.png)
 
 - 验证完成把链接复制到手机qq中打开，然后扫码登录
+
+- 最后需要把device.json和cache复制到jar的同级运行目录
