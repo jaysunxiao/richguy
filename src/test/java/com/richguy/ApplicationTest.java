@@ -1,6 +1,9 @@
 package com.richguy;
 
 import com.zfoo.util.ThreadUtils;
+import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.BotFactory;
+import net.mamoe.mirai.utils.BotConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -41,6 +44,18 @@ public class ApplicationTest {
     public void startApplication() {
         Application.main(new String[0]);
         ThreadUtils.sleep(Long.MAX_VALUE);
+    }
+
+    @Test
+    public void deviceJson() {
+        Bot bot = BotFactory.INSTANCE.newBot(207634862, "sqxSQX19920601..", new BotConfiguration() {{
+            fileBasedDeviceInfo(); // 使用 device.json 存储设备信息
+            setHeartbeatStrategy(BotConfiguration.HeartbeatStrategy.REGISTER);
+        }});
+
+        bot.login();
+
+        System.out.println("bot启动成功[{}]");
     }
 
 }
