@@ -23,6 +23,8 @@
 
 # qq机器人启动
 
+- [教程](https://blog.csdn.net/qq_43578047/article/details/118466633)
+
 - [如何通过滑动验证助手去通过安全认证登录](https://blog.csdn.net/qq_41804775/article/details/123988487)
 
 - [simbot-mirai-demo](https://github.com/simple-robot/simbot-mirai-demo) ，在idea中下载这个项目，使用qq账号密码登录获取device.json和cache
