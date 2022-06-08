@@ -46,6 +46,9 @@ public class ApplicationTest {
         ThreadUtils.sleep(Long.MAX_VALUE);
     }
 
+
+    // 设置jvm启动参数
+    // -Dmirai.slider.captcha.supported
     @Test
     public void deviceJson() {
         Bot bot = BotFactory.INSTANCE.newBot(207634862, "sqxSQX19920601..", new BotConfiguration() {{
