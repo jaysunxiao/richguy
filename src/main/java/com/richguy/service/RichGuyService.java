@@ -3,7 +3,9 @@ package com.richguy.service;
 import com.richguy.model.wechat.WeChatTextVO;
 import com.richguy.model.wechat.WeChatWebhookRequest;
 import com.richguy.util.HttpUtils;
+import com.zfoo.event.manager.EventBus;
 import com.zfoo.event.model.event.AppStartEvent;
+import com.zfoo.net.task.model.SafeRunnable;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import net.mamoe.mirai.Bot;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class RichGuyService implements ApplicationListener<AppStartEvent> {
@@ -64,6 +67,9 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
         newsStack.addFirst(message);
     }
 
+
+    private AtomicBoolean refreshFlag = new AtomicBoolean(false);
+
     @Scheduler(cron = "30 * * * * ?")
     public void cronNewsQQ() {
         var message = newsStack.pollFirst();
@@ -72,10 +78,28 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
             return;
         }
 
-        for (var pushGroupId : pushGroupIds) {
-            var group = bot.getGroup(pushGroupId);
-            group.sendMessage(message);
+        if (refreshFlag.compareAndSet(false, true)) {
+            EventBus.asyncExecute().execute(new SafeRunnable() {
+                @Override
+                public void doRun() {
+                    try {
+                        for (var pushGroupId : pushGroupIds) {
+                            var group = bot.getGroup(pushGroupId);
+                            group.sendMessage(message);
+                        }
+                    } finally {
+                        refreshFlag.lazySet(false);
+                    }
+                }
+            });
+        } else {
+            newsStack.add(message);
+            if (newsStack.size() >= 100) {
+                newsStack.pollLast();
+            }
+            logger.error("机器人可能出现异常，无法推送消息");
         }
+
     }
 
 }
