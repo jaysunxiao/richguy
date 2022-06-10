@@ -6,6 +6,7 @@ import com.richguy.util.HttpUtils;
 import com.zfoo.event.manager.EventBus;
 import com.zfoo.event.model.event.AppStartEvent;
 import com.zfoo.net.task.model.SafeRunnable;
+import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import net.mamoe.mirai.Bot;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,10 +28,10 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
 
     public static final Logger logger = LoggerFactory.getLogger(RichGuyService.class);
 
-    private Bot bot;
+    private List<Pair<Bot, AtomicBoolean>> bots = new ArrayList<>();
 
-    @Value("${qq.qqId}")
-    private long qqId;
+    @Value("${qq.qqIds}")
+    private List<Long> qqIds;
 
     @Value("${qq.password}")
     private String qqPassword;
@@ -44,16 +46,18 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
 
     @Override
     public void onApplicationEvent(AppStartEvent event) {
-        Bot bot = BotFactory.INSTANCE.newBot(qqId, qqPassword, new BotConfiguration() {{
-            fileBasedDeviceInfo(); // 使用 device.json 存储设备信息
-            setHeartbeatStrategy(BotConfiguration.HeartbeatStrategy.REGISTER);
-        }});
+        for (var qqId : qqIds) {
+            Bot bot = BotFactory.INSTANCE.newBot(qqId, qqPassword, new BotConfiguration() {{
+                fileBasedDeviceInfo(); // 使用 device.json 存储设备信息
+                setHeartbeatStrategy(BotConfiguration.HeartbeatStrategy.REGISTER);
+            }});
 
-        bot.login();
+            bot.login();
 
-        this.bot = bot;
+            bots.add(new Pair<>(bot, new AtomicBoolean(false)));
 
-        logger.info("bot启动成功[{}]", bot);
+            logger.info("bot启动成功[{}]", bot);
+        }
     }
 
     public void pushGroupMessage(String message) {
@@ -68,7 +72,7 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
     }
 
 
-    private AtomicBoolean refreshFlag = new AtomicBoolean(false);
+    private int count = 0;
 
     @Scheduler(cron = "30 * * * * ?")
     public void cronNewsQQ() {
@@ -77,6 +81,11 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
         if (StringUtils.isEmpty(message)) {
             return;
         }
+
+        var pair = bots.get(Math.abs(++count % bots.size()));
+
+        var bot = pair.getKey();
+        var refreshFlag = pair.getValue();
 
         if (refreshFlag.compareAndSet(false, true)) {
             EventBus.asyncExecute().execute(new SafeRunnable() {
@@ -97,7 +106,7 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
             if (newsStack.size() >= 100) {
                 newsStack.pollLast();
             }
-            logger.error("机器人可能出现异常，无法推送消息");
+            logger.error("机器人[{}]可能出现异常，无法推送消息", bot);
         }
 
     }

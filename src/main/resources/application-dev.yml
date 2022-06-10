@@ -7,10 +7,10 @@ storage:
     suffix: xlsx
 
 weChat:
-  webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxxxxxx
+  webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=818aa476-e0db-4346-a68f-efbac919b371
 
 qq:
-  qqId: 123456789
+  qqIds: 123456789
   password: abcabc
   pushGroupIds: 123456789, 123456789
 

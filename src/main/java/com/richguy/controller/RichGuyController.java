@@ -188,7 +188,7 @@ public class RichGuyController {
 
                 if (CollectionUtils.isNotEmpty(stockMap)) {
                     otherBuilder.append(FileUtils.LS);
-                    otherBuilder.append("\uD83D\uDCA7股票：");
+                    otherBuilder.append("\uD83D\uDCA7票票：");
                     stockMap.entrySet().stream()
                             .sorted((a, b) -> Float.compare(b.getValue().getRise(), a.getValue().getRise()))
                             .forEach(it -> {

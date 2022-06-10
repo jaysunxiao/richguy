@@ -51,7 +51,7 @@ public class ApplicationTest {
     // -Dmirai.slider.captcha.supported
     @Test
     public void deviceJson() {
-        Bot bot = BotFactory.INSTANCE.newBot(207634862, "sqxSQX19920601..", new BotConfiguration() {{
+        Bot bot = BotFactory.INSTANCE.newBot(123456789, "xxxxxxxxxxx", new BotConfiguration() {{
             fileBasedDeviceInfo(); // 使用 device.json 存储设备信息
             setHeartbeatStrategy(BotConfiguration.HeartbeatStrategy.REGISTER);
         }});
