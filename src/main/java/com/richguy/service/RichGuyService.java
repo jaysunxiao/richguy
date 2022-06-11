@@ -7,6 +7,7 @@ import com.zfoo.event.manager.EventBus;
 import com.zfoo.event.model.event.AppStartEvent;
 import com.zfoo.net.task.model.SafeRunnable;
 import com.zfoo.protocol.model.Pair;
+import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import net.mamoe.mirai.Bot;
@@ -102,11 +103,12 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
                 }
             });
         } else {
-            newsStack.add(message);
+            var errorMessage = StringUtils.format("机器人[{}]可能出现异常，无法推送消息", bot);
+            newsStack.add(message + FileUtils.LS + FileUtils.LS + errorMessage);
             if (newsStack.size() >= 100) {
                 newsStack.pollLast();
             }
-            logger.error("机器人[{}]可能出现异常，无法推送消息", bot);
+            logger.error(errorMessage);
         }
 
     }
