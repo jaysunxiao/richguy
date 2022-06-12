@@ -137,7 +137,7 @@ public class TopNewsService {
                 newsKeys.add(data.getUniquekey());
             }
         } catch (Exception e) {
-            logger.error("获取新闻详细信息未知异常", e);
+            logger.info("获取新闻详细信息未知异常", e);
         }
     }
 
@@ -148,7 +148,7 @@ public class TopNewsService {
             var newsResult = JsonUtils.string2Object(responseBody, NewsResult.class);
             return newsResult.getResult().getContent();
         } catch (Exception e) {
-            logger.error("获取新闻详细信息未知异常", e);
+            logger.info("获取新闻详细信息未知异常", e);
         }
         return StringUtils.EMPTY;
     }

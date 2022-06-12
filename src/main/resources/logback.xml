@@ -15,21 +15,6 @@
         </encoder>
     </appender>
 
-    <!-- debug日志，只有一个文件，只收集debug级别日志，每次启动会覆盖以前的debug日志 -->
-    <appender name="zfoo_debug" class="ch.qos.logback.core.FileAppender">
-        <file>${LOG_HOME}/debug.log</file>
-        <!-- append: true,日志被追加到文件结尾; false,清空现存文件;默认是true -->
-        <append>false</append>
-        <encoder>
-            <pattern>${PATTERN_FILE}</pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>debug</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-    </appender>
 
     <!-- info，warn，error级别的日志都会添加在info.log日志中 -->
     <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
@@ -42,7 +27,7 @@
             <!-- each file should be at most 100MB, keep 30 days worth of history, but at most 40GB -->
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>30</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
+            <totalSizeCap>5GB</totalSizeCap>
         </rollingPolicy>
 
         <encoder>
@@ -73,7 +58,7 @@
             <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>30</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
+            <totalSizeCap>5GB</totalSizeCap>
         </rollingPolicy>
 
         <encoder>

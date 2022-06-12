@@ -77,7 +77,7 @@ public abstract class StockUtils {
 
             return false;
         } catch (ParseException e) {
-            logger.error("");
+            logger.error("开盘时间解析错误");
         }
 
         return false;

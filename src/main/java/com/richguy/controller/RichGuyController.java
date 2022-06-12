@@ -311,14 +311,14 @@ public class RichGuyController {
         try {
             stockPriceAndRise = doGetByThs(code);
         } catch (Exception e) {
-            logger.error("同花顺接口api获取股票数据异常");
+            logger.info("同花顺接口api获取股票数据异常");
         }
 
         if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
             try {
                 stockPriceAndRise = doGetByJuhe(code);
             } catch (Exception e) {
-                logger.error("聚合接口api获取股票数据异常");
+                logger.info("聚合接口api获取股票数据异常");
             }
         }
 
@@ -326,7 +326,7 @@ public class RichGuyController {
             try {
                 stockPriceAndRise = doGetByXueQiu(code);
             } catch (Exception e) {
-                logger.error("雪球接口api获取股票数据异常");
+                logger.info("雪球接口api获取股票数据异常");
             }
         }
 
@@ -334,8 +334,12 @@ public class RichGuyController {
             try {
                 stockPriceAndRise = doGetByWenCai(code);
             } catch (Exception e) {
-                logger.error("问财接口api获取股票数据异常");
+                logger.info("问财接口api获取股票数据异常");
             }
+        }
+
+        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
+            logger.error("获取股票数据异常，没有任何一个接口可以获取到股票数据");
         }
 
         return stockPriceAndRise;

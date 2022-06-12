@@ -44,15 +44,19 @@ public class IndustryService {
         try {
             quote = doGetBkQuote(code);
         } catch (Exception e) {
-            logger.error("通过同花顺接口api获取板块数据异常");
+            logger.info("通过同花顺接口api获取板块数据异常");
         }
 
         if (quote == DEFAULT_VAlUE) {
             try {
                 quote = doGetBkQuoteByHtml(code);
             } catch (Exception e) {
-                logger.error("通过同花顺网站的html获取板块数据异常");
+                logger.info("通过同花顺网站的html获取板块数据异常");
             }
+        }
+
+        if (quote == DEFAULT_VAlUE) {
+            logger.error("获取板块数据异常，没有任何一个接口可以获取到板块数据");
         }
 
         return quote;
