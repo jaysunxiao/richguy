@@ -97,20 +97,28 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
                             var group = bot.getGroup(pushGroupId);
                             group.sendMessage(message);
                         }
+                    } catch (Throwable t) {
+                        errorCallback(bot, message);
+                        logger.error("机器人未知错误[{}]", t.getMessage());
+                        logger.error("机器人未知错误堆栈", t);
                     } finally {
                         refreshFlag.lazySet(false);
                     }
                 }
             });
         } else {
-            var errorMessage = StringUtils.format("机器人[{}]可能出现异常，无法推送消息", bot);
-            newsStack.add(message + FileUtils.LS + FileUtils.LS + errorMessage);
-            if (newsStack.size() >= 100) {
-                newsStack.pollLast();
-            }
-            logger.error(errorMessage);
+            errorCallback(bot, message);
         }
+    }
 
+    private void errorCallback(Bot bot, String message) {
+        var errorMessage = StringUtils.format("机器人[id:{}][name:{}]可能出现异常，无法推送消息", bot.getId(), bot.getNick());
+        message = message + FileUtils.LS + FileUtils.LS + errorMessage;
+        newsStack.add(message);
+        if (newsStack.size() >= 100) {
+            newsStack.pollLast();
+        }
+        logger.error(errorMessage);
     }
 
 }
