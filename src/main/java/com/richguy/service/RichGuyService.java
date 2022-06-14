@@ -89,9 +89,9 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
         var refreshFlag = pair.getValue();
 
         if (refreshFlag.compareAndSet(false, true)) {
-            EventBus.asyncExecute().execute(new SafeRunnable() {
+            EventBus.asyncExecute().execute(new Runnable() {
                 @Override
-                public void doRun() {
+                public void run() {
                     try {
                         for (var pushGroupId : pushGroupIds) {
                             var group = bot.getGroup(pushGroupId);
@@ -100,7 +100,6 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
                     } catch (Throwable t) {
                         errorCallback(bot, message);
                         logger.error("机器人未知错误[{}]", t.getMessage());
-                        logger.error("机器人未知错误堆栈", t);
                     } finally {
                         refreshFlag.lazySet(false);
                     }
