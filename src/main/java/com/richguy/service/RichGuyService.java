@@ -62,12 +62,12 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
     }
 
     public void pushGroupMessage(String message) {
-        var weChatWebhookRequest = WeChatWebhookRequest.valueOfText(WeChatTextVO.valueOf(message, null));
-        try {
-            HttpUtils.post(weChatWebhook, weChatWebhookRequest);
-        } catch (Exception e) {
-            logger.error("wechat webhook 异常", e);
-        }
+//        var weChatWebhookRequest = WeChatWebhookRequest.valueOfText(WeChatTextVO.valueOf(message, null));
+//        try {
+//            HttpUtils.post(weChatWebhook, weChatWebhookRequest);
+//        } catch (Exception e) {
+//            logger.error("wechat webhook 异常", e);
+//        }
 
         newsStack.addFirst(message);
     }
