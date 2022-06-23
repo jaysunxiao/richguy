@@ -12,6 +12,7 @@ import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
+import com.zfoo.util.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,6 +98,9 @@ public class IndustryController {
                 builder.append(FileUtils.LS);
                 var url = IndustryUtils.industryHtmlUrl((int) newHotGn.getLeft());
                 builder.append(url);
+                builder.append(FileUtils.LS);
+
+                builder.append(RandomUtils.randomString(16));
                 builder.append(FileUtils.LS);
 
                 richGuyService.pushGroupMessage(builder.toString());

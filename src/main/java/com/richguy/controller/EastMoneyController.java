@@ -11,6 +11,7 @@ import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.manager.SchedulerBus;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
+import com.zfoo.util.math.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -82,6 +83,9 @@ public class EastMoneyController {
 
         var url = StringUtils.format("http://quote.eastmoney.com/bk/{}.{}.html", industry.getF13(), industry.getF12());
         builder.append(url);
+        builder.append(FileUtils.LS);
+
+        builder.append(RandomUtils.randomString(16));
         builder.append(FileUtils.LS);
 
         richGuyService.pushGroupMessage(builder.toString());
