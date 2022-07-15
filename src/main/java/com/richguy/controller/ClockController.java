@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 群闹铃相关处理逻辑
  *
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 @Component

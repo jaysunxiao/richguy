@@ -3,7 +3,7 @@ package com.richguy.model.packet;
 import com.zfoo.protocol.IPacket;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 public class SpiderIndustry implements IPacket {

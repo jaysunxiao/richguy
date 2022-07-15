@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 1.0
  * @since 2020-08-05 17:29
  */

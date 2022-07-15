@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

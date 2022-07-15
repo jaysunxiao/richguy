@@ -3,7 +3,7 @@ package com.richguy.model.east;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -1,7 +1,7 @@
 package com.richguy.model.wechat;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 1.0
  * @since 2020-08-06 16:37
  */

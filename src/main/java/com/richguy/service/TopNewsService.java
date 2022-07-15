@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * 统计新闻的高频词汇
  *
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 @Component

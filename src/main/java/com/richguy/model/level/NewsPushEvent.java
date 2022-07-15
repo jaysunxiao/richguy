@@ -3,7 +3,7 @@ package com.richguy.model.level;
 import com.zfoo.event.model.event.IEvent;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 public class NewsPushEvent implements IEvent {

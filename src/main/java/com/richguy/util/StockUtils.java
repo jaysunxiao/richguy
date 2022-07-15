@@ -10,7 +10,7 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 public abstract class StockUtils {

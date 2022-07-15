@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 @Component

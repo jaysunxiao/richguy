@@ -6,7 +6,7 @@ import com.zfoo.event.model.event.IEvent;
 import java.util.List;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 public class TelegraphNewsEvent implements IEvent {

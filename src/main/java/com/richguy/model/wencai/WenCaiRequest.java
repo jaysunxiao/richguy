@@ -3,7 +3,7 @@ package com.richguy.model.wencai;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * @author jaysunxiao
+ * @author godotg
  * @version 3.0
  */
 public class WenCaiRequest {
