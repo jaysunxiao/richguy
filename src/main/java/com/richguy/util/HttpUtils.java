@@ -3,6 +3,7 @@ package com.richguy.util;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.zfoo.protocol.collection.ArrayUtils;
+import com.zfoo.protocol.exception.RunException;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 
@@ -39,6 +40,24 @@ public abstract class HttpUtils {
 
         var result = client.send(request, responseBodyHandler).body();
         return result;
+    }
+
+    public static byte[] getBytes(String url)  {
+        try {
+            var client = HttpClient.newBuilder().build();
+
+            var responseBodyHandler = HttpResponse.BodyHandlers.ofByteArray();
+            var request = HttpRequest.newBuilder(URI.create(url))
+                    .headers(ArrayUtils.listToArray(HEADERS, String.class))
+                    .timeout(Duration.ofSeconds(15))
+                    .GET()
+                    .build();
+
+            var result = client.send(request, responseBodyHandler).body();
+            return result;
+        } catch (Exception e) {
+            throw new RunException(e);
+        }
     }
 
     public static String post(String url, Object jsonObject) throws IOException, InterruptedException {

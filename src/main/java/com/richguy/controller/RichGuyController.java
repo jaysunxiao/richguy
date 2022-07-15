@@ -18,6 +18,7 @@ import com.richguy.util.DateUtils;
 import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
 import com.zfoo.event.manager.EventBus;
+import com.zfoo.event.model.event.AppStartAfterEvent;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.JsonUtils;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -41,7 +43,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class RichGuyController {
+public class RichGuyController implements ApplicationListener<AppStartAfterEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(RichGuyController.class);
 
@@ -310,6 +312,14 @@ public class RichGuyController {
     public StockPriceAndRise stockPriceAndRise(int code) {
         var stockPriceAndRise = StockPriceAndRise.valueOf(DEFAULT_VAlUE, DEFAULT_VAlUE);
 
+        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
+            try {
+                stockPriceAndRise = doGetByXueQiu(code);
+            } catch (Exception e) {
+                logger.info("雪球接口api获取股票数据异常");
+            }
+        }
+
         try {
             stockPriceAndRise = doGetByThs(code);
         } catch (Exception e) {
@@ -321,14 +331,6 @@ public class RichGuyController {
                 stockPriceAndRise = doGetByJuhe(code);
             } catch (Exception e) {
                 logger.info("聚合接口api获取股票数据异常");
-            }
-        }
-
-        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
-            try {
-                stockPriceAndRise = doGetByXueQiu(code);
-            } catch (Exception e) {
-                logger.info("雪球接口api获取股票数据异常");
             }
         }
 
@@ -431,4 +433,13 @@ public class RichGuyController {
         }
         return str.trim();
     }
+
+    @Override
+    public void onApplicationEvent(AppStartAfterEvent event) {
+        var stock = stockPriceAndRise(1);
+
+        System.out.println(JsonUtils.object2StringPrettyPrinter(stock));
+    }
+
+
 }

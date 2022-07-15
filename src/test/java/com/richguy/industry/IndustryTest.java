@@ -7,7 +7,7 @@ import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
-import com.zfoo.storage.interpreter.ExcelResourceReader;
+import com.zfoo.storage.interpreter.ResourceReader;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -48,8 +48,8 @@ public class IndustryTest {
 
     @Test
     public void diffTest() throws IOException, InterruptedException {
-        var reader = new ExcelResourceReader();
-        var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class);
+        var reader = new ResourceReader();
+        var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class, "xlsx");
 
         var allIndustry = IndustryUtils.allIndustryList();
 

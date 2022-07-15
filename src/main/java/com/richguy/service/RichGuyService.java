@@ -1,11 +1,7 @@
 package com.richguy.service;
 
-import com.richguy.model.wechat.WeChatTextVO;
-import com.richguy.model.wechat.WeChatWebhookRequest;
-import com.richguy.util.HttpUtils;
 import com.zfoo.event.manager.EventBus;
 import com.zfoo.event.model.event.AppStartEvent;
-import com.zfoo.net.task.model.SafeRunnable;
 import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
@@ -82,7 +78,10 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
         if (StringUtils.isEmpty(message)) {
             return;
         }
+        pushGroupMessageNow(message);
+    }
 
+    public void pushGroupMessageNow(String message) {
         var pair = bots.get(Math.abs(++count % bots.size()));
 
         var bot = pair.getKey();
@@ -109,6 +108,7 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
             errorCallback(bot, message);
         }
     }
+
 
     private void errorCallback(Bot bot, String message) {
         var errorMessage = StringUtils.format("机器人[id:{}][name:{}]可能出现异常，无法推送消息", bot.getId(), bot.getNick());
