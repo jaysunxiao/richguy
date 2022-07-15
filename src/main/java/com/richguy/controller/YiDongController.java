@@ -20,6 +20,8 @@ import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 异动
+ *
  * @author godotg
  * @version 3.0
  */
@@ -29,7 +31,6 @@ public class YiDongController {
     @Autowired
     private RichGuyService richGuyService;
 
-    private String lastMessage = StringUtils.EMPTY;
     private long lastPushTime = TimeUtils.now();
 
     @EventReceiver
@@ -69,24 +70,21 @@ public class YiDongController {
         SchedulerBus.schedule(new Runnable() {
             @Override
             public void run() {
-                var pianLi = pianLi(stockCode) * 100;
-                var decimal = new BigDecimal(pianLi);
-                var result = decimal.setScale(2, RoundingMode.HALF_UP).toString();
-                richGuyService.pushGroupMessageNow(StringUtils.format("{}%", result));
+                richGuyService.pushGroupMessageNow(StringUtils.format("{}%", yiDong(stockCode)));
             }
         }, 1000, TimeUnit.MILLISECONDS);
     }
 
 
     // 总异动
-    public float yiDong(String stockCode) {
+    public String yiDong(String stockCode) {
         var stockPianLi = pianLi(stockCode);
         var daPaPianLi = stockCode.startsWith("6") ? pianLi("000001") : pianLi("399001");
-        return stockPianLi - daPaPianLi;
+        return stockPianLi.subtract(daPaPianLi).toString();
     }
 
     // 股票偏离
-    public float pianLi(String stockCode) {
+    public BigDecimal pianLi(String stockCode) {
         stockCode = stockCode.startsWith("6")
                 ? StringUtils.format("0{}", stockCode)
                 : StringUtils.format("1{}", stockCode);
@@ -103,7 +101,8 @@ public class YiDongController {
         var splits = result.split(FileUtils.LS);
         var endPrice = Float.parseFloat(StringUtils.trim(splits[1].split(StringUtils.COMMA_REGEX)[3]));
         var startPrice = Float.parseFloat(StringUtils.trim(splits[4].split(StringUtils.COMMA_REGEX)[3]));
-        return (endPrice - startPrice) / startPrice;
+        var decimal = new BigDecimal((endPrice - startPrice) / startPrice * 100);
+        return decimal.setScale(2, RoundingMode.HALF_UP);
     }
 
     public String errorMessage() {
