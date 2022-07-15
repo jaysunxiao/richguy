@@ -125,22 +125,28 @@ public class RichGuyController implements ApplicationListener<AppStartAfterEvent
                 builder.append(StringUtils.format("⭐S级Max  {}", dateStr));
                 EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.S));
             } else if (level.equals("B")) {
-                if (CollectionUtils.isEmpty(stockList)) {
+                if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                     builder.append(StringUtils.format("A级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
-                } else {
-                    builder.append(StringUtils.format("B级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
-                }
-            } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
-                if (CollectionUtils.isEmpty(stockList)) {
-                    builder.append(StringUtils.format("B级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
-                } else {
+                } else if (CollectionUtils.isEmpty(stockList)) {
                     builder.append(StringUtils.format("C级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                } else {
+                    builder.append(StringUtils.format("B级电报  {}", dateStr));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
                 }
             }
+
+//            else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
+//                if (CollectionUtils.isEmpty(stockList)) {
+//                    builder.append(StringUtils.format("B级电报  {}", dateStr));
+//                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
+//                } else {
+//                    builder.append(StringUtils.format("C级电报  {}", dateStr));
+//                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+//                }
+//            }
+
 //            else if (news.getReadingNum() >= avgReading || news.getShareNum() >= avgShare) {
 //                var ctime = news.getCtime() * TimeUtils.MILLIS_PER_SECOND;
 //                var diff = TimeUtils.now() - ctime;

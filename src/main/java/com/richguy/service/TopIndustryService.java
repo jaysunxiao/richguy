@@ -1,7 +1,6 @@
 package com.richguy.service;
 
 import com.richguy.model.OneNews;
-import com.richguy.resource.IgnoreTopWordResource;
 import com.richguy.resource.IndustryResource;
 import com.richguy.util.StockUtils;
 import com.zfoo.protocol.util.FileUtils;
@@ -31,8 +30,6 @@ public class TopIndustryService {
 
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
-    @ResInjection
-    private Storage<String, IgnoreTopWordResource> ignoreTopWordResources;
 
 
     public void topIndustry(OneNews news) {

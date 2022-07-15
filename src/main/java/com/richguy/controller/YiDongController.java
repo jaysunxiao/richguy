@@ -79,7 +79,7 @@ public class YiDongController {
     // 总异动
     public String yiDong(String stockCode) {
         var stockPianLi = pianLi(stockCode);
-        var daPaPianLi = stockCode.startsWith("6") ? pianLi("000001") : pianLi("399001");
+        var daPaPianLi = stockCode.startsWith("6") ? pianLi("000001") : pianLi("399106");
         return stockPianLi.subtract(daPaPianLi).toString();
     }
 

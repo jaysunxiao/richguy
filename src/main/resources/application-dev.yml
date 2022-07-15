@@ -16,7 +16,3 @@ qq:
 
 juhe:
   stockUrl: http://web.juhe.cn:8080/finance/stock/hs?gid={}&key=yourkey
-  topNewsUrl: http://v.juhe.cn/toutiao/index?type=top&key=yourkey
-  guojiNewsUrl: http://v.juhe.cn/toutiao/index?type=guoji&key=yourkey
-  kejiNewsUrl: http://v.juhe.cn/toutiao/index?type=keji&key=yourkey
-  newsUrl: http://v.juhe.cn/toutiao/content?uniquekey={}&key=yourkey

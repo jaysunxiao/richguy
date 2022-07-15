@@ -1,6 +1,9 @@
 package com.richguy.controller;
 
-import com.richguy.service.*;
+import com.richguy.service.DatabaseService;
+import com.richguy.service.IndustryService;
+import com.richguy.service.RichGuyService;
+import com.richguy.service.TopIndustryService;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,8 +19,6 @@ public class TopController {
     private IndustryService industryService;
     @Autowired
     private RichGuyService richGuyService;
-    @Autowired
-    private TopNewsService topNewsService;
     @Autowired
     private TopIndustryService topIndustryService;
     @Autowired
