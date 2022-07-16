@@ -17,7 +17,7 @@ import java.nio.charset.Charset;
 public class EastMoney {
 
     @Test
-    public void yiDong() throws IOException, InterruptedException {
+    public void yiDong() {
         var controller = new YiDongController();
         var yiDong = controller.yiDong("000755");
         System.out.println(yiDong);

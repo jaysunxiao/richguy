@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @version 3.0
  */
 @Component
-public class EastMoneyController {
+public class NewGnEastMoneyController {
 
     private Set<String> eastMoneyIndustries = new HashSet<>();
 
@@ -35,7 +35,7 @@ public class EastMoneyController {
     private RichGuyService richGuyService;
 
     @Scheduler(cron = "0 0/3 * * * ?")
-    public void cronPushGn() throws IOException, InterruptedException {
+    public void cronNewEastMoneyGn() throws IOException, InterruptedException {
         var list = getEastMoneyIndustries();
 
         // 第一次先初始化
@@ -54,17 +54,17 @@ public class EastMoneyController {
             }
 
             notifyNewGn(industry);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 5 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 30 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 60 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 12 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 1 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 2 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 3 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 4 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry), 5 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
 
             eastMoneyIndustries.add(gn);
-
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 1 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 2 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 3 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 4 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 8 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 16 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 32 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry), 64 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
         }
     }
 

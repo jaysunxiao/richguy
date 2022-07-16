@@ -1,0 +1,89 @@
+package com.richguy.controller;
+
+import com.richguy.service.RichGuyService;
+import com.richguy.util.IndustryUtils;
+import com.zfoo.protocol.collection.CollectionUtils;
+import com.zfoo.protocol.util.FileUtils;
+import com.zfoo.protocol.util.StringUtils;
+import com.zfoo.scheduler.manager.SchedulerBus;
+import com.zfoo.scheduler.model.anno.Scheduler;
+import com.zfoo.scheduler.util.TimeUtils;
+import com.zfoo.util.math.RandomUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * @author godotg
+ * @version 3.0
+ */
+@Component
+public class NewGnThsController {
+
+    private static final Logger logger = LoggerFactory.getLogger(NewGnThsController.class);
+
+    @Autowired
+    private RichGuyService richGuyService;
+
+    private Set<String> thsIndustries = new HashSet<>();
+
+    @Scheduler(cron = "0 0/3 * * * ?")
+    public void cronNewThsGn() throws IOException, InterruptedException {
+        var list = IndustryUtils.allIndustryList();
+
+        // 第一次先初始化
+        if (CollectionUtils.isEmpty(thsIndustries)) {
+            for (var industry : list) {
+                thsIndustries.add(StringUtils.trim(industry.getValue()));
+            }
+            return;
+        }
+
+        for (var industry : list) {
+            var gn = StringUtils.trim(industry.getValue());
+
+            if (thsIndustries.contains(gn)) {
+                continue;
+            }
+
+            notifyNewGn(industry.getKey(), industry.getValue());
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 5 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 30 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 60 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 12 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 1 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 2 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 3 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 4 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 5 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+
+            thsIndustries.add(gn);
+        }
+    }
+
+
+    public void notifyNewGn(int industryId, String name) {
+        var builder = new StringBuilder();
+        builder.append("\uD83D\uDCA5紧急通知-同花顺新概念：");
+        builder.append(FileUtils.LS);
+        builder.append(FileUtils.LS);
+
+        builder.append(StringUtils.format("{} {} ", industryId, name));
+        builder.append(FileUtils.LS);
+        var url = IndustryUtils.industryHtmlUrl(industryId);
+        builder.append(url);
+        builder.append(FileUtils.LS);
+
+        builder.append(RandomUtils.randomString(16));
+        builder.append(FileUtils.LS);
+
+        richGuyService.pushGroupMessage(builder.toString());
+    }
+
+}

@@ -13,7 +13,10 @@ import com.richguy.model.wencai.WenCaiRequest;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.StockResource;
-import com.richguy.service.*;
+import com.richguy.service.DatabaseService;
+import com.richguy.service.IndustryService;
+import com.richguy.service.RichGuyService;
+import com.richguy.service.StockService;
 import com.richguy.util.DateUtils;
 import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
@@ -61,8 +64,6 @@ public class RichGuyController implements ApplicationListener<AppStartAfterEvent
     private IndustryService industryService;
     @Autowired
     private DatabaseService databaseService;
-    @Autowired
-    private TopIndustryService topIndustryService;
 
 
     @ResInjection
@@ -106,9 +107,6 @@ public class RichGuyController implements ApplicationListener<AppStartAfterEvent
         var avgShare = avgShareNum * ratio;
 
         for (var news : telegraphNews) {
-            // 统计行业
-            topIndustryService.topIndustry(news);
-
             if (database.getPushTelegraphIds().contains(news.getId())) {
                 continue;
             }

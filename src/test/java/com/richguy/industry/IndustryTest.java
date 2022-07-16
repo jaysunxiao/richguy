@@ -1,6 +1,6 @@
 package com.richguy.industry;
 
-import com.richguy.controller.EastMoneyController;
+import com.richguy.controller.NewGnEastMoneyController;
 import com.richguy.resource.IndustryResource;
 import com.richguy.util.IndustryUtils;
 import com.zfoo.protocol.model.Pair;
@@ -32,7 +32,7 @@ public class IndustryTest {
 
     @Test
     public void eastMoneyIndustryTest() throws IOException, InterruptedException {
-        var controller = new EastMoneyController();
+        var controller = new NewGnEastMoneyController();
         controller.cronPushGn();
         controller.cronPushGn();
         var response = controller.requestForEastMoneyResult();
