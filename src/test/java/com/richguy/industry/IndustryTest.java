@@ -33,8 +33,6 @@ public class IndustryTest {
     @Test
     public void eastMoneyIndustryTest() throws IOException, InterruptedException {
         var controller = new NewGnEastMoneyController();
-        controller.cronPushGn();
-        controller.cronPushGn();
         var response = controller.requestForEastMoneyResult();
         System.out.println(JsonUtils.object2String(response));
     }

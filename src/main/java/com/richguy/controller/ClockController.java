@@ -2,7 +2,7 @@ package com.richguy.controller;
 
 import com.richguy.event.QQGroupMessageEvent;
 import com.richguy.service.DatabaseService;
-import com.richguy.service.RichGuyService;
+import com.richguy.service.QqBotService;
 import com.zfoo.event.model.anno.EventReceiver;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.util.FileUtils;
@@ -31,7 +31,7 @@ public class ClockController {
 
 
     @Autowired
-    private RichGuyService richGuyService;
+    private QqBotService qqBotService;
 
     @Autowired
     private DatabaseService databaseService;
@@ -47,7 +47,7 @@ public class ClockController {
         try {
             doClock(message);
         } catch (Exception e) {
-            richGuyService.pushGroupMessageNow(errorMessage());
+            qqBotService.pushGroupMessageNow(errorMessage());
         }
     }
 
@@ -61,7 +61,7 @@ public class ClockController {
             if (clock.getKey() > TimeUtils.now()) {
                 continue;
             }
-            richGuyService.pushGroupMessageNow(StringUtils.format("\uD83D\uDCA3\uD83D\uDCA3\uD83D\uDCA3{}{}{}\uD83C\uDF6D\uD83C\uDF6D\uD83C\uDF6D"
+            qqBotService.pushGroupMessageNow(StringUtils.format("\uD83D\uDCA3\uD83D\uDCA3\uD83D\uDCA3{}{}{}\uD83C\uDF6D\uD83C\uDF6D\uD83C\uDF6D"
                     , FileUtils.LS, clock.getValue(), FileUtils.LS));
         }
 
@@ -76,7 +76,7 @@ public class ClockController {
         var splits = message.split(FileUtils.LS);
 
         if (ArrayUtils.length(splits) != 3) {
-            richGuyService.pushGroupMessageNow(errorMessage());
+            qqBotService.pushGroupMessageNow(errorMessage());
             return;
         }
 
@@ -86,14 +86,14 @@ public class ClockController {
         var content = StringUtils.trim(splits[2]);
 
         if (clockTime <= TimeUtils.now()) {
-            richGuyService.pushGroupMessageNow("\uD83C\uDE32定时器时间已经过期");
+            qqBotService.pushGroupMessageNow("\uD83C\uDE32定时器时间已经过期");
             return;
         }
 
         SchedulerBus.schedule(new Runnable() {
             @Override
             public void run() {
-                richGuyService.pushGroupMessageNow(StringUtils.format("\uD83D\uDE80定时器设置成功：{}时间->{}{}[{}]", FileUtils.LS, dateStr, FileUtils.LS, content));
+                qqBotService.pushGroupMessageNow(StringUtils.format("\uD83D\uDE80定时器设置成功：{}时间->{}{}[{}]", FileUtils.LS, dateStr, FileUtils.LS, content));
 
                 var databaseClock = databaseService.databaseClock;
                 databaseClock.addClock(clockTime, content);

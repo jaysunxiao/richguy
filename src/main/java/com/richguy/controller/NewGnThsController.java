@@ -1,6 +1,6 @@
 package com.richguy.controller;
 
-import com.richguy.service.RichGuyService;
+import com.richguy.service.QqBotService;
 import com.richguy.util.IndustryUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
@@ -29,7 +29,7 @@ public class NewGnThsController {
     private static final Logger logger = LoggerFactory.getLogger(NewGnThsController.class);
 
     @Autowired
-    private RichGuyService richGuyService;
+    private QqBotService qqBotService;
 
     private Set<String> thsIndustries = new HashSet<>();
 
@@ -83,7 +83,7 @@ public class NewGnThsController {
         builder.append(RandomUtils.randomString(16));
         builder.append(FileUtils.LS);
 
-        richGuyService.pushGroupMessage(builder.toString());
+        qqBotService.pushGroupMessage(builder.toString());
     }
 
 }

@@ -15,7 +15,7 @@ import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.StockResource;
 import com.richguy.service.DatabaseService;
 import com.richguy.service.IndustryService;
-import com.richguy.service.RichGuyService;
+import com.richguy.service.QqBotService;
 import com.richguy.service.StockService;
 import com.richguy.util.DateUtils;
 import com.richguy.util.HttpUtils;
@@ -46,9 +46,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class RichGuyController implements ApplicationListener<AppStartAfterEvent> {
+public class NewsController implements ApplicationListener<AppStartAfterEvent> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RichGuyController.class);
+    private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
 
     public static final float DEFAULT_VAlUE = 88.8F;
 
@@ -57,7 +57,7 @@ public class RichGuyController implements ApplicationListener<AppStartAfterEvent
     private String juheStockUrl;
 
     @Autowired
-    private RichGuyService richGuyService;
+    private QqBotService qqBotService;
     @Autowired
     private StockService stockService;
     @Autowired
@@ -264,7 +264,7 @@ public class RichGuyController implements ApplicationListener<AppStartAfterEvent
 
             var telegraphContent = builder.toString().replaceAll("习近平", "喜大大");
 
-            richGuyService.pushGroupMessage(telegraphContent);
+            qqBotService.pushGroupMessage(telegraphContent);
 
             // 将已经加入处理过的电报，存入到数据库中
             database.addPushTelegraphId(news.getId());

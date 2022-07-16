@@ -2,7 +2,7 @@ package com.richguy.controller;
 
 import com.richguy.model.east.EastMoneyIndustry;
 import com.richguy.model.east.EastMoneyResult;
-import com.richguy.service.RichGuyService;
+import com.richguy.service.QqBotService;
 import com.richguy.util.HttpUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
@@ -32,7 +32,7 @@ public class NewGnEastMoneyController {
     private Set<String> eastMoneyIndustries = new HashSet<>();
 
     @Autowired
-    private RichGuyService richGuyService;
+    private QqBotService qqBotService;
 
     @Scheduler(cron = "0 0/3 * * * ?")
     public void cronNewEastMoneyGn() throws IOException, InterruptedException {
@@ -88,7 +88,7 @@ public class NewGnEastMoneyController {
         builder.append(RandomUtils.randomString(16));
         builder.append(FileUtils.LS);
 
-        richGuyService.pushGroupMessage(builder.toString());
+        qqBotService.pushGroupMessage(builder.toString());
     }
 
 

@@ -2,7 +2,7 @@ package com.richguy.controller;
 
 import com.richguy.event.QQGroupMessageEvent;
 import com.richguy.model.yidong.StockHistory;
-import com.richguy.service.RichGuyService;
+import com.richguy.service.QqBotService;
 import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
 import com.zfoo.event.model.anno.EventReceiver;
@@ -37,7 +37,7 @@ public class YiDongController {
     private static final int PIAN_LI_SIZE = 7;
 
     @Autowired
-    private RichGuyService richGuyService;
+    private QqBotService qqBotService;
 
     @EventReceiver
     public void onQQGroupMessageEvent(QQGroupMessageEvent event) {
@@ -49,7 +49,7 @@ public class YiDongController {
         try {
             doYiDong(message);
         } catch (Exception e) {
-            richGuyService.pushGroupMessageNow(e.getMessage());
+            qqBotService.pushGroupMessageNow(e.getMessage());
         }
     }
 
@@ -57,7 +57,7 @@ public class YiDongController {
         var splits = message.split(StringUtils.SPACE);
 
         if (ArrayUtils.length(splits) != 2) {
-            richGuyService.pushGroupMessageNow(StringUtils.format("\uD83C\uDE32请输入异动的正确的语法格式：{}------------------yd stock_code ------------------", FileUtils.LS));
+            qqBotService.pushGroupMessageNow(StringUtils.format("\uD83C\uDE32请输入异动的正确的语法格式：{}------------------yd stock_code ------------------", FileUtils.LS));
             return;
         }
 
@@ -67,7 +67,7 @@ public class YiDongController {
         SchedulerBus.schedule(new Runnable() {
             @Override
             public void run() {
-                richGuyService.pushGroupMessageNow(yiDong);
+                qqBotService.pushGroupMessageNow(yiDong);
             }
         }, 1000, TimeUnit.MILLISECONDS);
     }

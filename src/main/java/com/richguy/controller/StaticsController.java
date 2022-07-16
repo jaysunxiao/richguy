@@ -3,7 +3,7 @@ package com.richguy.controller;
 import com.richguy.model.level.NewsLevelEnum;
 import com.richguy.model.level.NewsPushEvent;
 import com.richguy.model.level.TelegraphNewsEvent;
-import com.richguy.service.RichGuyService;
+import com.richguy.service.QqBotService;
 import com.zfoo.event.model.anno.EventReceiver;
 import com.zfoo.protocol.collection.CollectionUtils;
 import com.zfoo.protocol.util.FileUtils;
@@ -25,7 +25,7 @@ import java.util.Set;
 public class StaticsController {
 
     @Autowired
-    private RichGuyService richGuyService;
+    private QqBotService qqBotService;
 
     private Map<NewsLevelEnum, Integer> newsLevelMap = new EnumMap<NewsLevelEnum, Integer>(NewsLevelEnum.class);
     private Set<Long> newsIds = new HashSet<>();
@@ -66,7 +66,7 @@ public class StaticsController {
         builder.append(FileUtils.LS);
         builder.append(StringUtils.format("total news {}", newsIds.size()));
 
-        richGuyService.pushGroupMessage(builder.toString());
+        qqBotService.pushGroupMessage(builder.toString());
 
         newsIds.clear();
         newsLevelMap.clear();

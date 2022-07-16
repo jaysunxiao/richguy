@@ -26,9 +26,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
-public class RichGuyService implements ApplicationListener<AppStartEvent> {
+public class QqBotService implements ApplicationListener<AppStartEvent> {
 
-    public static final Logger logger = LoggerFactory.getLogger(RichGuyService.class);
+    public static final Logger logger = LoggerFactory.getLogger(QqBotService.class);
 
     private List<Pair<Bot, AtomicBoolean>> bots = new ArrayList<>();
 
