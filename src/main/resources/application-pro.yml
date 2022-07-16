@@ -4,7 +4,6 @@ storage:
     package: com.richguy.resource
   resource:
     location: classpath:/excel
-    suffix: xlsx
 
 weChat:
   webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxxxxxx
