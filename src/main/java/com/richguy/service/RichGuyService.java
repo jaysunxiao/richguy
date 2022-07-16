@@ -1,13 +1,17 @@
 package com.richguy.service;
 
+import com.richguy.event.QQGroupMessageEvent;
 import com.zfoo.event.manager.EventBus;
 import com.zfoo.event.model.event.AppStartEvent;
 import com.zfoo.protocol.model.Pair;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
+import com.zfoo.scheduler.util.TimeUtils;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.BotFactory;
+import net.mamoe.mirai.event.GlobalEventChannel;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.utils.BotConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 public class RichGuyService implements ApplicationListener<AppStartEvent> {
@@ -40,9 +45,10 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
     private String weChatWebhook;
 
     private LinkedList<String> newsStack = new LinkedList<>();
+    private AtomicLong eventTimestamp = new AtomicLong(0);
 
     @Override
-    public void onApplicationEvent(AppStartEvent event) {
+    public void onApplicationEvent(AppStartEvent appStartEvent) {
         for (var qqId : qqIds) {
             Bot bot = BotFactory.INSTANCE.newBot(qqId, qqPassword, new BotConfiguration() {{
                 fileBasedDeviceInfo(); // 使用 device.json 存储设备信息
@@ -55,6 +61,25 @@ public class RichGuyService implements ApplicationListener<AppStartEvent> {
 
             logger.info("bot启动成功[{}]", bot);
         }
+
+        // 创建监听
+        var listener = GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, event -> {
+            // 可获取到消息内容等, 详细查阅 `GroupMessageEvent`
+            var messageChain = event.getMessage();
+
+            for (var message : messageChain) {
+                var content = message.contentToString();
+                if (StringUtils.isBlank(content)) {
+                    continue;
+                }
+                if (content.startsWith("clock") || content.startsWith("yd")) {
+                    if (TimeUtils.now() - eventTimestamp.get() >= 5 * TimeUtils.MILLIS_PER_SECOND) {
+                        eventTimestamp.set(TimeUtils.now());
+                        EventBus.asyncSubmit(QQGroupMessageEvent.valueOf(StringUtils.trim(content)));
+                    }
+                }
+            }
+        });
     }
 
     public void pushGroupMessage(String message) {

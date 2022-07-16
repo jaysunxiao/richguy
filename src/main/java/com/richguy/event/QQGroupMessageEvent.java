@@ -16,6 +16,11 @@ public class QQGroupMessageEvent implements IEvent {
         return event;
     }
 
+    @Override
+    public int threadId() {
+        return 0;
+    }
+
     public String getMessage() {
         return message;
     }

@@ -19,10 +19,7 @@ public class EastMoney {
     @Test
     public void yiDong() throws IOException, InterruptedException {
         var controller = new YiDongController();
-        var result = controller.pianLi("000957");
-        System.out.println(result);
-
-        var yiDong = controller.yiDong("000957");
+        var yiDong = controller.yiDong("000755");
         System.out.println(yiDong);
     }
 

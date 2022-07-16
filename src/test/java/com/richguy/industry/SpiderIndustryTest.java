@@ -41,7 +41,7 @@ public class SpiderIndustryTest {
     private static final Logger logger = LoggerFactory.getLogger(SpiderIndustryTest.class);
 
     @Test
-    public void industryToRealIndustryTest() throws IOException, ParserConfigurationException, SAXException {
+    public void industryToRealIndustryTest() throws IOException {
         industryToRealIndustry();
     }
 

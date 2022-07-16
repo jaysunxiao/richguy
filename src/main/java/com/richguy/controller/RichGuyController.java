@@ -128,7 +128,7 @@ public class RichGuyController implements ApplicationListener<AppStartAfterEvent
                 if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                     builder.append(StringUtils.format("A级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
-                } else if (CollectionUtils.isEmpty(stockList)) {
+                } else if (CollectionUtils.isNotEmpty(stockList)) {
                     builder.append(StringUtils.format("C级电报  {}", dateStr));
                     EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
                 } else {
