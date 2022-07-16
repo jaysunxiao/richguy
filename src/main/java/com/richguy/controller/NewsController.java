@@ -316,14 +316,6 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
     public StockPriceAndRise stockPriceAndRise(int code) {
         var stockPriceAndRise = StockPriceAndRise.valueOf(DEFAULT_VAlUE, DEFAULT_VAlUE);
 
-        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
-            try {
-                stockPriceAndRise = doGetByXueQiu(code);
-            } catch (Exception e) {
-                logger.info("雪球接口api获取股票数据异常");
-            }
-        }
-
         try {
             stockPriceAndRise = doGetByThs(code);
         } catch (Exception e) {
@@ -332,9 +324,9 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
 
         if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
             try {
-                stockPriceAndRise = doGetByJuhe(code);
+                stockPriceAndRise = doGetByXueQiu(code);
             } catch (Exception e) {
-                logger.info("聚合接口api获取股票数据异常");
+                logger.error("雪球接口api获取股票数据异常");
             }
         }
 
@@ -342,7 +334,15 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
             try {
                 stockPriceAndRise = doGetByWenCai(code);
             } catch (Exception e) {
-                logger.info("问财接口api获取股票数据异常");
+                logger.error("问财接口api获取股票数据异常");
+            }
+        }
+
+        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
+            try {
+                stockPriceAndRise = doGetByJuhe(code);
+            } catch (Exception e) {
+                logger.error("聚合接口api获取股票数据异常");
             }
         }
 
