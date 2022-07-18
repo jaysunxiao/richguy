@@ -83,7 +83,7 @@ public class YiDongController {
         var stock = stockList.get(0);
 
         var builder = new StringBuilder();
-        builder.append(StringUtils.format("日期{}{}({}){}两日偏离{}三日偏离", TAB_ASCII, daPa.getName(), daPa.getCode(), TAB_ASCII, TAB_ASCII)).append(FileUtils.LS);
+        builder.append(StringUtils.format("日期{}{}{}{}两日偏离{}三日偏离", TAB_ASCII, daPa.getName(), StringUtils.substringAfterFirst(daPa.getCode(), "'"), TAB_ASCII, TAB_ASCII)).append(FileUtils.LS);
         for (int i = 0; i < PIAN_LI_SIZE; i++) {
             var daPaHistory = daPaList.get(i);
             builder.append(StringUtils.format("{}{}{}{}{}%{}{}%"
@@ -93,7 +93,7 @@ public class YiDongController {
         }
         builder.append(FileUtils.LS);
 
-        builder.append(StringUtils.format("日期{}{}价格{}换手{}成交金额{}两日偏离{}三日偏离"
+        builder.append(StringUtils.format("日期{}{}{}换手{}成交金额{}两日偏离{}三日偏离"
                 , TAB_ASCII, stock.getName(), TAB_ASCII, TAB_ASCII, TAB_ASCII, TAB_ASCII, TAB_ASCII));
         builder.append(FileUtils.LS);
 
