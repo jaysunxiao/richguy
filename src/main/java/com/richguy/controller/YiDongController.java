@@ -7,6 +7,7 @@ import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
 import com.zfoo.event.model.anno.EventReceiver;
 import com.zfoo.protocol.collection.ArrayUtils;
+import com.zfoo.protocol.exception.RunException;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.manager.SchedulerBus;
@@ -93,7 +94,7 @@ public class YiDongController {
         }
         builder.append(FileUtils.LS);
 
-        builder.append(StringUtils.format("日期{}{}{}换手{}成交金额{}两日偏离{}三日偏离"
+        builder.append(StringUtils.format("日期{}{}{}换手{}成交{}两日偏离{}三日偏离"
                 , TAB_ASCII, stock.getName(), TAB_ASCII, TAB_ASCII, TAB_ASCII, TAB_ASCII, TAB_ASCII));
         builder.append(FileUtils.LS);
 
@@ -103,8 +104,10 @@ public class YiDongController {
 
             var twoPianLi = stockHistory.getTwoPianLi().subtract(daPaHistory.getTwoPianLi()).toString();
             var threePianLi = stockHistory.getThreePianLi().subtract(daPaHistory.getThreePianLi()).toString();
+            var simpleDate = StringUtils.substringAfterFirst(StringUtils.trim(stockHistory.getDate()), "-").replaceAll("-", "/");
+
             builder.append(StringUtils.format("{}{}{}{}{}%{}{}{}{}%{}{}%"
-                    , stockHistory.getDate(), TAB_ASCII, stockHistory.getEndPrice().toString(), TAB_ASCII, stockHistory.getHuanShou()
+                    , simpleDate, TAB_ASCII, stockHistory.getEndPrice().toString(), TAB_ASCII, stockHistory.getHuanShou()
                     , TAB_ASCII, stockHistory.getChengJiao(), TAB_ASCII, twoPianLi, TAB_ASCII, threePianLi));
             builder.append(FileUtils.LS);
         }
@@ -130,11 +133,11 @@ public class YiDongController {
         var result = new String(bytes, Charset.forName("gb2312"));
         var rowSplits = result.split(FileUtils.LS);
 
+
         var list = new ArrayList<StockHistory>();
         for (int i = 1; i < rowSplits.length; i++) {
             var splits = rowSplits[i].split(StringUtils.COMMA_REGEX);
-
-            var date = StringUtils.substringAfterFirst(StringUtils.trim(splits[0]), "-").replaceAll("-", "/");
+            var date = StringUtils.trim(splits[0]);
             var code = StringUtils.trim(splits[1]);
             var name = StringUtils.trim(splits[2]);
             var endPrice = new BigDecimal(StringUtils.trim(splits[3])).setScale(2, RoundingMode.HALF_UP);
@@ -148,7 +151,31 @@ public class YiDongController {
                     ? StringUtils.EMPTY
                     : new BigDecimal(StringUtils.trim(splits[12])).divide(new BigDecimal(1_0000_0000), 1, RoundingMode.HALF_UP).toString();
             var stockHistory = StockHistory.valueOf(date, code, name, endPrice, huanShou, chengJiao);
+
             list.add(stockHistory);
+        }
+
+        // 将最新的数据添加到最前面
+        var stock = StockUtils.stockOfNetEase(stockCode);
+        try {
+            var stockDateStr = StringUtils.substringBeforeLast(stock.getTime(), " ").replaceAll("/", "-");
+            var stockDate = TimeUtils.dayStringToDate(stockDateStr);
+            var csvDate = TimeUtils.dayStringToDate(list.get(0).getDate());
+            if (!TimeUtils.isSameDay(stockDate, csvDate)) {
+                var newList = new ArrayList<StockHistory>();
+                var date = stockDateStr;
+                var code = list.get(0).getCode();
+                var name = StringUtils.format("{}实时", list.get(0).getName());
+                var endPrice = new BigDecimal(StringUtils.trim(stock.getPrice())).setScale(2, RoundingMode.HALF_UP);
+                var huanShou = StringUtils.EMPTY;
+                var chengJiao = new BigDecimal(stock.getTurnover()).divide(new BigDecimal(1_0000_0000), 1, RoundingMode.HALF_UP).toString();
+                var stockHistory = StockHistory.valueOf(date, code, name, endPrice, huanShou, chengJiao);
+                newList.add(stockHistory);
+                newList.addAll(list);
+                list = newList;
+            }
+        } catch (ParseException e) {
+            throw new RunException(e);
         }
 
         for (int i = 0; i < PIAN_LI_SIZE; i++) {

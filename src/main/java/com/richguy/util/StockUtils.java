@@ -4,6 +4,7 @@ import com.richguy.model.common.StockPriceAndRise;
 import com.richguy.model.five.FiveRangeResult;
 import com.richguy.model.netease.StockNetEase;
 import com.richguy.model.wencai.WenCaiRequest;
+import com.zfoo.protocol.exception.RunException;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.util.TimeUtils;
@@ -110,7 +111,11 @@ public abstract class StockUtils {
         var stockPriceAndRise = StockPriceAndRise.valueOf(DEFAULT_VAlUE, DEFAULT_VAlUE);
 
         try {
-            var stock = stockOfNetEase(code);
+            var stockCode = StockUtils.formatCode(code);
+            stockCode = stockCode.startsWith("6")
+                    ? StringUtils.format("0{}", stockCode)
+                    : StringUtils.format("1{}", stockCode);
+            var stock = stockOfNetEase(stockCode);
             stockPriceAndRise = StockPriceAndRise.valueOf(Float.parseFloat(stock.getPrice()), Float.parseFloat(stock.getPercent()) * 100);
         } catch (Exception e) {
             logger.info("网易接口api获取股票数据异常");
@@ -145,18 +150,18 @@ public abstract class StockUtils {
         return stockPriceAndRise;
     }
 
-    public static StockNetEase stockOfNetEase(int code) throws IOException, InterruptedException {
-        var stockCode = StockUtils.formatCode(code);
-        stockCode = stockCode.startsWith("6")
-                ? StringUtils.format("0{}", stockCode)
-                : StringUtils.format("1{}", stockCode);
-        var url = StringUtils.format("https://api.money.126.net/data/feed/{}", stockCode);
-        var responseBody = HttpUtils.get(url);
-        var json = HttpUtils.formatJson(responseBody);
-        json = StringUtils.substringAfterFirst(json, ":");
-        json = StringUtils.substringBeforeLast(json, "}");
-        var stock = JsonUtils.string2Object(json, StockNetEase.class);
-        return stock;
+    public static StockNetEase stockOfNetEase(String stockCode) {
+        try {
+            var url = StringUtils.format("https://api.money.126.net/data/feed/{}", stockCode);
+            var responseBody = HttpUtils.get(url);
+            var json = HttpUtils.formatJson(responseBody);
+            json = StringUtils.substringAfterFirst(json, ":");
+            json = StringUtils.substringBeforeLast(json, "}");
+            var stock = JsonUtils.string2Object(json, StockNetEase.class);
+            return stock;
+        } catch (Exception e) {
+            throw new RunException(e);
+        }
     }
 
     public static StockPriceAndRise doGetByThs(int code) throws IOException, InterruptedException {

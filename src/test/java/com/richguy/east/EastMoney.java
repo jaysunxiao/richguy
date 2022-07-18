@@ -28,7 +28,7 @@ public class EastMoney {
     @Test
     public void test() throws IOException, InterruptedException {
         var urlTemplate = "http://quotes.money.163.com/service/chddata.html?code={}&start={}&end={}";
-        var url = StringUtils.format(urlTemplate, "1399001", "20220710", "20220715");
+        var url = StringUtils.format(urlTemplate, "1399106", "20220710", "20220718");
 
         var bytes = HttpUtils.getBytes(url);
         var str = new String(bytes, Charset.forName("gb2312"));
@@ -36,8 +36,8 @@ public class EastMoney {
     }
 
     @Test
-    public void netEaseTest() throws IOException, InterruptedException {
-        var stock = StockUtils.stockOfNetEase(755);
+    public void netEaseTest() {
+        var stock = StockUtils.stockOfNetEase("000755");
         System.out.println(JsonUtils.object2StringPrettyPrinter(stock));
 
         System.out.println(JsonUtils.object2StringPrettyPrinter(StockUtils.stockPriceAndRise(755)));

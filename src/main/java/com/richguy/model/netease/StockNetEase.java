@@ -21,6 +21,8 @@ public class StockNetEase {
 
     private String turnover;
 
+    private String time;
+
     public String getCode() {
         return code;
     }
@@ -67,5 +69,13 @@ public class StockNetEase {
 
     public void setTurnover(String turnover) {
         this.turnover = turnover;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }
