@@ -103,7 +103,7 @@ public class YiDongController {
 
             var twoPianLi = stockHistory.getTwoPianLi().subtract(daPaHistory.getTwoPianLi()).toString();
             var threePianLi = stockHistory.getThreePianLi().subtract(daPaHistory.getThreePianLi()).toString();
-            builder.append(StringUtils.format("{}{}{}¥{}{}%{}{}亿{}{}%{}{}%"
+            builder.append(StringUtils.format("{}{}{}{}{}%{}{}{}{}%{}{}%"
                     , stockHistory.getDate(), TAB_ASCII, stockHistory.getEndPrice().toString(), TAB_ASCII, stockHistory.getHuanShou()
                     , TAB_ASCII, stockHistory.getChengJiao(), TAB_ASCII, twoPianLi, TAB_ASCII, threePianLi));
             builder.append(FileUtils.LS);
