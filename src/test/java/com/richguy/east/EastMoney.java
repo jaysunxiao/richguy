@@ -2,6 +2,8 @@ package com.richguy.east;
 
 import com.richguy.controller.YiDongController;
 import com.richguy.util.HttpUtils;
+import com.richguy.util.StockUtils;
+import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,5 +33,13 @@ public class EastMoney {
         var bytes = HttpUtils.getBytes(url);
         var str = new String(bytes, Charset.forName("gb2312"));
         System.out.println(str);
+    }
+
+    @Test
+    public void netEaseTest() throws IOException, InterruptedException {
+        var stock = StockUtils.stockOfNetEase(755);
+        System.out.println(JsonUtils.object2StringPrettyPrinter(stock));
+
+        System.out.println(JsonUtils.object2StringPrettyPrinter(StockUtils.stockPriceAndRise(755)));
     }
 }

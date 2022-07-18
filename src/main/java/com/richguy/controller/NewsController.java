@@ -4,12 +4,9 @@ package com.richguy.controller;
 import com.richguy.model.OneNews;
 import com.richguy.model.Telegraph;
 import com.richguy.model.common.StockPriceAndRise;
-import com.richguy.model.five.FiveRangeResult;
 import com.richguy.model.level.NewsLevelEnum;
 import com.richguy.model.level.NewsPushEvent;
 import com.richguy.model.level.TelegraphNewsEvent;
-import com.richguy.model.stock.QuotesResult;
-import com.richguy.model.wencai.WenCaiRequest;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.StockResource;
@@ -21,21 +18,16 @@ import com.richguy.util.DateUtils;
 import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
 import com.zfoo.event.manager.EventBus;
-import com.zfoo.event.model.event.AppStartAfterEvent;
 import com.zfoo.protocol.collection.CollectionUtils;
-import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,17 +42,11 @@ import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin
-public class NewsController implements ApplicationListener<AppStartAfterEvent> {
+public class NewsController {
 
     private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
 
-    public static final float DEFAULT_VAlUE = 88.8F;
-    
     public static final String HTML_LS = "<br/>";
-
-
-    @Value("${juhe.stockUrl}")
-    private String juheStockUrl;
 
     @Autowired
     private QqBotService qqBotService;
@@ -204,7 +190,7 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
             if (CollectionUtils.isNotEmpty(stockList)) {
                 var stockMap = new HashMap<StockResource, StockPriceAndRise>();
                 for (var stock : stockList) {
-                    var fiveRange = stockPriceAndRise(stock.getCode());
+                    var fiveRange = StockUtils.stockPriceAndRise(stock.getCode());
                     stockMap.put(stock, fiveRange);
                 }
 
@@ -320,123 +306,6 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
         return telegraphNews;
     }
 
-    // **************************************************股票相关********************************************************
-
-
-    /**
-     * 通过爬虫获取股票价格有概率失败，所以一共有3个实现，轮流使用不同的实现
-     *
-     * @param code 股票的代码
-     */
-    public StockPriceAndRise stockPriceAndRise(int code) {
-        var stockPriceAndRise = StockPriceAndRise.valueOf(DEFAULT_VAlUE, DEFAULT_VAlUE);
-
-        try {
-            stockPriceAndRise = doGetByThs(code);
-        } catch (Exception e) {
-            logger.info("同花顺接口api获取股票数据异常");
-        }
-
-        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
-            try {
-                stockPriceAndRise = doGetByXueQiu(code);
-            } catch (Exception e) {
-                logger.error("雪球接口api获取股票数据异常");
-            }
-        }
-
-        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
-            try {
-                stockPriceAndRise = doGetByWenCai(code);
-            } catch (Exception e) {
-                logger.error("问财接口api获取股票数据异常");
-            }
-        }
-
-        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
-            try {
-                stockPriceAndRise = doGetByJuhe(code);
-            } catch (Exception e) {
-                logger.error("聚合接口api获取股票数据异常");
-            }
-        }
-
-        if (stockPriceAndRise.getRise() == DEFAULT_VAlUE) {
-            logger.error("获取股票数据异常，没有任何一个接口可以获取到股票数据");
-        }
-
-        return stockPriceAndRise;
-    }
-
-
-    /**
-     * 获取实时价格的第一种方式，调用失败，自动使用第二种doGetStockFiveRangeByJuhe
-     */
-    public StockPriceAndRise doGetByThs(int code) throws IOException, InterruptedException {
-        var stockCode = StockUtils.formatCode(code);
-        var url = StringUtils.format("http://d.10jqka.com.cn/v2/fiverange/hs_{}/last.js", stockCode);
-        var responseBody = HttpUtils.get(url);
-        var json = HttpUtils.formatJson(responseBody);
-        var fiveRange = JsonUtils.string2Object(json, FiveRangeResult.class);
-
-        return StockPriceAndRise.valueOf(Float.parseFloat(fiveRange.getItems().getBuy1()), fiveRange.getItems().increaseRatioFloat());
-    }
-
-    /**
-     * 获取实时价格的第二种方式，调用失败，自动使用第三种getStockFiveRangeByWenCai
-     */
-    public StockPriceAndRise doGetByJuhe(int code) throws IOException, InterruptedException {
-        var stockCode = StockUtils.hsCode(code);
-
-        var url = StringUtils.format(juheStockUrl, stockCode);
-        var responseBody = HttpUtils.get(url);
-        var quote = JsonUtils.string2Object(responseBody, QuotesResult.class);
-
-        var stock = quote.getResult().get(0);
-        return StockPriceAndRise.valueOf(Float.parseFloat(stock.getStockData().getNowPri()), Float.parseFloat(stock.getBaseData().getRate()));
-    }
-
-    /**
-     * 获取实时价格的第三种方式
-     */
-    public StockPriceAndRise doGetByWenCai(int code) throws IOException, InterruptedException {
-        var stockCode = StockUtils.formatCode(code);
-        var request = WenCaiRequest.valueOf(stockCode, 50, 1, "Ths_iwencai_Xuangu", "stock", "2.0");
-        var responseBody = HttpUtils.post("http://www.iwencai.com/customized/chart/get-robot-data", request);
-
-        var priceNode = JsonUtils.getNode(responseBody, "latest_price");
-        var price = priceNode.asDouble();
-
-        var riseNode = JsonUtils.getNode(responseBody, "rise_fall_rate");
-        var rise = riseNode.asDouble();
-        return StockPriceAndRise.valueOf((float) price, (float) rise);
-    }
-
-
-    /**
-     * 获取实时价格的第四种方式
-     */
-    public StockPriceAndRise doGetByXueQiu(int code) throws IOException {
-        var stockCode = StockUtils.hsCode(code).toUpperCase();
-
-        var html = HttpUtils.html(StringUtils.format("https://xueqiu.com/S/{}", stockCode));
-
-        var document = Jsoup.parse(html);
-
-        var priceDocs = document.getElementsByAttributeValue("class", "stock-current");
-        var priceNode = priceDocs.get(0);
-        var price = StringUtils.substringAfterFirst(priceNode.text(), "¥").trim();
-
-        var riseDocs = document.getElementsByAttributeValue("class", "stock-change");
-        var riseNode = riseDocs.get(0);
-        var rise = StringUtils.substringAfterFirst(riseNode.text(), " ").trim();
-        if (rise.contains("+")) {
-            rise = StringUtils.substringAfterFirst(rise, "+").trim();
-        }
-        rise = StringUtils.substringBeforeLast(rise, "%").trim();
-
-        return StockPriceAndRise.valueOf(Float.parseFloat(price), Float.parseFloat(rise));
-    }
 
 
     public String toSimpleContent(String content) {
@@ -452,12 +321,5 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
         }
         return str.trim();
     }
-
-    @Override
-    public void onApplicationEvent(AppStartAfterEvent event) {
-        var stock = stockPriceAndRise(1);
-        logger.info(JsonUtils.object2StringPrettyPrinter(stock));
-    }
-
 
 }

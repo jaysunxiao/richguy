@@ -19,6 +19,3 @@ qq:
   qqIds: 123456789
   password: abcabc
   pushGroupIds: 123456789, 123456789
-
-juhe:
-  stockUrl: http://web.juhe.cn:8080/finance/stock/hs?gid={}&key=yourkey
