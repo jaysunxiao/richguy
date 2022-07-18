@@ -36,7 +36,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -45,7 +48,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
+@Controller
+@CrossOrigin
 public class NewsController implements ApplicationListener<AppStartAfterEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
@@ -70,6 +74,18 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
     private Storage<String, KeyWordResource> keyWordResources;
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
+
+    @GetMapping(value = "/")
+    @ResponseBody
+    public String telegraphNews() {
+        var telegraphs = databaseService.database.getTelegraphs();
+        var builder = new StringBuilder();
+        for (int i = telegraphs.size() - 1; i > 0; i--) {
+            builder.append(telegraphs.get(i).getValue()).append(FileUtils.LS);
+            builder.append("--------------------------------");
+        }
+        return builder.toString();
+    }
 
 
     /**
@@ -107,7 +123,7 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
         var avgShare = avgShareNum * ratio;
 
         for (var news : telegraphNews) {
-            if (database.getPushTelegraphIds().contains(news.getId())) {
+            if (database.getTelegraphs().stream().anyMatch(it -> it.getKey() == news.getId())) {
                 continue;
             }
 
@@ -123,27 +139,28 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
                 builder.append(StringUtils.format("⭐S级Max  {}", dateStr));
                 EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.S));
             } else if (level.equals("B")) {
-                if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
-                    builder.append(StringUtils.format("A级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
-                } else if (CollectionUtils.isNotEmpty(stockList)) {
-                    builder.append(StringUtils.format("C级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
-                } else {
-                    builder.append(StringUtils.format("B级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
+                if (CollectionUtils.isEmpty(stockList)) {
+                    if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
+                        builder.append(StringUtils.format("A级电报  {}", dateStr));
+                        EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
+                    } else if (CollectionUtils.isNotEmpty(stockList)) {
+                        builder.append(StringUtils.format("C级电报  {}", dateStr));
+                        EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                    } else {
+                        builder.append(StringUtils.format("B级电报  {}", dateStr));
+                        EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
+                    }
+                } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
+                    if (CollectionUtils.isNotEmpty(stockList)) {
+                        builder.append(StringUtils.format("D级电报  {}", dateStr));
+                        EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
+                    } else {
+                        builder.append(StringUtils.format("C级电报  {}", dateStr));
+                        EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                    }
                 }
             }
 
-//            else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
-//                if (CollectionUtils.isEmpty(stockList)) {
-//                    builder.append(StringUtils.format("B级电报  {}", dateStr));
-//                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
-//                } else {
-//                    builder.append(StringUtils.format("C级电报  {}", dateStr));
-//                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
-//                }
-//            }
 
 //            else if (news.getReadingNum() >= avgReading || news.getShareNum() >= avgShare) {
 //                var ctime = news.getCtime() * TimeUtils.MILLIS_PER_SECOND;
@@ -262,12 +279,13 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
                 builder.append(otherBuilder);
             }
 
-            var telegraphContent = builder.toString().replaceAll("习近平", "喜大大");
+            var telegraphContent = builder.toString();
 
-            qqBotService.pushGroupMessage(telegraphContent);
+            // qq容易被封，不在qq推送了
+            //qqBotService.pushGroupMessage(telegraphContent);
 
             // 将已经加入处理过的电报，存入到数据库中
-            database.addPushTelegraphId(news.getId());
+            database.addTelegraph(news.getId(), telegraphContent);
 
             logger.info(telegraphContent);
         }
@@ -441,8 +459,7 @@ public class NewsController implements ApplicationListener<AppStartAfterEvent> {
     @Override
     public void onApplicationEvent(AppStartAfterEvent event) {
         var stock = stockPriceAndRise(1);
-
-        System.out.println(JsonUtils.object2StringPrettyPrinter(stock));
+        logger.info(JsonUtils.object2StringPrettyPrinter(stock));
     }
 
 

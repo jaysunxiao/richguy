@@ -21,6 +21,7 @@ import java.util.Set;
 public class DatabaseService implements ApplicationListener<ApplicationContextEvent> {
 
     public static final long DB_KEY = 1;
+    public static final String DB_PATH = "richDb";
 
     // 主要db
     public DatabasePacket database;
@@ -38,14 +39,14 @@ public class DatabaseService implements ApplicationListener<ApplicationContextEv
                     , PairString.class, TripleString.class, TripleLong.class, TripleLSS.class, TripleLLS.class));
 
             // 初始化主要的db
-            db = new FileHeapMap<>("richDb", DatabasePacket.class);
+            db = new FileHeapMap<>(DB_PATH, DatabasePacket.class);
             if (db.get(DB_KEY) == null) {
                 db.put(DB_KEY, DatabasePacket.valueOf());
             }
             database = db.get(DB_KEY);
 
             // 初始化闹钟db
-            dbClock = new FileHeapMap<>("richDb", DatabaseClockPacket.class);
+            dbClock = new FileHeapMap<>(DB_PATH, DatabaseClockPacket.class);
             if (dbClock.get(DB_KEY) == null) {
                 dbClock.put(DB_KEY, DatabaseClockPacket.valueOf());
             }

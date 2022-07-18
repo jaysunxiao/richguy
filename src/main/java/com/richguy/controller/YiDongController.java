@@ -128,7 +128,6 @@ public class YiDongController {
 
         var bytes = HttpUtils.getBytes(url);
         var result = new String(bytes, Charset.forName("gb2312"));
-        System.out.println(result);
         var rowSplits = result.split(FileUtils.LS);
 
         var list = new ArrayList<StockHistory>();

@@ -1,5 +1,6 @@
 package com.richguy.entity;
 
+import com.zfoo.net.packet.common.PairLS;
 import com.zfoo.protocol.IPacket;
 import com.zfoo.protocol.collection.CollectionUtils;
 
@@ -17,11 +18,11 @@ public class DatabasePacket implements IPacket {
     public static final int LIST_SIZE_LIMIT = 1000;
 
     // 已经推送过的电报ID
-    private List<Long> pushTelegraphIds;
+    private List<PairLS> telegraphs;
 
     public static DatabasePacket valueOf() {
         var packet = new DatabasePacket();
-        packet.pushTelegraphIds = new ArrayList<>();
+        packet.telegraphs = new ArrayList<>();
         return packet;
     }
 
@@ -30,23 +31,22 @@ public class DatabasePacket implements IPacket {
         return PROTOCOL_ID;
     }
 
-    public void addPushTelegraphId(long id) {
-        if (CollectionUtils.isEmpty(pushTelegraphIds)) {
-            pushTelegraphIds = new ArrayList<>();
+    public void addTelegraph(long id, String telegraph) {
+        if (CollectionUtils.isEmpty(telegraphs)) {
+            telegraphs = new ArrayList<>();
         }
 
-        if (pushTelegraphIds.size() >= LIST_SIZE_LIMIT) {
-            pushTelegraphIds.remove(0);
+        if (telegraphs.size() >= LIST_SIZE_LIMIT) {
+            telegraphs.remove(0);
         }
-
-        pushTelegraphIds.add(id);
+        telegraphs.add(PairLS.valueOf(id, telegraph));
     }
 
-    public List<Long> getPushTelegraphIds() {
-        return pushTelegraphIds;
+    public List<PairLS> getTelegraphs() {
+        return telegraphs;
     }
 
-    public void setPushTelegraphIds(List<Long> pushTelegraphIds) {
-        this.pushTelegraphIds = pushTelegraphIds;
+    public void setTelegraphs(List<PairLS> telegraphs) {
+        this.telegraphs = telegraphs;
     }
 }
