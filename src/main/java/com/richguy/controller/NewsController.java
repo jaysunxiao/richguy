@@ -40,6 +40,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.zfoo.protocol.util.FileUtils.LS;
+
 @Controller
 @CrossOrigin
 public class NewsController {
@@ -69,10 +71,10 @@ public class NewsController {
         var telegraphs = databaseService.database.getTelegraphs();
         var builder = new StringBuilder();
         for (int i = telegraphs.size() - 1; i > 0; i--) {
-            builder.append(telegraphs.get(i).getValue()).append(HTML_LS).append(HTML_LS);
-            builder.append("-------------------------------------------------------------").append(HTML_LS).append(HTML_LS);
+            builder.append(telegraphs.get(i).getValue()).append(LS).append(LS);
+            builder.append("--------------------------------------------------------------------------------------------------").append(LS).append(LS);
         }
-        return builder.toString();
+        return builder.toString().replaceAll(LS, HTML_LS);
     }
 
 
@@ -150,17 +152,17 @@ public class NewsController {
 //                var diff = TimeUtils.now() - ctime;
 //                if (CollectionUtils.isNotEmpty(stockList)) {
 //                    builder.append(StringUtils.format("D级电报  {}", dateStr));
-//                    builder.append(HTML_LS);
+//                    builder.append(FileUtils.LS);
 //                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old1 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
 //                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
 //                } else if (diff < 60 * TimeUtils.MILLIS_PER_MINUTE) {
 //                    builder.append(StringUtils.format("C级电报  {}", dateStr));
-//                    builder.append(HTML_LS);
+//                    builder.append(FileUtils.LS);
 //                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old2 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
 //                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
 //                } else {
 //                    builder.append(StringUtils.format("D级电报  {}", dateStr));
-//                    builder.append(HTML_LS);
+//                    builder.append(FileUtils.LS);
 //                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old3 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
 //                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.D));
 //                }
@@ -170,12 +172,12 @@ public class NewsController {
             }
 
             if (StringUtils.isNotEmpty(title)) {
-                builder.append(HTML_LS);
+                builder.append(LS);
                 builder.append(StringUtils.format("\uD83D\uDCA5【{}】", title));
             }
 
-            builder.append(HTML_LS);
-            builder.append(HTML_LS);
+            builder.append(LS);
+            builder.append(LS);
 
             var simpleContent = StringUtils.trim(StringUtils.substringAfterFirst(content, "】"));
             if (StringUtils.isNotEmpty(simpleContent)) {
@@ -195,7 +197,7 @@ public class NewsController {
                 }
 
                 if (CollectionUtils.isNotEmpty(stockMap)) {
-                    otherBuilder.append(HTML_LS);
+                    otherBuilder.append(LS);
                     otherBuilder.append("\uD83D\uDCA7票票：");
                     stockMap.entrySet().stream()
                             .sorted((a, b) -> Float.compare(b.getValue().getRise(), a.getValue().getRise()))
@@ -221,7 +223,7 @@ public class NewsController {
                 }
 
                 if (CollectionUtils.isNotEmpty(bkMap)) {
-                    otherBuilder.append(HTML_LS);
+                    otherBuilder.append(LS);
                     otherBuilder.append("\uD83D\uDCA7板块：");
                     bkMap.entrySet().stream()
                             .sorted((a, b) -> Float.compare(b.getValue(), a.getValue()))
@@ -250,7 +252,7 @@ public class NewsController {
             }
 
             if (CollectionUtils.isNotEmpty(keyWords)) {
-                otherBuilder.append(HTML_LS);
+                otherBuilder.append(LS);
                 otherBuilder.append("\uD83D\uDCA7热词：");
                 for (var word : keyWords) {
                     otherBuilder.append(word).append("  ");
@@ -258,7 +260,7 @@ public class NewsController {
             }
 
             if (otherBuilder.length() > 0) {
-                builder.append(HTML_LS);
+                builder.append(LS);
                 builder.append(otherBuilder);
             }
 
