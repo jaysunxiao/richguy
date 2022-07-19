@@ -42,7 +42,7 @@ public class YiDongRealTimeController {
         }
     }
 
-    public void yiDong(String message) throws ParseException {
+    public void yiDong(String message) {
         var splits = message.split(StringUtils.SPACE);
 
         if (ArrayUtils.length(splits) != 2) {

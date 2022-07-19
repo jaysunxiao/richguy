@@ -54,12 +54,12 @@ public class YiDongPriceController {
 
         var pianLiDay = Integer.parseInt(splits[1]);
         var stockCode = StockUtils.formatCode(Integer.parseInt(splits[2]));
-        var yiDong = doJiXianYiDong(pianLiDay, stockCode);
+        var jiXianYiDong = doJiXianYiDong(pianLiDay, stockCode);
 
         SchedulerBus.schedule(new Runnable() {
             @Override
             public void run() {
-                qqBotService.pushGroupMessageNow(yiDong);
+                qqBotService.pushGroupMessageNow(jiXianYiDong);
             }
         }, 1000, TimeUnit.MILLISECONDS);
     }
