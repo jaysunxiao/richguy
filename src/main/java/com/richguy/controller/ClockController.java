@@ -1,6 +1,7 @@
 package com.richguy.controller;
 
 import com.richguy.event.QQGroupMessageEvent;
+import com.richguy.model.command.CommandEnum;
 import com.richguy.service.DatabaseService;
 import com.richguy.service.QqBotService;
 import com.zfoo.event.model.anno.EventReceiver;
@@ -40,7 +41,7 @@ public class ClockController {
     @EventReceiver
     public void onQQGroupMessageEvent(QQGroupMessageEvent event) {
         var message = event.getMessage();
-        if (!message.startsWith("clock")) {
+        if (!message.startsWith(CommandEnum.clock.getCommand())) {
             return;
         }
 
@@ -73,17 +74,17 @@ public class ClockController {
     }
 
     public void doClock(String message) throws ParseException {
-        var splits = message.split(FileUtils.LS);
+        var splits = message.split(StringUtils.SPACE);
 
-        if (ArrayUtils.length(splits) != 3) {
+        if (ArrayUtils.length(splits) != 4) {
             qqBotService.pushGroupMessageNow(errorMessage());
             return;
         }
 
-        var dateStr = splits[1];
+        var dateStr = StringUtils.format("{} {}", splits[1], splits[2]);
 
         var clockTime = TimeUtils.stringToDate(dateStr).getTime();
-        var content = StringUtils.trim(splits[2]);
+        var content = StringUtils.trim(splits[3]);
 
         if (clockTime <= TimeUtils.now()) {
             qqBotService.pushGroupMessageNow("\uD83C\uDE32定时器时间已经过期");

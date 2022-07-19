@@ -1,6 +1,7 @@
 package com.richguy.controller;
 
 import com.richguy.event.QQGroupMessageEvent;
+import com.richguy.model.command.CommandEnum;
 import com.richguy.service.QqBotService;
 import com.richguy.util.StockUtils;
 import com.zfoo.event.model.anno.EventReceiver;
@@ -32,7 +33,7 @@ public class YiDongPriceController {
     @EventReceiver
     public void onQQGroupMessageEvent(QQGroupMessageEvent event) {
         var message = event.getMessage();
-        if (!message.startsWith("jxyd")) {
+        if (!message.startsWith(CommandEnum.jxyd.getCommand())) {
             return;
         }
 

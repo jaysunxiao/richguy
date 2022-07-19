@@ -1,6 +1,7 @@
 package com.richguy.service;
 
 import com.richguy.event.QQGroupMessageEvent;
+import com.richguy.model.command.CommandEnum;
 import com.zfoo.event.manager.EventBus;
 import com.zfoo.event.model.event.AppStartEvent;
 import com.zfoo.protocol.model.Pair;
@@ -72,7 +73,7 @@ public class QqBotService implements ApplicationListener<AppStartEvent> {
                 if (StringUtils.isBlank(content)) {
                     continue;
                 }
-                if (content.startsWith("clock") || content.startsWith("yd")) {
+                if (CommandEnum.allCommands().stream().anyMatch(it -> content.startsWith(it))) {
                     if (TimeUtils.now() - eventTimestamp.get() >= 5 * TimeUtils.MILLIS_PER_SECOND) {
                         eventTimestamp.set(TimeUtils.now());
                         EventBus.asyncSubmit(QQGroupMessageEvent.valueOf(StringUtils.trim(content)));
