@@ -72,7 +72,7 @@ public class NewGnEastMoneyController {
         var gn = StringUtils.trim(industry.getGn());
 
         var builder = new StringBuilder();
-        builder.append("\uD83D\uDCA5紧急广播-东财新概念：");
+        builder.append("\uD83D\uDCA5紧急广播-东方CaiFu新概念：");
 
         builder.append(FileUtils.LS);
         builder.append(FileUtils.LS);

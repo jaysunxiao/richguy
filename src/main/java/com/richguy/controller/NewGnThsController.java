@@ -70,7 +70,7 @@ public class NewGnThsController {
 
     public void notifyNewGn(int industryId, String name) {
         var builder = new StringBuilder();
-        builder.append("\uD83D\uDCA5紧急通知-同花顺新概念：");
+        builder.append("\uD83D\uDCA5紧急通知-同HuaShun新概念：");
         builder.append(FileUtils.LS);
         builder.append(FileUtils.LS);
 
