@@ -4,7 +4,9 @@ import com.richguy.model.common.StockPriceAndRise;
 import com.richguy.model.five.FiveRangeResult;
 import com.richguy.model.netease.StockNetEase;
 import com.richguy.model.wencai.WenCaiRequest;
+import com.richguy.model.yidong.StockHistory;
 import com.zfoo.protocol.exception.RunException;
+import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.util.TimeUtils;
@@ -15,7 +17,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author godotg
@@ -209,6 +214,89 @@ public abstract class StockUtils {
         rise = StringUtils.substringBeforeLast(rise, "%").trim();
 
         return StockPriceAndRise.valueOf(Float.parseFloat(price), Float.parseFloat(rise));
+    }
+
+
+
+    // **************************************************股票相关********************************************************
+
+    public static final int PIAN_LI_SIZE = 7;
+
+    // 股票偏离
+    public static List<StockHistory> pianLi(String stockCode, boolean realTime) {
+        stockCode = stockCode.startsWith("6")
+                ? StringUtils.format("0{}", stockCode)
+                : StringUtils.format("1{}", stockCode);
+
+        var urlTemplate = "http://quotes.money.163.com/service/chddata.html?code={}&start={}&end={}";
+
+        var startDate = TimeUtils.dateFormatForDayString(TimeUtils.now() - TimeUtils.MILLIS_PER_DAY * 28).replaceAll("-", "");
+        var endDate = TimeUtils.dateFormatForDayString(TimeUtils.now()).replaceAll("-", "");
+
+        var url = StringUtils.format(urlTemplate, stockCode, startDate, endDate);
+
+        var bytes = HttpUtils.getBytes(url);
+        var result = new String(bytes, Charset.forName("gb2312"));
+        var rowSplits = result.split(FileUtils.LS);
+
+
+        var list = new ArrayList<StockHistory>();
+        for (int i = 1; i < rowSplits.length; i++) {
+            var splits = rowSplits[i].split(StringUtils.COMMA_REGEX);
+            var date = StringUtils.trim(splits[0]);
+            var code = StringUtils.trim(splits[1]);
+            var name = StringUtils.trim(splits[2]);
+            var endPrice = new BigDecimal(StringUtils.trim(splits[3])).setScale(2, RoundingMode.HALF_UP);
+            if (endPrice.floatValue() == 0) {
+                continue;
+            }
+            var huanShou = StringUtils.isBlank(splits[10])
+                    ? StringUtils.EMPTY
+                    : new BigDecimal(StringUtils.trim(splits[10])).setScale(2, RoundingMode.HALF_UP).toString();
+            var chengJiao = StringUtils.isBlank(splits[12])
+                    ? StringUtils.EMPTY
+                    : new BigDecimal(StringUtils.trim(splits[12])).divide(new BigDecimal(1_0000_0000), 1, RoundingMode.HALF_UP).toString();
+            var stockHistory = StockHistory.valueOf(date, code, name, endPrice, huanShou, chengJiao);
+
+            list.add(stockHistory);
+        }
+
+        // 将最新的数据添加到最前面
+        if (realTime) {
+            var stock = StockUtils.stockOfNetEase(stockCode);
+            try {
+                var stockDateStr = StringUtils.substringBeforeLast(stock.getTime(), " ").replaceAll("/", "-");
+                var stockDate = TimeUtils.dayStringToDate(stockDateStr);
+                var csvDate = TimeUtils.dayStringToDate(list.get(0).getDate());
+                if (!TimeUtils.isSameDay(stockDate, csvDate)) {
+                    var newList = new ArrayList<StockHistory>();
+                    var date = stockDateStr;
+                    var code = list.get(0).getCode();
+                    var name = StringUtils.format("{}实时", list.get(0).getName());
+                    var endPrice = new BigDecimal(StringUtils.trim(stock.getPrice())).setScale(2, RoundingMode.HALF_UP);
+                    var huanShou = StringUtils.EMPTY;
+                    var chengJiao = new BigDecimal(stock.getTurnover()).divide(new BigDecimal(1_0000_0000), 1, RoundingMode.HALF_UP).toString();
+                    var stockHistory = StockHistory.valueOf(date, code, name, endPrice, huanShou, chengJiao);
+                    newList.add(stockHistory);
+                    newList.addAll(list);
+                    list = newList;
+                }
+            } catch (ParseException e) {
+                throw new RunException(e);
+            }
+        }
+
+        for (int i = 0; i < PIAN_LI_SIZE; i++) {
+            var stockHistory = list.get(i);
+            var endPrice = stockHistory.getEndPrice();
+            var twoStartPrice = list.get(i + 2).getEndPrice();
+            var threeStartPrice = list.get(i + 3).getEndPrice();
+            var twoDecimal = endPrice.subtract(twoStartPrice).multiply(new BigDecimal(100)).divide(twoStartPrice, 2, RoundingMode.HALF_UP);
+            var threeDecimal = endPrice.subtract(threeStartPrice).multiply(new BigDecimal(100)).divide(threeStartPrice, 2, RoundingMode.HALF_UP);
+            stockHistory.setTwoPianLi(twoDecimal);
+            stockHistory.setThreePianLi(threeDecimal);
+        }
+        return list;
     }
 
 }
