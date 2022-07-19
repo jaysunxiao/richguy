@@ -1,27 +1,17 @@
 package com.richguy.controller;
 
 import com.richguy.event.QQGroupMessageEvent;
-import com.richguy.model.yidong.StockHistory;
 import com.richguy.service.QqBotService;
-import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
 import com.zfoo.event.model.anno.EventReceiver;
 import com.zfoo.protocol.collection.ArrayUtils;
-import com.zfoo.protocol.exception.RunException;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.manager.SchedulerBus;
-import com.zfoo.scheduler.util.TimeUtils;
-import com.zfoo.util.ThreadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.zfoo.protocol.util.StringUtils.TAB_ASCII;
@@ -46,13 +36,13 @@ public class YiDongRealTimeController {
         }
 
         try {
-            doYiDong(message);
+            yiDong(message);
         } catch (Exception e) {
             qqBotService.pushGroupMessageNow(e.getMessage());
         }
     }
 
-    public void doYiDong(String message) throws ParseException {
+    public void yiDong(String message) throws ParseException {
         var splits = message.split(StringUtils.SPACE);
 
         if (ArrayUtils.length(splits) != 2) {
@@ -62,7 +52,7 @@ public class YiDongRealTimeController {
         }
 
         var stockCode = StockUtils.formatCode(Integer.parseInt(splits[1]));
-        var yiDong = yiDong(stockCode);
+        var yiDong = doYiDong(stockCode);
 
         SchedulerBus.schedule(new Runnable() {
             @Override
@@ -74,7 +64,7 @@ public class YiDongRealTimeController {
 
 
     // 总异动
-    public String yiDong(String stockCode) {
+    public String doYiDong(String stockCode) {
         var daPanList = stockCode.startsWith("6") ? StockUtils.pianLi("000001", true) : StockUtils.pianLi("399106", true);
         var stockList = StockUtils.pianLi(stockCode, true);
 

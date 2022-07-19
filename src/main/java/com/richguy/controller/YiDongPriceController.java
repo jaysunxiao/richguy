@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 
 import static com.zfoo.protocol.util.StringUtils.TAB_ASCII;
@@ -38,13 +37,13 @@ public class YiDongPriceController {
         }
 
         try {
-            doYiDong(message);
+            jiXianYiDong(message);
         } catch (Exception e) {
             qqBotService.pushGroupMessageNow(e.getMessage());
         }
     }
 
-    public void doYiDong(String message) throws ParseException {
+    public void jiXianYiDong(String message) {
         var splits = message.split(StringUtils.SPACE);
 
         if (ArrayUtils.length(splits) != 3) {
@@ -55,7 +54,7 @@ public class YiDongPriceController {
 
         var pianLiDay = Integer.parseInt(splits[1]);
         var stockCode = StockUtils.formatCode(Integer.parseInt(splits[2]));
-        var yiDong = yiDong(pianLiDay, stockCode);
+        var yiDong = doJiXianYiDong(pianLiDay, stockCode);
 
         SchedulerBus.schedule(new Runnable() {
             @Override
@@ -66,8 +65,8 @@ public class YiDongPriceController {
     }
 
 
-    // 总异动
-    public String yiDong(int pianLiDay, String stockCode) {
+    // 极限异动
+    public String doJiXianYiDong(int pianLiDay, String stockCode) {
         var daPanList = stockCode.startsWith("6") ? StockUtils.pianLi("000001", false) : StockUtils.pianLi("399106", false);
         var stockList = StockUtils.pianLi(stockCode, false);
 

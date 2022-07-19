@@ -31,14 +31,14 @@ public class EastMoney {
     @Test
     public void yiDongRealTime() {
         var controller = new YiDongRealTimeController();
-        var yiDong = controller.yiDong("000755");
+        var yiDong = controller.doYiDong("000755");
         System.out.println(yiDong);
     }
 
     @Test
     public void yiDongPrice() {
         var controller = new YiDongPriceController();
-        var yiDong = controller.yiDong(3, "000957");
+        var yiDong = controller.doJiXianYiDong(3, "000957");
         System.out.println(yiDong);
     }
 
