@@ -11,6 +11,7 @@ import com.richguy.model.result.BaseResponse;
 import com.richguy.model.result.CodeEnum;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
+import com.richguy.resource.PushWordResource;
 import com.richguy.resource.StockResource;
 import com.richguy.service.DatabaseService;
 import com.richguy.service.IndustryService;
@@ -75,6 +76,8 @@ public class NewsController {
 
     @ResInjection
     private Storage<String, KeyWordResource> keyWordResources;
+    @ResInjection
+    private Storage<String, PushWordResource> pushWordResources;
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
 
@@ -279,7 +282,9 @@ public class NewsController {
             var telegraphContent = builder.toString();
 
             // qq容易被封，不在qq推送了
-            //qqBotService.pushGroupMessage(telegraphContent);
+            if (pushWordResources.getAll().stream().anyMatch(it -> telegraphContent.contains(it.getWord()))) {
+                qqBotService.pushGroupMessage(telegraphContent);
+            }
 
             // 将已经加入处理过的电报，存入到数据库中
             database.addTelegraph(news.getId(), telegraphContent);
