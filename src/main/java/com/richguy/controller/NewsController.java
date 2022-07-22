@@ -7,6 +7,8 @@ import com.richguy.model.common.StockPriceAndRise;
 import com.richguy.model.level.NewsLevelEnum;
 import com.richguy.model.level.NewsPushEvent;
 import com.richguy.model.level.TelegraphNewsEvent;
+import com.richguy.model.result.BaseResponse;
+import com.richguy.model.result.CodeEnum;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.StockResource;
@@ -19,6 +21,9 @@ import com.richguy.util.HttpUtils;
 import com.richguy.util.StockUtils;
 import com.zfoo.event.manager.EventBus;
 import com.zfoo.protocol.collection.CollectionUtils;
+import com.zfoo.protocol.exception.RunException;
+import com.zfoo.protocol.util.ClassUtils;
+import com.zfoo.protocol.util.IOUtils;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.model.anno.Scheduler;
@@ -48,7 +53,15 @@ public class NewsController {
 
     private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
 
-    public static final String HTML_LS = "<br/>";
+    public static String INDEX_HTML = StringUtils.EMPTY;
+
+    static {
+        try {
+            INDEX_HTML = StringUtils.bytesToString(IOUtils.toByteArray(ClassUtils.getFileFromClassPath("index.html")));
+        } catch (IOException e) {
+            throw new RunException(e);
+        }
+    }
 
     @Autowired
     private QqBotService qqBotService;
@@ -68,15 +81,14 @@ public class NewsController {
     @GetMapping(value = "/")
     @ResponseBody
     public String telegraphNews() {
-        var telegraphs = databaseService.database.getTelegraphs();
-        var builder = new StringBuilder();
-        for (int i = telegraphs.size() - 1; i > 0; i--) {
-            builder.append(telegraphs.get(i).getValue()).append(LS).append(LS);
-            builder.append("--------------------------------------------------------------------------------------------------").append(LS).append(LS);
-        }
-        return builder.toString().replaceAll(LS, HTML_LS);
+        return INDEX_HTML;
     }
 
+    @GetMapping(value = "/json")
+    @ResponseBody
+    public BaseResponse telegraphNewsJson() {
+        return BaseResponse.valueOf(CodeEnum.OK, databaseService.database.getTelegraphs());
+    }
 
     /**
      * 财联社新闻推送
@@ -307,7 +319,6 @@ public class NewsController {
         var telegraphNews = rollData.stream().filter(it -> it.getType() == -1).collect(Collectors.toList());
         return telegraphNews;
     }
-
 
 
     public String toSimpleContent(String content) {

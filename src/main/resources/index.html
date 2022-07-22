@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>百度一下，你就知道</title>
+    <link rel="shortcut icon" href="https://www.baidu.com/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+</head>
+
+<body>
+<div ></div>
+</body>
+
+<script>
+    const newsSet = new Set();
+
+    function spiderFirst() {
+        axios.get('http://s.zfoo.net:18888/json')
+            .then(function (response) {
+                let data = response.data.data.reverse();
+                for (let row in data) {
+                    let news = data[row];
+                    if (newsSet.has(news.key)) {
+                        continue;
+                    }
+                    newsSet.add(news.key);
+                    var divDocument = document.createElement("div");
+                    divDocument.innerText = news.value;
+
+                    var brDocument = document.createElement("br");
+                    divDocument.append(brDocument);
+
+                    var hrDocument = document.createElement("hr");
+                    divDocument.append(hrDocument);
+
+                    document.body.appendChild(divDocument);
+                }
+            })
+            .catch(function (error) {
+                // 错误处理
+                console.log(error);
+            });
+    }
+
+    spiderFirst();
+
+    function spider() {
+        axios.get('http://s.zfoo.net:18888/json')
+            .then(function (response) {
+                let data = response.data.data.reverse();
+                for (let row in data) {
+                    let news = data[row];
+                    if (newsSet.has(news.key)) {
+                        continue;
+                    }
+                    newsSet.add(news.key);
+                    var divDocument = document.createElement("div");
+                    divDocument.innerText = news.value;
+
+                    var brDocument = document.createElement("br");
+                    divDocument.append(brDocument);
+
+                    var hrDocument = document.createElement("hr");
+                    divDocument.append(hrDocument);
+
+                    document.body.insertBefore(divDocument, document.body.firstChild);
+                }
+            })
+            .catch(function (error) {
+                // 错误处理
+                console.log(error);
+            });
+    }
+
+    setInterval(() => {
+        spider();
+    }, 60000)
+</script>
+
+</html>
