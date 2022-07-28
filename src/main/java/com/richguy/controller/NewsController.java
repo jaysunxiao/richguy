@@ -283,7 +283,7 @@ public class NewsController {
 
             // qq容易被封，不在qq推送了
             if (pushWordResources.getAll().stream().anyMatch(it -> telegraphContent.contains(it.getWord()))) {
-                qqBotService.pushGroupMessage(telegraphContent);
+//                qqBotService.pushGroupMessage(telegraphContent);
             }
 
             // 将已经加入处理过的电报，存入到数据库中
