@@ -114,7 +114,7 @@ public class QqBotService implements ApplicationListener<AppStartEvent> {
         var refreshFlag = pair.getValue();
 
         if (refreshFlag.compareAndSet(false, true)) {
-            EventBus.asyncExecute().execute(new Runnable() {
+            EventBus.asyncExecute(new Runnable() {
                 @Override
                 public void run() {
                     try {
