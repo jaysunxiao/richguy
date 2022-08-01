@@ -53,7 +53,7 @@ public class SpiderIndustryTest {
         for (var industryStock : industryStocks) {
             builder.append(industryStock.toString()).append(FileUtils.LS);
         }
-        FileUtils.writeStringToFile(new File("industry.txt"), builder.toString());
+        FileUtils.writeStringToFile(new File("industry.txt"), builder.toString(), true);
         System.out.println(industryStocks.size());
     }
 

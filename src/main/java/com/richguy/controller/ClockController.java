@@ -107,9 +107,9 @@ public class ClockController {
 
 
     public String errorMessage() {
-        var dateStr = TimeUtils.dateFormatForDayTimeString(TimeUtils.getZeroTimeOfDay(TimeUtils.now()) + TimeUtils.MILLIS_PER_HOUR * 9);
-        var errorMessage = StringUtils.format("\uD83C\uDE32请输入定时器正确的语法格式：{}------------------{}clock{}{}{}这里是要提示的内容{}------------------"
-                , FileUtils.LS, FileUtils.LS, FileUtils.LS, dateStr, FileUtils.LS, FileUtils.LS);
+        var dateStr = TimeUtils.dateFormatForDayTimeString(TimeUtils.getZeroTimeOfDay(TimeUtils.now()) + TimeUtils.MILLIS_PER_HOUR * 9 + TimeUtils.MILLIS_PER_DAY * 3);
+        var errorMessage = StringUtils.format("\uD83C\uDE32请输入定时器正确的语法格式：{}------------------{}clock {} 这里是要提示的内容{}------------------"
+                , FileUtils.LS, FileUtils.LS, dateStr, FileUtils.LS);
         return errorMessage;
     }
 

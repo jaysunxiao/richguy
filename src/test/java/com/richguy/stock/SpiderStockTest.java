@@ -44,7 +44,7 @@ public class SpiderStockTest {
         for (var stock : stocks) {
             builder.append(stock.toString()).append(FileUtils.LS);
         }
-        FileUtils.writeStringToFile(new File("stock.txt"), builder.toString());
+        FileUtils.writeStringToFile(new File("stock.txt"), builder.toString(), true);
         System.out.println(stocks.size());
     }
 
