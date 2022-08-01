@@ -45,7 +45,7 @@ public class YiDongPriceController {
     }
 
     public void jiXianYiDong(String message) {
-        var splits = message.split(StringUtils.SPACE);
+        var splits = message.split(StringUtils.SPACE_REGEX);
 
         if (ArrayUtils.length(splits) != 3) {
             qqBotService.pushGroupMessageNow(StringUtils.format("\uD83C\uDE32请输入极限异动的正确的语法格式：{}------------------{}jxyd 2/3 stock_code{}------------------"

@@ -12,7 +12,6 @@ import com.zfoo.scheduler.manager.SchedulerBus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 
 import static com.zfoo.protocol.util.StringUtils.TAB_ASCII;
@@ -44,7 +43,7 @@ public class YiDongRealTimeController {
     }
 
     public void yiDong(String message) {
-        var splits = message.split(StringUtils.SPACE);
+        var splits = message.split(StringUtils.SPACE_REGEX);
 
         if (ArrayUtils.length(splits) != 2) {
             qqBotService.pushGroupMessageNow(StringUtils.format("\uD83C\uDE32请输入异动的正确的语法格式：{}------------------{}yd stock_code{}------------------"

@@ -74,7 +74,7 @@ public class ClockController {
     }
 
     public void doClock(String message) throws ParseException {
-        var splits = message.split(StringUtils.SPACE);
+        var splits = message.split(StringUtils.SPACE_REGEX);
 
         if (ArrayUtils.length(splits) != 4) {
             qqBotService.pushGroupMessageNow(errorMessage());
