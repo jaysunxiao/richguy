@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 群闹铃相关处理逻辑
@@ -76,7 +77,7 @@ public class ClockController {
     public void doClock(String message) throws ParseException {
         var splits = message.split(StringUtils.SPACE_REGEX);
 
-        if (ArrayUtils.length(splits) != 4) {
+        if (ArrayUtils.length(splits) < 4) {
             qqBotService.pushGroupMessageNow(errorMessage());
             return;
         }
@@ -84,7 +85,8 @@ public class ClockController {
         var dateStr = StringUtils.format("{} {}", splits[1], splits[2]);
 
         var clockTime = TimeUtils.stringToDate(dateStr).getTime();
-        var content = StringUtils.trim(splits[3]);
+
+        var content = ArrayUtils.toList(splits).subList(3, splits.length).stream().collect(Collectors.joining());
 
         if (clockTime <= TimeUtils.now()) {
             qqBotService.pushGroupMessageNow("\uD83C\uDE32定时器时间已经过期");
@@ -108,8 +110,8 @@ public class ClockController {
 
     public String errorMessage() {
         var dateStr = TimeUtils.dateFormatForDayTimeString(TimeUtils.getZeroTimeOfDay(TimeUtils.now()) + TimeUtils.MILLIS_PER_HOUR * 9 + TimeUtils.MILLIS_PER_DAY * 3);
-        var errorMessage = StringUtils.format("\uD83C\uDE32请输入定时器正确的语法格式：{}------------------{}clock {} 这里是要提示的内容{}------------------"
-                , FileUtils.LS, FileUtils.LS, dateStr, FileUtils.LS);
+        var errorMessage = StringUtils.format("\uD83C\uDE32请输入定时器正确的语法格式：{}------------------{}clock {} 这里是要提示的内容"
+                , FileUtils.LS, FileUtils.LS, dateStr);
         return errorMessage;
     }
 
