@@ -31,6 +31,7 @@ import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
 import com.zfoo.storage.model.anno.ResInjection;
 import com.zfoo.storage.model.vo.Storage;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,23 +97,12 @@ public class NewsController {
     /**
      * 财联社新闻推送
      */
-    @Scheduler(cron = "0 * * * * ?")
-    public void cronPushQQ() throws IOException, InterruptedException {
+    @Scheduler(cron = "0 0/10 * * * ?")
+    public void cronPushQQ() throws IOException {
         var response = requestForTelegraph();
         var telegraphNews = toNews(response);
         EventBus.syncSubmit(TelegraphNewsEvent.valueOf(telegraphNews));
         doPush(telegraphNews, 2.1F);
-    }
-
-    /**
-     * 财联社新闻推送，会拉取更多的消息，寻找那些被忽略的消息
-     */
-    @Scheduler(cron = "0 0/10 * * * ?")
-    public void cronPushQQ60() throws IOException, InterruptedException {
-        var response = requestForTelegraph60();
-        var telegraphNews = toNews(response);
-        EventBus.syncSubmit(TelegraphNewsEvent.valueOf(telegraphNews));
-        doPush(telegraphNews, 3.1F);
     }
 
     public void doPush(List<OneNews> telegraphNews, float ratio) {
@@ -297,19 +287,15 @@ public class NewsController {
     /**
      * 获取最新电报
      */
-    public Telegraph requestForTelegraph() throws IOException, InterruptedException {
+    public Telegraph requestForTelegraph() throws IOException {
         var url = "https://www.cls.cn/nodeapi/updateTelegraphList";
-        var responseBody = HttpUtils.get(url);
+        var responseBody = HttpUtils.puppeteer(url);
+        var document = Jsoup.parse(responseBody);
+        responseBody = document.getElementsByTag("pre").text();
         var response = JsonUtils.string2Object(responseBody, Telegraph.class);
         return response;
     }
 
-    public Telegraph requestForTelegraph60() throws IOException, InterruptedException {
-        var url = "https://www.cls.cn/nodeapi/updateTelegraphList?rn=60";
-        var responseBody = HttpUtils.get(url);
-        var response = JsonUtils.string2Object(responseBody, Telegraph.class);
-        return response;
-    }
 
     private List<OneNews> toNews(Telegraph telegraph) {
         if (telegraph.getData() == null) {

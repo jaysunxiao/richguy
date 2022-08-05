@@ -2,6 +2,7 @@ package com.richguy.util;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.zfoo.monitor.util.OSUtils;
 import com.zfoo.protocol.collection.ArrayUtils;
 import com.zfoo.protocol.exception.RunException;
 import com.zfoo.protocol.util.JsonUtils;
@@ -100,6 +101,13 @@ public abstract class HttpUtils {
         var page = webClient.getPage(url);
         var responseBody = page.getWebResponse().getContentAsString();
         return responseBody;
+    }
+
+
+    public static String puppeteer(String url) throws IOException {
+        var command = StringUtils.format("node {} {}", "/usr/local/spider/spider.js", url);
+        var str = OSUtils.execCommand(command);
+        return str;
     }
 
 }
