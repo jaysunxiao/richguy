@@ -79,6 +79,7 @@ public class NewGnThsController {
         var url = IndustryUtils.industryHtmlUrl(industryId);
         builder.append(url);
         builder.append(FileUtils.LS);
+        builder.append(FileUtils.LS);
 
         builder.append(RandomUtils.randomString(16));
         builder.append(FileUtils.LS);

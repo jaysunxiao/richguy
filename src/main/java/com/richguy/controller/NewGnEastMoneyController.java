@@ -84,6 +84,7 @@ public class NewGnEastMoneyController {
         var url = StringUtils.format("http://quote.eastmoney.com/bk/{}.{}.html", industry.getF13(), industry.getF12());
         builder.append(url);
         builder.append(FileUtils.LS);
+        builder.append(FileUtils.LS);
 
         builder.append(RandomUtils.randomString(16));
         builder.append(FileUtils.LS);
