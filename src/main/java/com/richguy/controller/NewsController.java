@@ -145,10 +145,10 @@ public class NewsController {
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 if (CollectionUtils.isEmpty(stockList)) {
                     builder.append(StringUtils.format("C级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
                 } else {
                     builder.append(StringUtils.format("D级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.D));
                 }
             }
 
