@@ -1,5 +1,6 @@
 package com.richguy.controller;
 
+import com.richguy.resource.GaiNianResource;
 import com.richguy.service.QqBotService;
 import com.richguy.util.IndustryUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
@@ -8,6 +9,8 @@ import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.manager.SchedulerBus;
 import com.zfoo.scheduler.model.anno.Scheduler;
 import com.zfoo.scheduler.util.TimeUtils;
+import com.zfoo.storage.model.anno.ResInjection;
+import com.zfoo.storage.model.vo.Storage;
 import com.zfoo.util.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +34,9 @@ public class NewGnThsController {
 
     @Autowired
     private QqBotService qqBotService;
+
+    @ResInjection
+    private Storage<String, GaiNianResource> gnResources;
 
     private Set<String> thsIndustries = new HashSet<>();
 
@@ -52,23 +59,27 @@ public class NewGnThsController {
                 continue;
             }
 
-            notifyNewGn(industry.getKey(), industry.getValue());
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 5 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 30 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 60 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 12 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 1 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 2 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 3 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 4 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue()), 5 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            var date = TimeUtils.dateFormatForDayString(TimeUtils.now());
+            notifyNewGn(industry.getKey(), industry.getValue(), date);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 5 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 30 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 60 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 6 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 12 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 1 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 2 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 3 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 4 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 5 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 6 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 7 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
 
             thsIndustries.add(gn);
         }
     }
 
 
-    public void notifyNewGn(int industryId, String name) {
+    public void notifyNewGn(int industryId, String name, String date) {
         var builder = new StringBuilder();
         builder.append("\uD83D\uDCA5紧急通知-同HuaShun新概念：");
         builder.append(FileUtils.LS);
@@ -81,8 +92,13 @@ public class NewGnThsController {
         builder.append(FileUtils.LS);
         builder.append(FileUtils.LS);
 
-        builder.append(RandomUtils.randomString(16));
-        builder.append(FileUtils.LS);
+        builder.append(StringUtils.format("出现时间[{}]", date)).append(FileUtils.LS).append(FileUtils.LS);
+
+        builder.append(RandomUtils.randomEle(new ArrayList<>(gnResources.getAll()))).append(FileUtils.LS).append(FileUtils.LS);
+
+        builder.append(date).append(FileUtils.LS).append(FileUtils.LS);
+
+        builder.append(RandomUtils.randomString(16)).append(FileUtils.LS).append(FileUtils.LS);
 
         qqBotService.pushGroupMessage(builder.toString());
     }
