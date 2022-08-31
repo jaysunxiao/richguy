@@ -59,20 +59,24 @@ public class NewGnThsController {
                 continue;
             }
 
+            var diffTime = TimeUtils.getZeroTimeOfDay(TimeUtils.now()) + 7 * TimeUtils.MILLIS_PER_HOUR - TimeUtils.now();
+
             var date = TimeUtils.dateFormatForDayString(TimeUtils.now());
             notifyNewGn(industry.getKey(), industry.getValue(), date);
             SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 5 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
             SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 30 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
             SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 60 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 6 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 12 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 1 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 2 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 3 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 4 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 5 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 6 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 7 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 2 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 4 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 8 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 16 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 1 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 2 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 3 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 4 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 5 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 6 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry.getKey(), industry.getValue(), date), 7 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
 
             thsIndustries.add(gn);
         }

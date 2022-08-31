@@ -56,21 +56,25 @@ public class NewGnEastMoneyController {
                 continue;
             }
 
+            var diffTime = TimeUtils.getZeroTimeOfDay(TimeUtils.now()) + 7 * TimeUtils.MILLIS_PER_HOUR - TimeUtils.now();
+
             var date = TimeUtils.dateFormatForDayString(TimeUtils.now());
             notifyNewGn(industry, date);
+
             SchedulerBus.schedule(() -> notifyNewGn(industry, date), 5 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
             SchedulerBus.schedule(() -> notifyNewGn(industry, date), 30 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
             SchedulerBus.schedule(() -> notifyNewGn(industry, date), 60 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
             SchedulerBus.schedule(() -> notifyNewGn(industry, date), 2 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 6 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 12 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 1 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 2 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 3 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 4 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 5 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 6 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
-            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 7 * TimeUtils.MILLIS_PER_DAY, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 4 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 8 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 16 * TimeUtils.MILLIS_PER_HOUR, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 1 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 2 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 3 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 4 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 5 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 6 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
+            SchedulerBus.schedule(() -> notifyNewGn(industry, date), 7 * TimeUtils.MILLIS_PER_DAY + diffTime, TimeUnit.MILLISECONDS);
 
             eastMoneyIndustries.add(gn);
         }
