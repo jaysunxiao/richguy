@@ -13,4 +13,9 @@ public class GaiNianResource {
         return id;
     }
 
+    @Override
+    public String toString() {
+        return id;
+    }
+
 }
