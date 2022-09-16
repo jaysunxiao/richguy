@@ -38,7 +38,7 @@ public class NewsClockController {
     private QqBotService qqBotService;
 
     @ResInjection
-    private Storage<String, HotNoticeResource> hotNoticeResources;
+    private Storage<Integer, HotNoticeResource> hotNoticeResources;
 
     public void notice(String message) {
         var no = message + LS + LS +

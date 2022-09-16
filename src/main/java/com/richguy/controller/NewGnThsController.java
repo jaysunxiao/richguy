@@ -36,7 +36,7 @@ public class NewGnThsController {
     private QqBotService qqBotService;
 
     @ResInjection
-    private Storage<String, HotNoticeResource> hotNoticeResources;
+    private Storage<Integer, HotNoticeResource> hotNoticeResources;
 
     private Set<String> thsIndustries = new HashSet<>();
 

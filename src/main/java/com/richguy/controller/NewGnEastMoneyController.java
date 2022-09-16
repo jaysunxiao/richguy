@@ -35,7 +35,7 @@ public class NewGnEastMoneyController {
     private QqBotService qqBotService;
 
     @ResInjection
-    private Storage<String, HotNoticeResource> hotNoticeResources;
+    private Storage<Integer, HotNoticeResource> hotNoticeResources;
 
     @Scheduler(cron = "0 0/3 * * * ?")
     public void cronNewEastMoneyGn() throws IOException, InterruptedException {
