@@ -125,7 +125,7 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 0 21 * * ?")
     public void cron140() {
-        notice("美股盘前要闻一览，请");
+        notice("美股盘前要闻一览，不要老盯着涨上去的票，打开想象力看看周边关联板块个股");
     }
 
     @Scheduler(cron = "0 0 6 * * ?")
