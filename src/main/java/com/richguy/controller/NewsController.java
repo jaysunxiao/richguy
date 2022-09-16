@@ -318,8 +318,7 @@ public class NewsController {
                 builder.append(otherBuilder);
             }
 
-            var telegraphContent = builder.toString();
-
+            var telegraphContent = builder.toString().replaceAll("习近平", "喜da大");
             // qq容易被封，不在qq推送了
             if (pushWordResources.getAll().stream().anyMatch(it -> telegraphContent.contains(it.getWord()))) {
 //                qqBotService.pushGroupMessage(telegraphContent);
