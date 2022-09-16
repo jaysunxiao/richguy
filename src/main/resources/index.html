@@ -20,12 +20,12 @@
                 let data = response.data.data;
                 for (let row in data) {
                     let news = data[row];
-                    if (newsSet.has(news.key)) {
+                    if (newsSet.has(news.left)) {
                         continue;
                     }
-                    newsSet.add(news.key);
+                    newsSet.add(news.left);
                     var divDocument = document.createElement("div");
-                    divDocument.innerText = news.value;
+                    divDocument.innerText = news.right;
 
                     var brDocument = document.createElement("br");
                     divDocument.append(brDocument);

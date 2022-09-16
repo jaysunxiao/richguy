@@ -38,9 +38,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,10 +58,12 @@ public class NewsController {
     private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
 
     public static String INDEX_HTML = StringUtils.EMPTY;
+    public static String INDEX_TEMPLATE_HTML = StringUtils.EMPTY;
 
     static {
         try {
             INDEX_HTML = StringUtils.bytesToString(IOUtils.toByteArray(ClassUtils.getFileFromClassPath("index.html")));
+            INDEX_TEMPLATE_HTML = StringUtils.bytesToString(IOUtils.toByteArray(ClassUtils.getFileFromClassPath("index-template.html")));
         } catch (IOException e) {
             throw new RunException(e);
         }
@@ -94,6 +98,36 @@ public class NewsController {
         return BaseResponse.valueOf(CodeEnum.OK, databaseService.database.getTelegraphs());
     }
 
+    @GetMapping(value = "/range")
+    @ResponseBody
+    public String telegraphNewsJson(@RequestParam("s") String start, @RequestParam(value = "e", required = false) String end) throws ParseException {
+        var startTime = TimeUtils.getZeroTimeOfDay(TimeUtils.dayStringToDate(start).getTime());
+        var endTime = StringUtils.isBlank(end) ? Long.MAX_VALUE : TimeUtils.dayStringToDate(end).getTime();
+
+        var telegraphs = databaseService.database.getTelegraphs()
+                .stream()
+                .filter(it -> it.getMiddle() <= startTime && startTime <= endTime)
+                .collect(Collectors.toList());
+
+        var bodyBuilder = new StringBuilder();
+        var jsBuilder = new StringBuilder();
+        var clipboardHtml = "<div id=\"{}\" data-clipboard-text=\"{}\">";
+        var clipboardJs = "var btn{} = new ClipboardJS(document.getElementById('{}'));";
+        for (var telegraph : telegraphs) {
+            var id = telegraph.getLeft();
+            var content = telegraph.getRight();
+            bodyBuilder.append(StringUtils.format(clipboardHtml, id, content));
+            bodyBuilder.append(content.replaceAll(LS, "<br>"));
+            bodyBuilder.append("<br>");
+            bodyBuilder.append("<hr>");
+            bodyBuilder.append("</div>");
+
+            jsBuilder.append(StringUtils.format(clipboardJs, id, id)).append(LS);
+        }
+        return StringUtils.format(INDEX_TEMPLATE_HTML, bodyBuilder.toString(), jsBuilder);
+    }
+
+
     /**
      * 财联社新闻推送
      */
@@ -118,7 +152,7 @@ public class NewsController {
         var avgShare = avgShareNum * ratio;
 
         for (var news : telegraphNews) {
-            if (database.getTelegraphs().stream().anyMatch(it -> it.getKey() == news.getId())) {
+            if (database.getTelegraphs().stream().anyMatch(it -> it.getLeft() == news.getId())) {
                 continue;
             }
 
@@ -277,7 +311,7 @@ public class NewsController {
             }
 
             // 将已经加入处理过的电报，存入到数据库中
-            database.addTelegraph(news.getId(), telegraphContent);
+            database.addTelegraph(news.getId(), news.getCtime(), telegraphContent);
 
             logger.info(telegraphContent);
         }

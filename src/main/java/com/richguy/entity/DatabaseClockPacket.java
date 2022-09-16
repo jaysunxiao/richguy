@@ -7,6 +7,7 @@ import com.zfoo.scheduler.util.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author godotg
@@ -16,11 +17,10 @@ public class DatabaseClockPacket implements IPacket {
 
     public static final transient short PROTOCOL_ID = 2;
 
-    private List<PairLS> clocks;
+    private List<PairLS> clocks = new CopyOnWriteArrayList<>();
 
     public static DatabaseClockPacket valueOf() {
         var packet = new DatabaseClockPacket();
-        packet.clocks = new ArrayList<>();
         return packet;
     }
 

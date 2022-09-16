@@ -1,11 +1,11 @@
 package com.richguy.entity;
 
-import com.zfoo.net.packet.common.PairLS;
+import com.zfoo.net.packet.common.TripleLLS;
 import com.zfoo.protocol.IPacket;
 import com.zfoo.protocol.collection.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author godotg
@@ -18,11 +18,10 @@ public class DatabasePacket implements IPacket {
     public static final int LIST_SIZE_LIMIT = 1000;
 
     // 已经推送过的电报ID
-    private List<PairLS> telegraphs;
+    private List<TripleLLS> telegraphs = new CopyOnWriteArrayList<>();
 
     public static DatabasePacket valueOf() {
         var packet = new DatabasePacket();
-        packet.telegraphs = new ArrayList<>();
         return packet;
     }
 
@@ -31,22 +30,22 @@ public class DatabasePacket implements IPacket {
         return PROTOCOL_ID;
     }
 
-    public void addTelegraph(long id, String telegraph) {
+    public void addTelegraph(long id, long time, String telegraph) {
         if (CollectionUtils.isEmpty(telegraphs)) {
-            telegraphs = new ArrayList<>();
+            telegraphs = new CopyOnWriteArrayList<>();
         }
 
         if (telegraphs.size() >= LIST_SIZE_LIMIT) {
             telegraphs.remove(0);
         }
-        telegraphs.add(PairLS.valueOf(id, telegraph));
+        telegraphs.add(TripleLLS.valueOf(id, time, telegraph));
     }
 
-    public List<PairLS> getTelegraphs() {
+    public List<TripleLLS> getTelegraphs() {
         return telegraphs;
     }
 
-    public void setTelegraphs(List<PairLS> telegraphs) {
+    public void setTelegraphs(List<TripleLLS> telegraphs) {
         this.telegraphs = telegraphs;
     }
 }
