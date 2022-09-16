@@ -2,7 +2,7 @@ package com.richguy.controller;
 
 import com.richguy.model.east.EastMoneyIndustry;
 import com.richguy.model.east.EastMoneyResult;
-import com.richguy.resource.GaiNianResource;
+import com.richguy.resource.HotNoticeResource;
 import com.richguy.service.QqBotService;
 import com.richguy.util.HttpUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
@@ -35,7 +35,7 @@ public class NewGnEastMoneyController {
     private QqBotService qqBotService;
 
     @ResInjection
-    private Storage<String, GaiNianResource> gnResources;
+    private Storage<String, HotNoticeResource> hotNoticeResources;
 
     @Scheduler(cron = "0 0/3 * * * ?")
     public void cronNewEastMoneyGn() throws IOException, InterruptedException {
@@ -98,7 +98,7 @@ public class NewGnEastMoneyController {
 
         builder.append(StringUtils.format("出现时间[{}]", date)).append(FileUtils.LS).append(FileUtils.LS);
 
-        builder.append(RandomUtils.randomEle(new ArrayList<>(gnResources.getAll()))).append(FileUtils.LS).append(FileUtils.LS);
+        builder.append(RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getAll()))).append(FileUtils.LS).append(FileUtils.LS);
 
         builder.append(date).append(FileUtils.LS).append(FileUtils.LS);
 

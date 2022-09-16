@@ -132,11 +132,26 @@ public class NewsController {
      * 财联社新闻推送
      */
     @Scheduler(cron = "0 0/10 * * * ?")
-    public void cronPushQQ() throws IOException {
+    public void cronPushQQ1() throws IOException {
         var response = requestForTelegraph();
         var telegraphNews = toNews(response);
         EventBus.syncSubmit(TelegraphNewsEvent.valueOf(telegraphNews));
         doPush(telegraphNews, 2.1F);
+    }
+
+    @Scheduler(cron = "0 21 9 * * ?")
+    public void cronPushQQ2() throws IOException {
+        cronPushQQ1();
+    }
+
+    @Scheduler(cron = "0 23 9 * * ?")
+    public void cronPushQQ3() throws IOException {
+        cronPushQQ1();
+    }
+
+    @Scheduler(cron = "0 25 9 * * ?")
+    public void cronPushQQ4() throws IOException {
+        cronPushQQ1();
     }
 
     public void doPush(List<OneNews> telegraphNews, float ratio) {

@@ -1,6 +1,6 @@
 package com.richguy.controller;
 
-import com.richguy.resource.GaiNianResource;
+import com.richguy.resource.HotNoticeResource;
 import com.richguy.service.QqBotService;
 import com.richguy.util.IndustryUtils;
 import com.zfoo.protocol.collection.CollectionUtils;
@@ -36,7 +36,7 @@ public class NewGnThsController {
     private QqBotService qqBotService;
 
     @ResInjection
-    private Storage<String, GaiNianResource> gnResources;
+    private Storage<String, HotNoticeResource> hotNoticeResources;
 
     private Set<String> thsIndustries = new HashSet<>();
 
@@ -98,7 +98,7 @@ public class NewGnThsController {
 
         builder.append(StringUtils.format("出现时间[{}]", date)).append(FileUtils.LS).append(FileUtils.LS);
 
-        builder.append(RandomUtils.randomEle(new ArrayList<>(gnResources.getAll()))).append(FileUtils.LS).append(FileUtils.LS);
+        builder.append(RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getAll()))).append(FileUtils.LS).append(FileUtils.LS);
 
         builder.append(date).append(FileUtils.LS).append(FileUtils.LS);
 
