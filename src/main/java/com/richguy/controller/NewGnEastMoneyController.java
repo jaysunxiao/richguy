@@ -98,7 +98,7 @@ public class NewGnEastMoneyController {
 
         builder.append(StringUtils.format("出现时间[{}]", date)).append(FileUtils.LS).append(FileUtils.LS);
 
-        builder.append(RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getAll()))).append(FileUtils.LS).append(FileUtils.LS);
+        builder.append(RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getIndex("type", 1)))).append(FileUtils.LS).append(FileUtils.LS);
 
         builder.append(date).append(FileUtils.LS).append(FileUtils.LS);
 

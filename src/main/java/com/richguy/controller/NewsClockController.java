@@ -44,7 +44,7 @@ public class NewsClockController {
         var no = message + LS + LS +
                 StringUtils.format("s.zfoo.net:18888/range?s={}", TimeUtils.dateFormatForDayString(TimeUtils.now())) + LS + LS +
                 RandomUtils.randomString(16) + LS + LS +
-                RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getAll())) + LS + LS;
+                RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getIndex("type", 2))) + LS + LS;
         qqBotService.pushGroupMessage(no);
     }
 

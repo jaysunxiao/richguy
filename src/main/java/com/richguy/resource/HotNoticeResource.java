@@ -7,15 +7,27 @@ import com.zfoo.storage.model.anno.Resource;
 public class HotNoticeResource {
 
     @Id
-    private String id;
+    private int id;
 
-    public String getId() {
+    private int type;
+
+    private String word;
+
+    public int getId() {
         return id;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public String getWord() {
+        return word;
     }
 
     @Override
     public String toString() {
-        return id;
+        return word;
     }
 
 }
