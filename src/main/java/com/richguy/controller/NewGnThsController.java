@@ -100,9 +100,7 @@ public class NewGnThsController {
 
         builder.append(RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getIndex("type", 1)))).append(FileUtils.LS).append(FileUtils.LS);
 
-        builder.append(date).append(FileUtils.LS).append(FileUtils.LS);
-
-        builder.append(RandomUtils.randomString(16)).append(FileUtils.LS).append(FileUtils.LS);
+        builder.append(RandomUtils.randomString(24)).append(FileUtils.LS).append(FileUtils.LS);
 
         qqBotService.pushGroupMessage(builder.toString());
     }
