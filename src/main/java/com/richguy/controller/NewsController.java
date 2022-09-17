@@ -102,11 +102,10 @@ public class NewsController {
         var date = StringUtils.substringBeforeFirst(StringUtils.trim(param), "A");
         var dateTime = TimeUtils.getZeroTimeOfDay(TimeUtils.dayStringToDate(date).getTime());
         var startTime = dateTime / TimeUtils.MILLIS_PER_SECOND;
-        var endTime = (dateTime + TimeUtils.MILLIS_PER_DAY) / TimeUtils.MILLIS_PER_SECOND;
 
         var telegraphs = databaseService.database.getTelegraphs()
                 .stream()
-                .filter(it -> startTime <= it.getMiddle() && it.getMiddle() <= endTime)
+                .filter(it -> startTime <= it.getMiddle())
                 .sorted((a, b) -> Long.compare(b.getMiddle(), a.getMiddle()))
                 .collect(Collectors.toList());
 

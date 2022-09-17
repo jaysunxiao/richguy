@@ -70,7 +70,7 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 0 5 ? * MON-FRI")
     public void cron10() {
-        noticeSimple("1. 炒股是个体力活，早盘期指，A50期指，富时中国做空指数，50etf沽某月，汇率，中信证券股指期权");
+        notice("1. 炒股是个体力活，早盘期指，A50期指，富时中国做空指数，50etf沽某月，汇率，中信证券股指期权");
     }
 
     @Scheduler(cron = "0 0 6 ? * MON-FRI")
@@ -80,7 +80,7 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 30 6 ? * MON-FRI")
     public void cron30() {
-        noticeSimple("3. 美股相关板块和中概股，中美夜盘期货涨跌情况");
+        notice("3. 美股相关板块和中概股，中美夜盘期货涨跌情况");
     }
 
     @Scheduler(cron = "0 0 7 * * ?")
@@ -90,7 +90,7 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 0 8 * * ?")
     public void cron50() {
-        noticeSimple("每天8点，投资日历：资本市场大事提醒");
+        notice("每天8点，投资日历：资本市场大事提醒");
     }
 
     @Scheduler(cron = "0 30 8 * * ?")
@@ -100,7 +100,7 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 15 9 ? * MON-FRI")
     public void cron70() {
-        noticeSimple("开盘啦，战斗了，重点关注：港股竞价，期货资金流入流出");
+        notice("开盘啦，战斗了，重点关注：港股竞价，期货资金流入流出");
     }
 
     @Scheduler(cron = "0 20 9 ? * MON-FRI")
@@ -113,27 +113,32 @@ public class NewsClockController {
         notice("多看盘，少水群，炒低的最佳时间是早上9:30-10:20，下午13:30-14:30，上午机会多，下午一般都是垃圾时间");
     }
 
-    @Scheduler(cron = "0 0 12 ? * MON-FRI")
+    @Scheduler(cron = "0 0 12 * * ?")
     public void cron100() {
-        notice("每天12点，午评");
+        notice("每天12点，午评，午间新闻");
     }
 
     @Scheduler(cron = "0 0 13 ? * MON-FRI")
     public void cron110() {
-        noticeSimple("下午开市了，垃圾时间");
+        notice("下午开市了，垃圾时间");
     }
 
     @Scheduler(cron = "0 40 16 ? * MON-FRI")
     public void cron120() {
-        noticeSimple("涨停原因|龙虎榜，请兄弟们及时发掘潜在的题材和跟风机会，仔细研究每一个涨停背后的逻辑");
+        notice("涨停原因|龙虎榜，请兄弟们及时发掘潜在的题材和跟风机会，仔细研究每一个涨停背后的逻辑");
     }
 
-    @Scheduler(cron = "0 0 20 * * ?")
+    @Scheduler(cron = "0 0 19 ? * MON-FRI")
     public void cron130() {
         notice("晚上复盘，看看港资流入板块，东方财富股票热榜，打新股");
     }
 
-    @Scheduler(cron = "0 0 21 * * ?")
+    @Scheduler(cron = "0 30 20 * * ?")
+    public void cron131() {
+        notice("新闻联播");
+    }
+
+    @Scheduler(cron = "0 0 22 ? * MON-FRI")
     public void cron140() {
         notice("美股盘前要闻一览，不要老盯着涨上去的票，打开想象力看看周边关联板块个股");
     }
@@ -158,7 +163,7 @@ public class NewsClockController {
 
         if (monthDay == 9) {
             noticeThree("每个月9号公布社融数据");
-        } else if (monthDay == 15) {
+        } else if (monthDay == 1 || monthDay == 15 || monthDay == 28) {
             noticeThree("每个月20号LRP利率公布，月初或者月中MLF公布，请注意主力砸盘意愿，可以适当布局银行证券");
         }
     }
@@ -183,7 +188,7 @@ public class NewsClockController {
         }
 
         if (monthDay == 1) {
-            noticeThree("新的一个月开始了，更加谨慎一点吧");
+            noticeThree("新的一个月开始了，更加耐心和谨慎一点吧");
         }
     }
 
