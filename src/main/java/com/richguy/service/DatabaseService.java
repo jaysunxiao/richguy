@@ -2,6 +2,9 @@ package com.richguy.service;
 
 import com.richguy.entity.DatabaseClockPacket;
 import com.richguy.entity.DatabasePacket;
+import com.richguy.event.ServerStartEvent;
+import com.zfoo.event.manager.EventBus;
+import com.zfoo.event.model.event.AppStartAfterEvent;
 import com.zfoo.event.model.event.AppStartEvent;
 import com.zfoo.net.packet.common.*;
 import com.zfoo.orm.lpmap.FileHeapMap;
@@ -51,6 +54,8 @@ public class DatabaseService implements ApplicationListener<ApplicationContextEv
                 dbClock.put(DB_KEY, DatabaseClockPacket.valueOf());
             }
             databaseClock = dbClock.get(DB_KEY);
+        } else if (event instanceof AppStartAfterEvent) {
+            EventBus.syncSubmit(ServerStartEvent.valueOf());
         } else if (event instanceof ContextClosedEvent) {
             save();
         }

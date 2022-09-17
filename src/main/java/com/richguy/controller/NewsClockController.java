@@ -1,7 +1,11 @@
 package com.richguy.controller;
 
+import com.richguy.event.QQGroupMessageEvent;
+import com.richguy.event.ServerStartEvent;
+import com.richguy.model.command.CommandEnum;
 import com.richguy.resource.HotNoticeResource;
 import com.richguy.service.QqBotService;
+import com.zfoo.event.model.anno.EventReceiver;
 import com.zfoo.protocol.util.StringUtils;
 import com.zfoo.scheduler.manager.SchedulerBus;
 import com.zfoo.scheduler.model.anno.Scheduler;
@@ -42,9 +46,10 @@ public class NewsClockController {
 
     public void notice(String message) {
         var no = message + LS + LS +
-                StringUtils.format("s.zfoo.net:18888/range?s={}", TimeUtils.dateFormatForDayString(TimeUtils.now())) + LS + LS +
-                RandomUtils.randomString(16) + LS + LS +
-                RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getIndex("type", 2))) + LS + LS;
+                StringUtils.format("s.zfoo.net:18888/{}A{}", TimeUtils.dateFormatForDayString(TimeUtils.now()), RandomUtils.randomString(16));
+//        var no = message + LS + LS +
+//                StringUtils.format("s.zfoo.net:18888/{}A{}", TimeUtils.dateFormatForDayString(TimeUtils.now()), RandomUtils.randomString(16)) + LS + LS +
+//                RandomUtils.randomEle(new ArrayList<>(hotNoticeResources.getIndex("type", 2)));
         qqBotService.pushGroupMessage(no);
     }
 
@@ -56,6 +61,11 @@ public class NewsClockController {
         notice(message);
         SchedulerBus.schedule(() -> noticeSimple(message), 30 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
         SchedulerBus.schedule(() -> noticeSimple(message), 90 * TimeUtils.MILLIS_PER_MINUTE, TimeUnit.MILLISECONDS);
+    }
+
+    @EventReceiver
+    public void onServerStartEvent(ServerStartEvent event) {
+        SchedulerBus.schedule(() -> notice("服务器重新启动"), 30 * TimeUtils.MILLIS_PER_SECOND, TimeUnit.MILLISECONDS);
     }
 
     @Scheduler(cron = "0 0 5 ? * MON-FRI")

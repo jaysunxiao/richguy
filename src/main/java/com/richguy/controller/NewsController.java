@@ -7,8 +7,6 @@ import com.richguy.model.common.StockPriceAndRise;
 import com.richguy.model.level.NewsLevelEnum;
 import com.richguy.model.level.NewsPushEvent;
 import com.richguy.model.level.TelegraphNewsEvent;
-import com.richguy.model.result.BaseResponse;
-import com.richguy.model.result.CodeEnum;
 import com.richguy.resource.IndustryResource;
 import com.richguy.resource.KeyWordResource;
 import com.richguy.resource.PushWordResource;
@@ -38,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
@@ -86,27 +84,30 @@ public class NewsController {
     @ResInjection
     private Storage<Integer, IndustryResource> industryResources;
 
-    @GetMapping(value = "/")
-    @ResponseBody
-    public String telegraphNews() {
-        return INDEX_HTML;
-    }
+//    @GetMapping(value = "/")
+//    @ResponseBody
+//    public String telegraphNews() {
+//        return INDEX_HTML;
+//    }
+//
+//    @GetMapping(value = "/json")
+//    @ResponseBody
+//    public BaseResponse telegraphNewsJson() {
+//        return BaseResponse.valueOf(CodeEnum.OK, databaseService.database.getTelegraphs());
+//    }
 
-    @GetMapping(value = "/json")
+    @GetMapping(value = "/{param}")
     @ResponseBody
-    public BaseResponse telegraphNewsJson() {
-        return BaseResponse.valueOf(CodeEnum.OK, databaseService.database.getTelegraphs());
-    }
-
-    @GetMapping(value = "/range")
-    @ResponseBody
-    public String telegraphNewsJson(@RequestParam("s") String start, @RequestParam(value = "e", required = false) String end) throws ParseException {
-        var startTime = TimeUtils.getZeroTimeOfDay(TimeUtils.dayStringToDate(start).getTime());
-        var endTime = StringUtils.isBlank(end) ? Long.MAX_VALUE : TimeUtils.dayStringToDate(end).getTime();
+    public String telegraphNewsJson(@PathVariable("param") String param) throws ParseException {
+        var date = StringUtils.substringBeforeFirst(StringUtils.trim(param), "A");
+        var dateTime = TimeUtils.getZeroTimeOfDay(TimeUtils.dayStringToDate(date).getTime());
+        var startTime = dateTime / TimeUtils.MILLIS_PER_SECOND;
+        var endTime = (dateTime + TimeUtils.MILLIS_PER_DAY) / TimeUtils.MILLIS_PER_SECOND;
 
         var telegraphs = databaseService.database.getTelegraphs()
                 .stream()
-                .filter(it -> it.getMiddle() <= startTime && startTime <= endTime)
+                .filter(it -> startTime <= it.getMiddle() && it.getMiddle() <= endTime)
+                .sorted((a, b) -> Long.compare(b.getMiddle(), a.getMiddle()))
                 .collect(Collectors.toList());
 
         var bodyBuilder = new StringBuilder();
