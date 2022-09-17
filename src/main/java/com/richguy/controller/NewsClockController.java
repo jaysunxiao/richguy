@@ -1,8 +1,6 @@
 package com.richguy.controller;
 
-import com.richguy.event.QQGroupMessageEvent;
 import com.richguy.event.ServerStartEvent;
-import com.richguy.model.command.CommandEnum;
 import com.richguy.resource.HotNoticeResource;
 import com.richguy.service.QqBotService;
 import com.zfoo.event.model.anno.EventReceiver;
@@ -18,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -66,6 +62,16 @@ public class NewsClockController {
     @EventReceiver
     public void onServerStartEvent(ServerStartEvent event) {
         SchedulerBus.schedule(() -> notice("服务器重新启动"), 30 * TimeUtils.MILLIS_PER_SECOND, TimeUnit.MILLISECONDS);
+    }
+
+    @Scheduler(cron = "0 0 2 * * ?")
+    public void cron0() {
+        noticeSimple("大A的全部智慧就包含在这五个字里面：等待和希望！" + LS + RandomUtils.randomEle(hotNoticeResources.getIndex("type", 9)));
+    }
+
+    @Scheduler(cron = "0 0 3 * * ?")
+    public void cron1() {
+        noticeSimple(RandomUtils.randomEle(hotNoticeResources.getIndex("type", 9)).toString());
     }
 
     @Scheduler(cron = "0 0 5 ? * MON-FRI")
