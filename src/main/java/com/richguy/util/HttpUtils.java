@@ -8,6 +8,7 @@ import com.zfoo.protocol.exception.RunException;
 import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -108,6 +109,37 @@ public abstract class HttpUtils {
         var command = StringUtils.format("node {} {}", "/usr/local/spider/spider.js", url);
         var str = OSUtils.execCommand(command);
         return str;
+    }
+
+    /**
+     * 搜索引擎UA：
+     * 百度
+     * 谷歌
+     * 搜狗
+     * 360
+     * 神马
+     * 今日头条
+     * 雅虎
+     * 必应
+     * qq
+     * 腾讯
+     */
+    private static final List<String> SEARCH_ENGINE_UA_LIST = List.of("baidu", "google", "sogou"
+            , "360spider", "yisou", "bytespider", "yahoo", "bingbot", "qq", "tencent");
+
+    public static boolean isSpiderRequest(HttpServletRequest request) {
+        var userAgent = request.getHeader("user-agent");
+        if (StringUtils.isBlank(userAgent)) {
+            return false;
+        }
+
+        var lowerCaseUserAgent = userAgent.toLowerCase();
+        if (lowerCaseUserAgent.contains("spider") || lowerCaseUserAgent.contains("bot")) {
+            if (SEARCH_ENGINE_UA_LIST.stream().anyMatch(it -> lowerCaseUserAgent.contains(it))) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
