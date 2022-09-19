@@ -129,6 +129,11 @@ public class NewsClockController {
         notice("下午开市了，垃圾时间");
     }
 
+    @Scheduler(cron = "0 0 14 ? * MON-FRI")
+    public void cron111() {
+        notice("青叔跟风战法的选股时间到了");
+    }
+
     @Scheduler(cron = "0 40 16 ? * MON-FRI")
     public void cron120() {
         notice("涨停原因|龙虎榜，请兄弟们及时发掘潜在的题材和跟风机会，仔细研究每一个涨停背后的逻辑");
