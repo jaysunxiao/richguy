@@ -76,18 +76,11 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 0 5 ? * MON-FRI")
     public void cron10() {
-        notice("1. 炒股是个体力活，早盘期指，A50期指，富时中国做空指数，50etf沽某月，汇率，中信证券股指期权");
+        notice("1. 炒股是个体力活，早盘期指，A50期指，富时中国做空指数，50etf沽某月，汇率，中信证券股指期权" + LS +
+                "2. 一日之计在于晨，每天早上都要查看：持有股票的板块趋势，公告，董秘，新闻" + LS +
+                "3. 美股相关板块和中概股，中美夜盘期货涨跌情况");
     }
 
-    @Scheduler(cron = "0 0 6 ? * MON-FRI")
-    public void cron20() {
-        notice("2. 一日之计在于晨，每天早上都要查看：持有股票的板块趋势，公告，董秘，新闻");
-    }
-
-    @Scheduler(cron = "0 30 6 ? * MON-FRI")
-    public void cron30() {
-        notice("3. 美股相关板块和中概股，中美夜盘期货涨跌情况");
-    }
 
     @Scheduler(cron = "0 0 7 * * ?")
     public void cron40() {
@@ -106,10 +99,10 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 15 9 ? * MON-FRI")
     public void cron70() {
-        notice("开盘啦，战斗了，重点关注：港股竞价，期货资金流入流出");
+        notice("开盘啦，战斗了，重点关注：微信群投顾消息和公众号消息面，港股竞价，期货资金流入流出");
     }
 
-    @Scheduler(cron = "0 20 9 ? * MON-FRI")
+    @Scheduler(cron = "30 21 9 ? * MON-FRI")
     public void cron80() {
         notice("每天9点20，逆回购信息，请及时关注");
     }
@@ -119,6 +112,11 @@ public class NewsClockController {
         notice("多看盘，少水群，炒低的最佳时间是早上9:30-10:20，下午13:30-14:30，上午机会多，下午一般都是垃圾时间");
     }
 
+    @Scheduler(cron = "0 30 10 ? * MON-FRI")
+    public void cron91() {
+        notice("价投战法，自己熟悉重点收藏的票反复套利，注意分析曲线，量能和macd，在一个票上反复套都比你乱操作赚的多");
+    }
+
     @Scheduler(cron = "0 0 12 * * ?")
     public void cron100() {
         notice("每天12点，午评，午间新闻");
@@ -126,17 +124,34 @@ public class NewsClockController {
 
     @Scheduler(cron = "0 0 13 ? * MON-FRI")
     public void cron110() {
-        notice("下午开市了，垃圾时间");
+        notice("下午开市了，下午一般是垃圾时间，注意一下新题材" + LS + LS +
+                "新概念战法，靠着爬虫爬爬新概念，其它的啥都不做，只做爬虫爬的新概念，就能稳定赚");
+    }
+
+    @Scheduler(cron = "0 30 13 ? * MON-FRI")
+    public void cron111() {
+        notice("青叔跟风战法的选股时间到了，在指数、题材良好，买入主流题材、放量分歧龙头股是最优的操作。");
     }
 
     @Scheduler(cron = "0 0 14 ? * MON-FRI")
-    public void cron111() {
-        notice("青叔跟风战法的选股时间到了");
+    public void cron112() {
+        notice("青叔跟风战法的选股时间到了，在指数、题材退潮，买入次题材、缩量拉升(封板)跟风股是亏钱最快的操作。");
+    }
+
+    @Scheduler(cron = "0 30 14 ? * MON-FRI")
+    public void cron113() {
+        notice("提前埋伏战法，预测推理，预测未来趋势踩节奏，板块的参考历史趋势，消息推演，技术曲线分析，寻找将要发力的板块和妖股" + LS + LS +
+                "尾盘注意欧美股指期货，和人民币汇率是否有变化");
+    }
+
+    @Scheduler(cron = "0 0 15 ? * MON-FRI")
+    public void cron114() {
+        notice("止跌了，兄弟们，明天勒紧裤腰带继续战斗");
     }
 
     @Scheduler(cron = "0 40 16 ? * MON-FRI")
     public void cron120() {
-        notice("涨停原因|龙虎榜，请兄弟们及时发掘潜在的题材和跟风机会，仔细研究每一个涨停背后的逻辑");
+        notice("龙虎榜出来了，注意涨停原因，请兄弟们及时发掘潜在的题材和跟风机会，仔细研究每一个涨停背后的逻辑");
     }
 
     @Scheduler(cron = "0 0 19 ? * MON-FRI")
