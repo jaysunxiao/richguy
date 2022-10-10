@@ -211,6 +211,7 @@ public class NewsClockController {
 
         if (weekDay == 7) {
             noticeThree("周末结束了，看看周末的消息面，做一下下周规划吧！");
+            noticeThree("多学习一下不同的交易策略，期权交易，https://www.bilibili.com/video/BV1d44y127DL");
         }
 
         if (monthDay == 1) {
