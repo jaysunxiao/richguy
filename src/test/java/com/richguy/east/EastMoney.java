@@ -9,6 +9,7 @@ import com.zfoo.protocol.util.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
@@ -25,6 +26,12 @@ public class EastMoney {
 
         var bytes = HttpUtils.getBytes(url);
         var str = new String(bytes, Charset.forName("gb2312"));
+        System.out.println(str);
+    }
+
+    @Test
+    public void wencaiTest() throws IOException, InterruptedException {
+        var str = StockUtils.doGetByWenCai(755);
         System.out.println(str);
     }
 

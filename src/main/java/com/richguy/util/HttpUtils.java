@@ -3,19 +3,15 @@ package com.richguy.util;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.zfoo.monitor.util.OSUtils;
-import com.zfoo.protocol.collection.ArrayUtils;
-import com.zfoo.protocol.exception.RunException;
-import com.zfoo.protocol.util.JsonUtils;
 import com.zfoo.protocol.util.StringUtils;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,63 +20,35 @@ import java.util.List;
  */
 public abstract class HttpUtils {
 
-    public static final List<String> HEADERS = List.of(
-            "accept", "*/*",
-            "Accept-Language", "zh-CN,zh;q=0.9",
-            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
-    );
+    public static RestTemplate restTemplate;
 
-    public static String get(String url) throws IOException, InterruptedException {
-        var client = HttpClient.newBuilder().build();
-
-        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-        var request = HttpRequest.newBuilder(URI.create(url))
-                .headers(ArrayUtils.listToArray(HEADERS, String.class))
-                .timeout(Duration.ofSeconds(15))
-                .GET()
+    static {
+        int timeout = 15000;
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout)
+                .setConnectionRequestTimeout(timeout)
+                .setSocketTimeout(timeout)
                 .build();
+        CloseableHttpClient client = HttpClientBuilder
+                .create()
+                .setDefaultRequestConfig(config)
+                .build();
+        var clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
 
-        var result = client.send(request, responseBodyHandler).body();
-        return result;
+        restTemplate = new RestTemplate(clientHttpRequestFactory);
     }
 
-    public static byte[] getBytes(String url)  {
-        try {
-            var client = HttpClient.newBuilder().build();
 
-            var responseBodyHandler = HttpResponse.BodyHandlers.ofByteArray();
-            var request = HttpRequest.newBuilder(URI.create(url))
-                    .headers(ArrayUtils.listToArray(HEADERS, String.class))
-                    .timeout(Duration.ofSeconds(15))
-                    .GET()
-                    .build();
+    public static String get(String url) throws IOException, InterruptedException {
+        return restTemplate.getForObject(url, String.class);
+    }
 
-            var result = client.send(request, responseBodyHandler).body();
-            return result;
-        } catch (Exception e) {
-            throw new RunException(e);
-        }
+    public static byte[] getBytes(String url) {
+        return restTemplate.getForObject(url, byte[].class);
     }
 
     public static String post(String url, Object jsonObject) throws IOException, InterruptedException {
-        var client = HttpClient.newBuilder().build();
-
-        var responseBodyHandler = HttpResponse.BodyHandlers.ofString();
-
-        var postBody = JsonUtils.object2String(jsonObject);
-
-        var headers = new ArrayList<>(HEADERS);
-        headers.add("Content-Type");
-        headers.add("application/json");
-
-        var request = HttpRequest.newBuilder(URI.create(url))
-                .headers(ArrayUtils.listToArray(headers, String.class))
-                .timeout(Duration.ofSeconds(15))
-                .POST(HttpRequest.BodyPublishers.ofString(postBody))
-                .build();
-
-        var result = client.send(request, responseBodyHandler).body();
-        return result;
+        return restTemplate.postForObject(url, jsonObject, String.class);
     }
 
     public static String formatJson(String json) {
