@@ -2,7 +2,7 @@ package com.richguy.stock;
 
 import com.richguy.resource.StockResource;
 import com.zfoo.protocol.util.ClassUtils;
-import com.zfoo.storage.interpreter.ResourceReader;
+import com.zfoo.storage.interpreter.ResourceInterpreter;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -18,8 +18,7 @@ public class StockCapTest {
 
     @Test
     public void test() throws IOException {
-        var reader = new ResourceReader();
-        var list = (List<StockResource>) reader.read(ClassUtils.getFileFromClassPath("excel/StockResource.xlsx"), StockResource.class, "xlsx");
+        var list = (List<StockResource>) ResourceInterpreter.read(ClassUtils.getFileFromClassPath("excel/StockResource.xlsx"), StockResource.class, "xlsx");
 
         var total = 0D;
         for (var resource : list) {

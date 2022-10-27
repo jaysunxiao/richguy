@@ -13,7 +13,7 @@ import com.zfoo.protocol.util.ClassUtils;
 import com.zfoo.protocol.util.DomUtils;
 import com.zfoo.protocol.util.FileUtils;
 import com.zfoo.protocol.util.StringUtils;
-import com.zfoo.storage.interpreter.ResourceReader;
+import com.zfoo.storage.interpreter.ResourceInterpreter;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -62,8 +62,7 @@ public class SpiderIndustryTest {
      * 爬取行业的真正代码
      */
     public void industryToRealIndustry() throws IOException {
-        var reader = new ResourceReader();
-        var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class, "xlsx");
+        var list = (List<IndustryResource>) ResourceInterpreter.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class, "xlsx");
 
         for (var industryResource : list) {
             var code = industryResource.getCode();
@@ -83,8 +82,7 @@ public class SpiderIndustryTest {
     public List<IndustryStockVO> spiderIndustry() throws IOException, InterruptedException, ParserConfigurationException, SAXException {
         ProtocolManager.initProtocol(Set.of(SpiderStock.class, SpiderIndustry.class));
 
-        var reader = new ResourceReader();
-        var list = (List<IndustryResource>) reader.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class, "xlsx");
+        var list = (List<IndustryResource>) ResourceInterpreter.read(ClassUtils.getFileFromClassPath("excel/IndustryResource.xlsx"), IndustryResource.class, "xlsx");
         var resourceMap = list.stream().collect(Collectors.toMap(key -> key.getCode(), value -> value));
         var map = new FileChannelMap<>("industryDb", SpiderIndustry.class);
         if (map.get(KEY) == null) {
