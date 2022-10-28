@@ -102,7 +102,7 @@ public class NewsClockController {
         notice("开盘啦，战斗了，重点关注：微信群投顾消息和公众号消息面，港股竞价，期货资金流入流出");
     }
 
-    @Scheduler(cron = "30 21 9 ? * MON-FRI")
+    @Scheduler(cron = "0 22 9 ? * MON-FRI")
     public void cron80() {
         notice("每天9点20，逆回购信息，请及时关注");
     }
@@ -191,6 +191,19 @@ public class NewsClockController {
             noticeThree("每个月9号公布社融数据");
         } else if (monthDay == 1 || monthDay == 15 || monthDay == 28) {
             noticeThree("每个月20号LRP利率公布，月初或者月中MLF公布，请注意主力砸盘意愿，可以适当布局银行证券");
+        }
+
+        if (weekDay == 1 || weekDay == 4 || weekDay == 7) {
+            notice("1.31 所有板块的年报预告" + LS +
+                    "2.28 科创版业绩快报或正式年报" + LS +
+                    "4.15 深圳主板，中小板一季报预告" + LS +
+                    "4.30 所有板块的年报和一季报" + LS +
+                    "5，6月，业绩真空期" + LS +
+                    "7.15 深圳主板，中小板中报预告" + LS +
+                    "8.30 所有板块中报" + LS +
+                    "10.15 深圳主板，中小板三季报预告" + LS +
+                    "10.30 所有板块三季报" + LS +
+                    "11，12月，业绩真空期");
         }
     }
 

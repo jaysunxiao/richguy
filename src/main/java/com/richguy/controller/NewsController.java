@@ -139,7 +139,7 @@ public class NewsController {
         doPush(telegraphNews, 2.1F);
     }
 
-    @Scheduler(cron = "0 21 9 * * ?")
+    @Scheduler(cron = "0 22 9 * * ?")
     public void cronPushQQ2() throws IOException {
         cronPushQQ1();
     }
