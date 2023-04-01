@@ -11,11 +11,3 @@ storage:
     package: com.richguy.resource
   resource:
     location: classpath:/excel
-
-weChat:
-  webhook: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxxxxxx
-
-qq:
-  qqIds: 123456789
-  password: abcabc
-  pushGroupIds: 123456789, 123456789
