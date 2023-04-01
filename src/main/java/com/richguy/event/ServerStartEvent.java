@@ -13,9 +13,4 @@ public class ServerStartEvent implements IEvent {
         return event;
     }
 
-    @Override
-    public int threadId() {
-        return 0;
-    }
-
 }

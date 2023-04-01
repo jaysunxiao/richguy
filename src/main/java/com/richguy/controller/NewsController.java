@@ -135,7 +135,7 @@ public class NewsController {
     public void cronPushQQ1() throws IOException {
         var response = requestForTelegraph();
         var telegraphNews = toNews(response);
-        EventBus.syncSubmit(TelegraphNewsEvent.valueOf(telegraphNews));
+        EventBus.post(TelegraphNewsEvent.valueOf(telegraphNews));
         doPush(telegraphNews, 2.1F);
     }
 
@@ -182,22 +182,22 @@ public class NewsController {
 
             if (level.equals("A")) {
                 builder.append(StringUtils.format("⭐S级Max  {}", dateStr));
-                EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.S));
+                EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.S));
             } else if (level.equals("B")) {
                 if (CollectionUtils.isEmpty(stockList)) {
                     builder.append(StringUtils.format("A级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.A));
+                    EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.A));
                 } else {
                     builder.append(StringUtils.format("B级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.B));
+                    EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.B));
                 }
             } else if (keyWordResources.getAll().stream().map(it -> it.getWord()).anyMatch(it -> content.contains(it))) {
                 if (CollectionUtils.isEmpty(stockList)) {
                     builder.append(StringUtils.format("C级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+                    EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.C));
                 } else {
                     builder.append(StringUtils.format("D级电报  {}", dateStr));
-                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.D));
+                    EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.D));
                 }
             }
 
@@ -208,17 +208,17 @@ public class NewsController {
 //                    builder.append(StringUtils.format("D级电报  {}", dateStr));
 //                    builder.append(FileUtils.LS);
 //                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old1 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
-//                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+//                    EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.C));
 //                } else if (diff < 60 * TimeUtils.MILLIS_PER_MINUTE) {
 //                    builder.append(StringUtils.format("C级电报  {}", dateStr));
 //                    builder.append(FileUtils.LS);
 //                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old2 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
-//                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.C));
+//                    EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.C));
 //                } else {
 //                    builder.append(StringUtils.format("D级电报  {}", dateStr));
 //                    builder.append(FileUtils.LS);
 //                    builder.append(StringUtils.format("阅读[{}W]  分享[{}] old3 {}", StockUtils.toSimpleRatio(news.getReadingNum() / 10000.0F), news.getShareNum(), ratio));
-//                    EventBus.syncSubmit(NewsPushEvent.valueOf(NewsLevelEnum.D));
+//                    EventBus.post(NewsPushEvent.valueOf(NewsLevelEnum.D));
 //                }
 //            }
             else {

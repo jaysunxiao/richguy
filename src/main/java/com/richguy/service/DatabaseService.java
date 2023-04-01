@@ -55,7 +55,7 @@ public class DatabaseService implements ApplicationListener<ApplicationContextEv
             }
             databaseClock = dbClock.get(DB_KEY);
         } else if (event instanceof AppStartAfterEvent) {
-            EventBus.syncSubmit(ServerStartEvent.valueOf());
+            EventBus.post(ServerStartEvent.valueOf());
         } else if (event instanceof ContextClosedEvent) {
             save();
         }

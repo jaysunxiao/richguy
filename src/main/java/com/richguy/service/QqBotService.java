@@ -76,7 +76,7 @@ public class QqBotService implements ApplicationListener<AppStartEvent> {
                 if (CommandEnum.allCommands().stream().anyMatch(it -> content.startsWith(it))) {
                     if (TimeUtils.now() - eventTimestamp.get() >= 5 * TimeUtils.MILLIS_PER_SECOND) {
                         eventTimestamp.set(TimeUtils.now());
-                        EventBus.asyncSubmit(QQGroupMessageEvent.valueOf(content));
+                        EventBus.post(QQGroupMessageEvent.valueOf(content));
                     }
                 }
             }
